@@ -6,6 +6,7 @@ import { AppShell, applyTheme, CitationsProvider, readTheme, type ShellConfig } 
 import '@fasl-work/caos-app-shell/styles.css';
 import './pitforge.css';
 import { CITATIONS } from './data/citations.ts';
+import { architecture } from './architecture';
 import Tool from './pages/Tool.tsx';
 import Introduction from './pages/Introduction.tsx';
 import Methodology from './pages/Methodology.tsx';
@@ -27,6 +28,7 @@ const config: ShellConfig = {
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
   version: '0.06.000',
+  architecture,
 };
 
 createRoot(document.getElementById('root')!).render(
