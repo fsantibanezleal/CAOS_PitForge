@@ -22,9 +22,27 @@ jobs:
       - name: Tests
         run: pytest
       - name: Pipeline smoke (regenerate one case)
-        run: python -m examplelab.pipeline EX02_epidemic
+        run: python -m pflab.pipeline A01
       - name: CONTRACT 2 — manifests <-> artifacts consistent (no drift)
         run: python scripts/check_artifacts.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Engine tests (exact ultimate-pit oracle + nested-shell monotonicity)
+        run: npm test
+      - name: Type-check + build the SPA
+        run: npm run build
 
   guards:
     runs-on: ubuntu-latest

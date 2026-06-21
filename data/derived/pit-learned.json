@@ -1,0 +1,18 @@
+{
+  "schema": "pitforge.learned/v1",
+  "gradeNN": {
+    "r2_vs_holdout": 0.9994,
+    "r2_idw": 0.936,
+    "r2_ok": 0.991,
+    "nTrain": 11059,
+    "nEval": 2765
+  },
+  "pitSurrogate": {
+    "auc": 0.984,
+    "acc": 0.9186,
+    "baseline": 0.7572,
+    "nTrain": 44236,
+    "nEval": 11060
+  },
+  "honesty": "Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and Ordinary Kriging; pit-surrogate against the exact min-cut. Fast approximations, never beating the exact result."
+}

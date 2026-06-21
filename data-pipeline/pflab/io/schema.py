@@ -1,39 +1,27 @@
-"""Typed objects passed between pipeline stages — the inter-stage contract. Plain dataclasses (Pyodide-safe)."""
+"""Typed objects passed between pipeline stages — the inter-stage contract. Plain dataclasses (no heavy deps)."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-
-@dataclass(frozen=True)
-class SIRParams:
-    """One validated operating point (EXAMPLE domain: an SIR epidemic)."""
-    case_id: str
-    beta: float        # 1/day, effective contact rate
-    gamma: float       # 1/day, recovery rate
-    N: float           # population
-    I0: float          # initial infected
-    days: int = 160    # horizon
+ARCHETYPES = ("porphyry", "vein", "layered", "coreHalo", "oracle")  # the deposit shapes (matches frontend cases.ts)
 
 
 @dataclass(frozen=True)
-class FeatureRow:
-    """Derived features for the surrogate (feature_extraction stage)."""
-    case_id: str
-    r0: float          # beta / gamma (basic reproduction number)
-    beta: float
-    gamma: float
-    n_scaled: float    # log10(N)
-    i0_frac: float     # I0 / N
+class PitScenario:
+    """One validated open-pit design scenario (CONTRACT 1 output) — the orebody grid + the economic/geotech regime.
 
+    This is the case-level descriptor the pipeline reads. The per-BLOCK bring-your-own-data path is validated by the
+    same module (io.contract.validate_blocks) against the block schema documented in data/README.md.
+    """
 
-@dataclass(frozen=True)
-class SIRResult:
-    """The engine output for one case (infer stage) — the raw, undecimated trajectory + scalars."""
     case_id: str
-    t: list[float]
-    S: list[float]
-    I: list[float]
-    R: list[float]
-    peak_I: float
-    t_peak: float
-    attack_rate: float
+    archetype: str            # one of ARCHETYPES
+    nx: int
+    ny: int
+    nz: int
+    price: float              # $ per tonne of recovered metal
+    recovery: float           # 0..1
+    mining_cost: float        # $/t mined
+    processing_cost: float    # $/t milled
+    slope_angle_deg: float
+    flags: tuple[str, ...] = ()

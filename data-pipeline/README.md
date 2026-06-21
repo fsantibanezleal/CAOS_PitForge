@@ -1,16 +1,27 @@
 # data-pipeline/ — the offline engine (`pflab`)
 
-Rename `pflab` → `<slug>lab` per product. The **single source of physics/algorithm truth**; `frontend/` and
-`app/` consume it, never re-implement it. Its own venv: **`.venv-pipeline`** (heavy SOTA engines, local-only).
+The two data contracts + the staged pipeline + the lane gate. **The optimiser itself is NOT here** — it is the
+TypeScript engine in [`frontend/src/opt/`](../frontend/src/opt/), run live in the browser and from Node in the bake
+(no Python re-port). `pflab` orchestrates the bake, applies the contracts, and reshapes the committed outputs into
+replay traces.
+
+## Two venvs
+
+- **`.venv-pipeline`** (`requirements.txt`, numpy-only) — the default light lane + CI + the contract checks.
+- **`.venv-precompute`** (`requirements-precompute.txt`, + torch + onnx) — the heavy `--retrain` lane (local only).
 
 ## Layout (the package lives directly under `data-pipeline/`)
-- `pflab/pipeline.py` — orchestrator + CLI (`python -m pflab.pipeline [all|<case>] [--seed N]`)
-- `pflab/registry.py` — cases grouped by CATEGORY · `pflab/live.py` — Pyodide live entrypoint
-- `pflab/io/` — `contract.py` (**CONTRACT 1**) · `formats.py` (standard readers/writers) · `schema.py` (types)
-- `pflab/core/` — `rng.py` (seeded determinism) · `trace.py` · `manifest.py` (**CONTRACT 2**) · `gate.py`
-- `pflab/model/` — the shared pure-Python core (Pyodide-safe); EXAMPLE = SIR
-- `pflab/stages/` — `preprocess → feature_extraction → train → infer → evaluate → export`
-- `pflab/cases/` — documented cases
 
-Setup + run: `scripts/setup.{sh,ps1}` then `scripts/precompute.{sh,ps1}`. See
-[../docs/architecture/05_precompute-pipeline.md](../docs/architecture/05_precompute-pipeline.md).
+- `pflab/pipeline.py` — orchestrator + CLI (`python -m pflab.pipeline [all|<case>] [--retrain]`)
+- `pflab/registry.py` — cases grouped by CATEGORY · `pflab/live.py` — dormant (the live lane is TypeScript)
+- `pflab/io/` — `contract.py` (**CONTRACT 1**: scenario + block-model ingestion) · `formats.py` · `schema.py`
+- `pflab/core/` — `rng.py` · `trace.py` · `manifest.py` (**CONTRACT 2**) · `gate.py` (live/precompute gate)
+- `pflab/model/` — `learned.py` (the 2 learned models' feature contracts — the source of truth the SPA reproduces)
+- `pflab/stages/` — `preprocess → feature_extraction → train → infer → evaluate → export` (thin over the science)
+- `pflab/science/` — `bake_cases.mjs` · `gen_train.mjs` (Node + tsx, the SAME TS engine) · `train_pit.py` (torch → ONNX)
+
+## The default lane is light
+
+`python -m pflab.pipeline all` reshapes the committed `data/derived/case-results.json` + `pit-learned.json` into
+per-case traces + manifests — numpy only, no torch, no Node. `--retrain` regenerates the heavy artifacts (bake →
+gen_train → train_pit). See [the precompute guide](../docs/guides/01_precompute-pipeline.md).
