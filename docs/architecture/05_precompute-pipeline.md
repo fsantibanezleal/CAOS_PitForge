@@ -1,19 +1,37 @@
-# The staged precompute pipeline
+# The precompute pipeline (two-language)
 
-`data-pipeline/pflab/pipeline.py` orchestrates the **named stages** (frozen names/signatures, rework bodies):
+PitForge’s offline lane is **two-language** (like ChancaDEM / DispatchLab): the heavy science is the SAME TypeScript
+engine the browser runs, driven from Node via `tsx`; Python only orchestrates + reshapes. This avoids ever
+re-implementing the optimiser in Python.
 
-| Stage | Module | Does |
-|---|---|---|
-| preprocess | `stages/preprocess.py` | read raw → apply **CONTRACT 1** (validate + outlier policy) |
-| feature_extraction | `stages/feature_extraction.py` | validated params → feature rows |
-| train | `stages/train.py` | fit the model → `models/` (OFFLINE; skippable; EXAMPLE = numpy lstsq surrogate) |
-| infer | `stages/infer.py` | run the engine → trace (EXAMPLE = SIR) |
-| evaluate | `stages/evaluate.py` | held-out, leakage-safe metrics (R²/RMSE) |
-| export | `stages/export.py` | **CONTRACT 2** — compact artifact + manifest |
+## The named stages (`pflab/stages/`)
 
-Run: `python -m pflab.pipeline [all|<case_id>] [--seed N]` (or `scripts/precompute.{sh,ps1}`). It writes
-`data/derived/<case>/trace.json` + `data/derived/manifests/<case>.json` + `index.json`.
+| Stage | What (heavy lane) |
+|---|---|
+| `preprocess` | generate the synthetic deposit block models (the TS generator) |
+| `feature_extraction` | assemble the learned-model training tables (`science/gen_train.mjs`) |
+| `train` | fit the 2 learned models → ONNX (`science/train_pit.py`, torch) |
+| `infer` | bake the exact UPL + Whittle shells over every case (`science/bake_cases.mjs`) → `case-results.json` |
+| `evaluate` | the held-out learned-model metrics vs their classical baselines |
+| `export` | build the compact per-case trace + manifest (CONTRACT 2) — the LIGHT, numpy-only step |
 
-To instantiate a real product: keep the stage names, replace the bodies — `infer`/`train` call the
-research-chosen SOTA engine (pinned in `data-pipeline/requirements.txt`, documented in
-[../frameworks/](../frameworks/)). No hand-rolled toy substitute for an engine the research prescribed.
+## The two lanes of `pflab.pipeline`
+
+```bash
+python -m pflab.pipeline all              # LIGHT (numpy): reshape the committed case-results.json → traces + manifests
+python -m pflab.pipeline all --retrain    # HEAVY: bake → gen_train → train_pit, then reshape
+```
+
+The **default is light**: the committed `data/derived/case-results.json` + `pit-learned.json` + the two `.onnx` ARE
+the heavy lane’s real outputs, so CI, the contract checks and the replay never need torch or Node. `--retrain`
+regenerates them (it needs the `.venv-precompute` with torch + Node `tsx`).
+
+```
+bake_cases.mjs ──► data/derived/case-results.json   (the exact pits + Whittle curves, per case)
+gen_train.mjs  ──► data/raw/{pit-train,grade-train}.json   (git-ignored training tables)
+train_pit.py   ──► data/derived/{grade-nn.onnx, pit-surrogate.onnx, pit-learned.json}
+pipeline.export──► data/derived/<case>/trace.json + manifests/<case>.json + index.json   (CONTRACT 2)
+```
+
+Determinism: the light pipeline is a pure function of the committed artifacts — re-running it is byte-identical (the
+manifest carries no wall-clock; see [02](02_determinism-and-trace.md)).

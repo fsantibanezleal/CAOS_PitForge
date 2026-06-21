@@ -1,29 +1,45 @@
-"""The compact TRACE = the web-replay artifact (decimated trajectory + summary). Part of CONTRACT 2: its shape is
-mirrored by frontend/src/lib/contract.types.ts, so a drift fails the web build. Schema id is versioned."""
+"""The compact per-case TRACE = the web-replay artifact. Part of CONTRACT 2: its shape is mirrored by
+frontend/src/lib/contract.types.ts, so a drift fails the web build. Each trace is built deterministically from the
+committed solver outputs (case-results.json, produced by the SAME TS engine the browser runs) + the learned-model
+metrics (pit-learned.json, when present). It carries the case SPEC so the browser can re-solve LIVE, the Whittle
+curve, the ultimate-pit summary, and a vertical cross-section for an instant 2-D preview. It references the shared
+ONNX models, never copies them."""
 from __future__ import annotations
 
-from ..io.schema import SIRResult
-
-TRACE_SCHEMA = "example.trace/v1"
-MAX_POINTS = 200  # decimate longer trajectories so the committed artifact stays small (replay, not raw data)
+from typing import Any
 
 
-def build_trace(result: SIRResult) -> dict:
-    n = len(result.t)
-    if n > MAX_POINTS:
-        idx = [round(i * (n - 1) / (MAX_POINTS - 1)) for i in range(MAX_POINTS)]
-    else:
-        idx = list(range(n))
+TRACE_SCHEMA = "pitforge.trace/v1"
+
+
+def _learned_block(learned: dict | None) -> dict:
+    if not learned:
+        return {"status": "pending-training", "gradeNN": None, "pitSurrogate": None}
+    return {
+        "status": "trained",
+        "gradeNN": learned.get("gradeNN"),          # {r2_vs_holdout, r2_idw, r2_ok, nTrain, nEval}
+        "pitSurrogate": learned.get("pitSurrogate"),  # {auc, acc, baseline, nTrain, nEval}
+    }
+
+
+def build_trace(case: Any, *, case_result: dict, learned: dict | None) -> dict:
     return {
         "schema": TRACE_SCHEMA,
-        "case_id": result.case_id,
-        "t": [round(result.t[i], 3) for i in idx],
-        "S": [round(result.S[i], 2) for i in idx],
-        "I": [round(result.I[i], 2) for i in idx],
-        "R": [round(result.R[i], 2) for i in idx],
-        "summary": {
-            "peak_I": round(result.peak_I, 2),
-            "t_peak": round(result.t_peak, 2),
-            "attack_rate": round(result.attack_rate, 4),
+        "case_id": case.id,
+        "name": case.name,
+        "category": case.category,
+        "real_or_synthetic": case.real_or_synthetic,
+        "expected_band": case.expected_band,
+        "spec": {
+            "archetype": case_result.get("archetype"),
+            "seed": case_result.get("seed"),
+            "dims": case_result.get("dims"),
+            "block": case_result.get("block"),
+            "econ": case_result.get("econ"),
         },
+        "ultimate": case_result.get("ultimate"),       # {pitValue, oreTonnes, wasteTonnes, metalTonnes, stripRatio, nBlocks}
+        "curve": case_result.get("curve", []),         # the Whittle nested-shell curve (per revenue factor)
+        "section": case_result.get("section"),         # {iy, nx, nz, shellOf[][]} — a vertical cross-section
+        "grade_stats": case_result.get("gradeStats"),
+        "learned": _learned_block(learned),
     }
