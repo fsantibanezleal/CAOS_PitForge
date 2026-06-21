@@ -1,0 +1,32 @@
+# PitForge — the offline engine package (ADR-0057, instantiated from the product-repo archetype).
+# The default lane is numpy-only (instantly installable); the heavy --retrain lane (torch -> ONNX) + the Node bake
+# of the cases are pinned in requirements-precompute.txt. NOTE: the SIR core is the wiring baseline of this first
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pflab"
+# PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + pflab.__version__).
+version = "0.1.0"
+description = "PitForge — open-pit mine design: pseudoflow ultimate-pit + Whittle nested pit shells (ADR-0057)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Felipe Santibáñez-Leal" }]
+dependencies = ["numpy>=1.26"]
+
+[tool.setuptools.packages.find]
+where = ["data-pipeline"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+# S/I/R are the standard SIR compartment names; single-letter here is intentional domain notation, not ambiguous.
+ignore = ["E741"]
