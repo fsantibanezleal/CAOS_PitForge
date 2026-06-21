@@ -3,9 +3,9 @@ import { Callout, Cite, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 export default function Introduction() {
   const es = useShellLang() === 'es';
   return (
-    <article className="pf-doc">
+    <article className="page-body prose">
       <h1>{es ? 'Introducción' : 'Introduction'}</h1>
-      <p className="pf-lead">{es
+      <p className="lede">{es
         ? 'PitForge resuelve el problema clásico del diseño de rajo abierto: dado un modelo de bloques con valor económico por bloque, ¿qué bloques conviene extraer para maximizar el valor total respetando los ángulos de talud? La respuesta exacta es el pit último (ultimate pit limit), y su familia de pits anidados por factor de ingreso da las fases (pushbacks).'
         : 'PitForge solves the classic open-pit design problem: given a block model with a per-block economic value, which blocks should be extracted to maximise total value subject to slope constraints? The exact answer is the ultimate pit limit, and its family of nested pits by revenue factor gives the phases (pushbacks).'}</p>
 
