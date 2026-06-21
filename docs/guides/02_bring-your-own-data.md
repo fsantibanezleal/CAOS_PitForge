@@ -1,17 +1,41 @@
-# Guide — bring your own data
+# Guide — bring your own block model
 
-The product is **applicable to NEW data**, not just the baked cases — that is what makes it a tool. The door is
-**CONTRACT 1** (`data-pipeline/pflab/io/contract.py`).
+PitForge is built to open **your** block model, not just the baked synthetic cases. The gate is CONTRACT 1
+(`pflab/io/contract.py`); the schema + outlier policy are documented in [data-contracts](../architecture/08_data-contracts.md)
+and `data/README.md`.
 
-1. Put your input in the documented standard format (see [`data/README.md`](../../data/README.md) — EXAMPLE: a
-   params CSV with `case_id,beta,gamma,N,I0[,days]`). Drop the file under `data/raw/` (git-ignored).
-2. Point `preprocess` at it (or pass it on the CLI) and run `scripts/precompute.{sh,ps1}`. CONTRACT 1 validates
-   each row: **rejected** with a reason if it violates the schema/ranges (NaN, out-of-range, `I0>N`, …),
-   **flagged** if plausible-but-suspicious (e.g. `R0>20`), **accepted** otherwise. Nothing is silently coerced.
-3. The pipeline produces a compact artifact + manifest you can replay in the SPA, exactly like the built-in cases.
-4. **Live (optional):** if the [gate](../architecture/03_the-gate.md) classifies your case `live`, the frontend's
-   Pyodide lane calls `pflab.live.run_trace_json({...your params...})` and renders the result in-browser — no
-   server, no precompute.
+## The block-model schema
 
-If your data legitimately doesn't fit, extend CONTRACT 1 (and its tests) **deliberately** — never loosen it just
-to make bad data pass.
+A CSV (or any table) with one row per block:
+
+| column | unit | rule |
+|---|---|---|
+| `ix, iy, iz` | block indices (z increases downward) | integers; inside the model box; no duplicates |
+| `tonnage` | tonnes | `> 0` |
+| `density` | t/m³ | `> 0` |
+| `grade` | **mass fraction** (e.g. 0.012 = 1.2 % Cu) | `[0, 1]`; `> 0.5` is flagged as implausibly rich |
+
+A tiny valid example ships at `data/examples/blockmodel.csv`.
+
+## Validate it
+
+```python
+from pflab.io.contract import validate_blocks
+from pflab.io.formats import read_csv_rows
+
+rep = validate_blocks(read_csv_rows("my_blocks.csv"), dims=(nx, ny, nz))
+print(rep.summary())          # "N accepted, M rejected, K flagged"
+for r in rep.rejected: print("REJECT", r["reason"])
+for f in rep.flagged:  print("FLAG  ", f["flags"])
+```
+
+Bad rows are **rejected with a reason** (never silently coerced); suspicious-but-usable rows are **flagged** (accepted;
+the flag is recorded). Once your blocks pass, set the economics (price, recovery, mining/processing cost) and the
+slope, and the same TS optimiser that powers the App computes your ultimate pit + nested shells.
+
+## What to check first
+
+- **Units** — grade must be a *mass fraction*, not a percentage or ppm. A 1.2 % block is `0.012`, not `1.2`.
+- **Orientation** — `iz = 0` is the **top** bench (surface); the slope cone opens upward against increasing `iz`.
+- **Economics** — the floating cutoff is implicit in the costs; a block is ore iff `RF·revenue > processingCost·tonnage`
+  (see [the optimiser](../frameworks/01_optimiser.md)).

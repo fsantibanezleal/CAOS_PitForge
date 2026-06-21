@@ -1,62 +1,60 @@
-# CAOS product template — a REAL product repo (not a demo)
+# PitForge — open-pit ultimate-pit limit & nested pit shells
 
-This is the **canonical template** every Faena/CAOS data-product repo is instantiated from. It exists because
-ad-hoc products (bespoke scripts, baked cases, no reproducible env, no data contract) kept shipping — they
-*look* done but **cannot be applied to new data**, so they are demos, not tools. This template makes the standard
-**executable**: clone it, run two scripts, and you have a reproducible offline pipeline that ingests data in a
-**standard format**, processes it through **typed, seeded, tested stages**, emits **committed standard-format
-artifacts + a manifest**, and feeds a web app that **replays** them — and that any third party can point at
-**their own data**.
+[![CI](https://github.com/fsantibanezleal/CAOS_PitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
+**Live:** https://pitforge.fasl-work.com
 
-It is modelled on the validated exemplar **CAOS_SIMLAB** (`simlab/pipeline.py`, `requirements-*.txt`,
-`scripts/setup+precompute`, `docs/frameworks`, `data/artifacts`, `manifests/`).
+PitForge solves the classic open-pit mine-design problem: given a block model with a per-block economic value, find
+the set of blocks to extract that **maximises total value subject to slope constraints** — the **ultimate pit limit
+(UPL)** — and its family of **nested pit shells** by revenue factor (the Whittle parameterisation, used for phase /
+pushback design). The exact optimiser runs **live in your browser**; drag the revenue factor, price or slope and the
+pit re-solves exactly, instantly.
 
-## The two data contracts (the thing that was missing everywhere)
+This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype** ([ADR-0057](docs/architecture/01_overview.md)).
 
-A product is only real if data flows through **two enforced contracts**:
+## What it does
 
-1. **Ingestion contract — `raw → processing`.** `productlab/io/contract.py` defines the required schema (columns,
-   units, ranges) of an input dataset and an explicit **outlier policy** (reject / clip / flag). This is the
-   *"bring your own data"* gate: a user's dataset is accepted iff it satisfies the contract. Documented in
-   [docs/data-contract.md](docs/data-contract.md).
-2. **Artifact contract — `processing → web`.** Every pipeline run writes a compact, standard-format artifact and a
-   `manifests/<case>.json` (params, seed, run_ms, bytes, gate verdict, format/version). The web app loads **only**
-   these — it never recomputes — and a TS type mirrors the manifest schema so a contract drift fails the build.
+- **Exact ultimate pit** — the UPL is the maximum-weight closure of the block-precedence graph, solved as a
+  **minimum cut / maximum flow** (Picard’s reduction; the same cut Hochbaum’s pseudoflow computes; Dinic engine).
+  Transparent and self-checking (`pitValue = Σ positiveValue − maxflow` is asserted every solve).
+- **Nested pit shells (Whittle)** — solving the UPL over an ascending revenue-factor schedule gives nested pits +
+  the value / tonnage / strip-ratio curves and the pushback order.
+- **Two honest learned models** — a NN grade estimator (vs Ordinary Kriging / IDW) and a pit-inclusion surrogate
+  (vs the exact solver), trained offline (torch → ONNX) and run **live** (onnxruntime-web). The exact optimiser is
+  always the authority; these are fast approximations, measured against their classical baselines.
+- **Bring your own block model** — CONTRACT 1 validates a real block table `{ix,iy,iz,tonnage,density,grade}` +
+  economics, with an explicit outlier policy.
 
-If either contract is missing, the product is a demo. CI enforces both.
+## Honesty
 
-## Quickstart (proves the template runs end-to-end)
+The deposits are **synthetic** (seeded grade fields with a geological trend + spatially-correlated noise) — there are
+no real drillholes. The **optimiser is exact**. `CTRL` is a closed-form analytic control (a single deep ore block →
+the exact 9-block inverted pyramid, value 2). Every learned-model number is held-out and reported next to its
+classical baseline — no fabricated wins.
+
+## Quickstart
 
 ```bash
-# 1. create the reproducible environment (.venv + pinned per-need requirements)
-./scripts/setup.sh                      # or scripts/setup.ps1 on Windows PowerShell
+# light lane (numpy only) — rebuild the replay artifacts + run the checks
+python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt -e .
+.venv-pipeline/Scripts/python -m pflab.pipeline all      # 9 cases → traces + manifests
+.venv-pipeline/Scripts/python scripts/check_artifacts.py # CONTRACT 2 OK
 
-# 2. run the offline pipeline over every case → data/artifacts/ + manifests/
-./scripts/precompute.sh                 # or scripts/precompute.ps1
+# the SPA (the exact optimiser runs live in the browser)
+cd frontend && npm ci && npm run dev                     # http://localhost:5173
+npm test                                                 # engine 5 + contract 4
 
-# 3. the tests (determinism, both data contracts, the gate, parity)
-.venv/bin/python -m pytest              # .venv/Scripts/python.exe on Windows
-
-# 4. the web app consumes the artifacts (copy-data enforces the artifact contract)
-cd web && npm install && node copy-data.mjs && npm run dev
+# heavy lane (local only) — re-bake + retrain the learned models (torch → ONNX)
+python -m venv .venv-precompute && .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt
+.venv-pipeline/Scripts/python -m pflab.pipeline all --retrain
 ```
 
-## How to instantiate this template for a NEW product
+## Layout
 
-See [docs/guides/00_instantiate.md](docs/guides/00_instantiate.md). In short: copy this tree, rename the
-`productlab` package to `<slug>lab`, **replace the EXAMPLE engine** (`productlab/stages/process.py`) with your
-product's research-chosen SOTA engine (the one documented in `docs/frameworks/`, pinned in
-`requirements-precompute.txt` — e.g. Yade/Chrono for DEM, OR-Tools for dispatch, MintPy for InSAR), write your
-ingestion contract + cases, and fill the `docs/` wiki **as you build, not at the end** (ADR-0056).
+See [STRUCTURE.md](STRUCTURE.md) and the navigable wiki in [docs/](docs/README.md). The science engine is the
+TypeScript optimiser in [`frontend/src/opt/`](frontend/src/opt/) (it runs in the browser **and** in the offline Node
+bake — no Python re-port); `data-pipeline/pflab/` is the two contracts + the staged pipeline + the lane gate.
 
-## Hard rules this template bakes in
+## License
 
-- **The deep research is binding, not decoration.** Every engine/solver/library the research selected lives in
-  `docs/frameworks/<tool>/` *and* `requirements-precompute.txt`, and the pipeline actually uses it. No hand-rolled
-  substitute for a SOTA engine the research prescribed.
-- **Standard formats end-to-end** (`productlab/io/formats.py`): domain-standard in, compact-standard out.
-- **Reproducible**: pinned requirements per need; `scripts/setup`; CI installs them and runs a pipeline smoke.
-- **Applicable to new data**: the ingestion contract is the bring-your-own-data door.
-- **Versioned** (X.XX.XXX, CHANGELOG + tags from day 1) with **license/attribution hygiene**.
-
-See [docs/architecture/01_overview.md](docs/architecture/01_overview.md) for the full rationale.
+MIT — see [LICENSE](LICENSE). Third-party components in [LICENSES.md](LICENSES.md); attributions in
+[ATTRIBUTION.md](ATTRIBUTION.md).

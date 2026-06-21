@@ -1,26 +1,44 @@
 # The two data contracts
 
-A product is only real if data flows through two **enforced** contracts. Both are CI-checked.
+## CONTRACT 1 — ingestion (`io/contract.py`)
 
-## CONTRACT 1 — ingestion (`raw → pipeline`) — the *bring-your-own-data* gate
-`data-pipeline/pflab/io/contract.py`. Declares the required schema (columns, units, ranges) + an explicit
-**outlier policy** (reject / clip / flag). A dataset is accepted iff it passes; bad rows are rejected **with a
-reason**, never silently coerced; suspicious-but-plausible rows are flagged (the flag is recorded in the
-manifest). This is what lets a third party point the tool at THEIR data instead of only replaying baked cases.
+The *bring-your-own-orebody* gate. Two entry points, one policy: a record is **accepted** iff it passes; ill-formed
+records are **rejected** with a reason (never silently coerced); plausible-but-extreme records are **flagged**
+(accepted; the flag travels into the manifest).
 
-EXAMPLE (SIR): columns `case_id,beta,gamma,N,I0[,days]`; ranges per `RANGES`; reject NaN/Inf/out-of-range/`I0>N`;
-flag `R0>20`. Full table: [`data/README.md`](../../data/README.md).
+### Scenario rows (`validate_records`) — one row per case
 
-## CONTRACT 2 — artifact (`pipeline → web`)
-`data-pipeline/pflab/core/{trace.py, manifest.py}`. Every run writes a compact trace (`example.trace/v1`) +
-a manifest (`example.manifest/v2`) recording params, seed, engine+version, the artifact byte size, the measured
-**[lane/gate](03_the-gate.md)** verdict, the Contract-1 flags, and the evaluation metrics. A flat
-`data/derived/manifests/index.json` inventories every case.
+| column | unit / range | on violation |
+|---|---|---|
+| `archetype` | ∈ {porphyry, vein, layered, coreHalo, oracle} | reject |
+| `nx, ny, nz` | 1–200 blocks | reject |
+| `price` | 1 – 1e6 $/t metal | reject |
+| `recovery` | 0.01 – 1.0 | reject |
+| `mining_cost`, `processing_cost` | 0 – 1e5 $/t | reject |
+| `slope_angle_deg` | 10 – 89° (flag outside 25–75°) | reject / flag |
 
-**Enforcement:** `frontend/src/lib/contract.types.ts` mirrors this schema — a drift fails `tsc`. `scripts/check_artifacts.py`
-(run in CI) verifies index→manifests→artifacts exist, byte sizes match, and lane==gate. The web loads **only** these
-artifacts; it never recomputes (except the optional live lane, which emits the same trace schema).
+### Block rows (`validate_blocks`) — one row per block (a real block model)
 
-## Why this matters
-Without Contract 1 the app can't be applied to new data (it's a demo). Without Contract 2 the web can silently
-drift from what the pipeline produced. The contracts are the seam that makes the product a tool, not a slideshow.
+| column | rule |
+|---|---|
+| `ix, iy, iz` | integer; inside the model box (if dims given) else reject; duplicate → flag |
+| `tonnage`, `density` | `> 0` else reject |
+| `grade` | mass fraction in `[0, 1]` else reject; `> 0.5` (implausibly rich for a bulk metal) → flag; NaN/Inf → reject |
+
+Committed samples that must pass: `data/examples/{scenarios.csv, blockmodel.csv}` (a CI test asserts it).
+
+## CONTRACT 2 — artifact (`core/{trace,manifest}.py`)
+
+The pipeline → web contract. The web loads ONLY manifests + traces + the shared artifacts.
+
+- **`pitforge.trace/v1`** (per case): the case spec (archetype, dims, block size, econ), the ultimate-pit summary,
+  the Whittle curve (per RF: value / ore / waste / strip / nBlocks), a vertical cross-section (shell index per block),
+  the grade stats, and the learned-model metrics (`status: trained | pending-training`).
+- **`pitforge.manifest/v2`** (per case): category, seed, engine + version, the **shared artifacts** (the two ONNX +
+  `pit-learned.json` + `case-results.json`), the trace pointer + byte size, the lane/gate verdict, the CONTRACT-1
+  flags, the metrics, and an honesty note.
+- **`pitforge.index/v1`**: the flat inventory of all 9 cases.
+
+A TS mirror — `frontend/src/lib/contract.types.ts` — declares these shapes so a drift **fails `tsc`** (the web cannot
+ship reading a shape the pipeline does not produce). `scripts/check_artifacts.py` enforces manifest ↔ artifact
+consistency (existence, byte size, lane == gate verdict) on disk.
