@@ -11,7 +11,15 @@ async function getJSON<T>(rel: string): Promise<T> {
   return (await r.json()) as T;
 }
 
+export interface LearnedFile {
+  schema: string;
+  gradeNN: { r2_vs_holdout: number; r2_idw: number; r2_ok: number; nTrain: number; nEval: number };
+  pitSurrogate: { auc: number; acc: number; baseline: number; nTrain: number; nEval: number };
+  honesty: string;
+}
+
 export const loadCaseResults = () => getJSON<CaseResultsFile>('case-results.json');
+export const loadLearned = () => getJSON<LearnedFile>('pit-learned.json');
 export const loadIndex = () => getJSON<CaseIndex>('data/manifests/index.json');
 export const loadManifest = (caseId: string) => getJSON<CaseManifest>(`data/manifests/${caseId}.json`);
 export const loadTrace = (caseId: string) => getJSON<CaseTrace>(`data/${caseId}/trace.json`);

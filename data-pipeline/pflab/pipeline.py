@@ -69,8 +69,13 @@ def retrain(seed: int = 42) -> None:
     _node(str(SCIENCE / "bake_cases.mjs"))
     train = SCIENCE / "train_pit.py"
     if train.exists():
+        print("[retrain] generate the learned-model training tables (the SAME TS engine) ...", flush=True)
+        _node(str(SCIENCE / "gen_train.mjs"))
         print("[retrain] torch train the learned models (grade-nn + pit-surrogate) → ONNX ...", flush=True)
-        subprocess.run(["python", str(train)], check=True, cwd=str(REPO_ROOT))
+        # the heavy lane runs in the .venv-precompute (torch); fall back to the current interpreter.
+        vp = REPO_ROOT / ".venv-precompute" / "Scripts" / "python.exe"
+        py = str(vp) if vp.exists() else "python"
+        subprocess.run([py, str(train)], check=True, cwd=str(REPO_ROOT))
     else:
         print("[retrain] (science/train_pit.py absent — learned models pending; traces record learned=pending)",
               flush=True)

@@ -8,7 +8,7 @@ import { WhittleChart } from '../viz/WhittleChart.tsx';
 import { Gauge } from '../viz/Gauge.tsx';
 import { shellColor, viridisCss } from '../viz/colormap.ts';
 import { loadManifest } from '../lib/artifacts.ts';
-import { modelsAvailable } from '../lib/ort.ts';
+import { LearnedPanel } from '../viz/LearnedPanel.tsx';
 import type { CaseManifest } from '../lib/contract.types.ts';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
@@ -33,7 +33,6 @@ export default function Tool() {
   const [bench, setBench] = useState<number | null>(null);
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
   const [manifest, setManifest] = useState<CaseManifest | null>(null);
-  const [haveModels, setHaveModels] = useState(false);
 
   const theCase = useMemo<PitCase>(() => CASES.find((c) => c.id === caseId) ?? CASES[0], [caseId]);
   const model = useMemo(() => caseModel(theCase), [theCase]);
@@ -54,7 +53,6 @@ export default function Tool() {
 
   useEffect(() => { setBench(null); setRf(1); }, [caseId]);
   useEffect(() => { loadManifest(caseId).then(setManifest).catch(() => setManifest(null)); }, [caseId]);
-  useEffect(() => { modelsAvailable().then(setHaveModels); }, []);
 
   // ---- section cell builders ------------------------------------------------------------------------------
   const cellGrade = (ix: number, iz: number): SectionCell => {
@@ -212,20 +210,7 @@ export default function Tool() {
     },
     {
       id: 'learned', label: es ? 'Modelos aprendidos' : 'Learned models',
-      content: (
-        <div className="pf-vizstack">
-          {haveModels ? (
-            <p className="pf-note">{es ? 'Modelos ONNX cargados (grade-NN, pit-surrogate). Inferencia en vivo en el browser.' : 'ONNX models loaded (grade-NN, pit-surrogate). Live in-browser inference.'}</p>
-          ) : (
-            <div className="pf-pending">
-              <strong>{es ? 'Modelos aprendidos: pendientes de entrenamiento' : 'Learned models: pending training'}</strong>
-              <p>{es
-                ? 'Los 2 modelos (grade-NN vs kriging/IDW; surrogate de inclusión vs el solver exacto) se entrenan offline (torch → ONNX) en un commit posterior. El optimizador EXACTO (min-cut) es el titular; estos son aproximaciones rápidas medidas contra su baseline clásico — nunca lo superan.'
-                : 'The 2 models (grade-NN vs kriging/IDW; an inclusion surrogate vs the exact solver) are trained offline (torch → ONNX) in a later commit. The EXACT optimiser (min-cut) is the headline; these are fast approximations measured against their classical baseline — never beating it.'}</p>
-            </div>
-          )}
-        </div>
-      ),
+      content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
     },
     {
       id: 'contract', label: es ? 'Contrato · gate' : 'Contract · gate',

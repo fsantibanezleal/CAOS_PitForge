@@ -20,8 +20,13 @@ GRADE_NN_INPUT = (2 * STENCIL_RADIUS + 1) ** 3          # 27 neighbours
 GRADE_NN_INPUT_NAME = "x"
 GRADE_NN_OUTPUT_NAME = "y"
 
-# pit-surrogate: 4 per-block features (see above), all standardised.
-PIT_SURROGATE_FEATURES = ("depth_frac", "block_value_std", "neighbourhood_value_std", "dist_to_surface_frac")
+# pit-surrogate: 4 per-block features. Standardisation (mean/std) is BAKED into the ONNX graph as a fixed first
+# layer, so the browser feeds RAW features and the model normalises internally (no scaler drift).
+#   depth_frac            iz/(nz-1)                        — how deep the block sits
+#   block_value_std       the block's own economic value   — standardised in-graph
+#   neighbourhood_value_std mean value of the 26 neighbours — standardised in-graph
+#   radial_frac           horizontal distance to the column centre / max radius — central columns go deeper
+PIT_SURROGATE_FEATURES = ("depth_frac", "block_value_std", "neighbourhood_value_std", "radial_frac")
 PIT_SURROGATE_INPUT = len(PIT_SURROGATE_FEATURES)
 PIT_SURROGATE_INPUT_NAME = "x"
 PIT_SURROGATE_OUTPUT_NAME = "p"
