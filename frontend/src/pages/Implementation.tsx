@@ -3,9 +3,9 @@ import { Callout, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 export default function Implementation() {
   const es = useShellLang() === 'es';
   return (
-    <article className="pf-doc">
+    <article className="page-body prose">
       <h1>{es ? 'Implementación' : 'Implementation'}</h1>
-      <p className="pf-lead">{es
+      <p className="lede">{es
         ? 'PitForge está instanciado sobre el arquetipo de repo-producto CAOS (ADR-0057): dos contratos de datos, un pipeline por etapas, el gate de lane, y un frontend SPA que corre el optimizador en vivo.'
         : 'PitForge is instantiated on the CAOS product-repo archetype (ADR-0057): two data contracts, a staged pipeline, the lane gate, and a frontend SPA that runs the optimiser live.'}</p>
 

@@ -9,9 +9,9 @@ export default function Experiments() {
   useEffect(() => { loadCaseResults().then(setData).catch(() => setData(null)); }, []);
 
   return (
-    <article className="pf-doc">
+    <article className="page-body prose">
       <h1>{es ? 'Experimentos' : 'Experiments'}</h1>
-      <p className="pf-lead">{es
+      <p className="lede">{es
         ? 'Cada caso es un experimento con un ancla de validación: una propiedad que el resultado DEBE cumplir. Todas se chequean en el horneado (frontend/test/contract.test.ts).'
         : 'Each case is an experiment with a validation anchor: a property the result MUST satisfy. They are all checked in the bake (frontend/test/contract.test.ts).'}</p>
 
