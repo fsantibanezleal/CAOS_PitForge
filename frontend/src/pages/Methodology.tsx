@@ -3,9 +3,9 @@ import { Callout, Cite, Equation, InlineMath, ReferenceList, Tabs, useShellLang 
 export default function Methodology() {
   const es = useShellLang() === 'es';
   return (
-    <article className="pf-doc">
+    <article className="page-body prose">
       <h1>{es ? 'Metodología' : 'Methodology'}</h1>
-      <p className="pf-lead">{es
+      <p className="lede">{es
         ? 'El pit último es el cierre de máximo peso del grafo de precedencia de bloques, y el cierre máximo se reduce a un corte mínimo / flujo máximo. PitForge implementa esa reducción exacta.'
         : 'The ultimate pit is the maximum-weight closure of the block-precedence graph, and maximum closure reduces to a minimum cut / maximum flow. PitForge implements that exact reduction.'}</p>
 
