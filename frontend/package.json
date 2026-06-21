@@ -13,14 +13,21 @@
     "bake": "node --import tsx ../data-pipeline/pflab/science/bake_cases.mjs"
   },
   "dependencies": {
+    "@fasl-work/caos-app-shell": "^0.1.1",
+    "katex": "^0.16.11",
+    "lucide-react": "^0.469.0",
     "onnxruntime-web": "^1.27.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1",
+    "three": "^0.171.0",
+    "uplot": "^1.6.31"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.171.0",
     "@vitejs/plugin-react": "^4.3.4",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",

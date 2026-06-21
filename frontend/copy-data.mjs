@@ -1,39 +1,25 @@
-// Prebuild: copy the committed CONTRACT-2 artifacts (../data/derived) into the SPA's public/ so the static site
-// replays them, and inline the pflab sources for the live (Pyodide) lane. Canonical copies live in ../data
-// and ../data-pipeline — public/ is a build-time overlay (git-ignored).
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+// Prebuild: overlay the committed CONTRACT-2 artifacts (../data/derived) into the SPA's public/ so the static site
+// loads them. Canonical copies live in ../data/derived — public/ is a build-time overlay (git-ignored). PitForge's
+// live lane is the TypeScript optimiser (frontend/src/opt/) + onnxruntime-web; there is no Pyodide lane to inline.
+import { copyFileSync, cpSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
 const PUB = join(HERE, 'public');
-
-// 1) data/derived -> public/data (traces under <case>/trace.json + manifests/ subdir incl. index.json)
 const derived = join(ROOT, 'data', 'derived');
-if (existsSync(derived)) {
+
+if (!existsSync(derived)) {
+  console.warn('[copy-data] no data/derived — run `npm run bake` (or `python -m pflab.pipeline all`) first');
+} else {
+  // 1) data/derived -> public/data (per-case <case>/trace.json + manifests/ incl. index.json + case-results.json).
   mkdirSync(join(PUB, 'data'), { recursive: true });
   cpSync(derived, join(PUB, 'data'), { recursive: true });
-  console.log('[copy-data] data/derived -> public/data');
-} else {
-  console.warn('[copy-data] no data/derived — run scripts/precompute first');
-}
-
-// 2) inline the pflab Python sources for the optional Pyodide live lane -> public/pyodide/sources.json
-const pkg = join(ROOT, 'data-pipeline', 'pflab');
-if (existsSync(pkg)) {
-  const sources = {};
-  const walk = (dir, rel = '') => {
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      if (e.name === '__pycache__') continue;
-      const abs = join(dir, e.name);
-      const r = rel ? `${rel}/${e.name}` : e.name;
-      if (e.isDirectory()) walk(abs, r);
-      else if (e.name.endsWith('.py')) sources[`pflab/${r}`] = readFileSync(abs, 'utf-8');
-    }
-  };
-  walk(pkg);
-  mkdirSync(join(PUB, 'pyodide'), { recursive: true });
-  writeFileSync(join(PUB, 'pyodide', 'sources.json'), JSON.stringify(sources));
-  console.log(`[copy-data] inlined ${Object.keys(sources).length} pflab sources -> public/pyodide/sources.json`);
+  // 2) the App + onnxruntime-web fetch these from the SITE ROOT, so place them there too (when present).
+  for (const f of ['case-results.json', 'pit-learned.json', 'grade-nn.onnx', 'pit-surrogate.onnx']) {
+    const src = join(derived, f);
+    if (existsSync(src)) copyFileSync(src, join(PUB, f));
+  }
+  console.log('[copy-data] data/derived -> public/data (+ root-level case-results / onnx)');
 }

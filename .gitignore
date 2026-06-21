@@ -26,6 +26,10 @@ frontend/.vite/
 frontend/public/data/
 frontend/public/manifests/
 frontend/public/pyodide/
+# root-level build-time overlay (copy-data.mjs) — canonical copies live in data/derived/
+frontend/public/case-results.json
+frontend/public/pit-learned.json
+frontend/public/*.onnx
 *.tsbuildinfo
 
 # --- Secrets / env (public repo — only .env.example is committed) ---
