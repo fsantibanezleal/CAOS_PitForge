@@ -20,11 +20,13 @@ const RFS = defaultRevenueFactors(12);
 const fM = (v: number) => `${(v / 1e6).toFixed(1)}`;
 const fMt = (v: number) => `${(v / 1e6).toFixed(2)}`;
 
-const CATS = [
-  'deposit archetype (the orebody shape)',
-  'economic scenario (the price/cost regime)',
-  'slope / geotech (the wall angle)',
-  'oracle control (closed-form check)',
+// Case categories as sidebar TABS (one group visible at a time — the stacked chip rows read as
+// clutter). Short bilingual labels; the full category phrase stays as the tooltip.
+const CAT_TABS = [
+  { cat: 'deposit archetype (the orebody shape)', en: 'archetype', es: 'arquetipo' },
+  { cat: 'economic scenario (the price/cost regime)', en: 'economics', es: 'economía' },
+  { cat: 'slope / geotech (the wall angle)', en: 'slope', es: 'talud' },
+  { cat: 'oracle control (closed-form check)', en: 'oracle', es: 'oráculo' },
 ];
 
 export default function Tool() {
@@ -42,6 +44,7 @@ export default function Tool() {
   const [rf, setRf] = useState(1);
   const [bench, setBench] = useState<number | null>(null);
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
+  const [catTab, setCatTab] = useState(0); // which case-category tab is open in the sidebar
   const real = source === 'real';
   const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
   // CONTRACT-1 upload: when set, the WHOLE App re-solves on the user's model (Controls econ applies).
@@ -67,6 +70,11 @@ export default function Tool() {
 
   useEffect(() => { setBench(null); setRf(1); }, [caseId]);
   useEffect(() => { setBench(null); setRf(1); setPriceMul(1); setSlope(null); setUserModel(null); }, [source]);
+  // keep the open category tab in sync with the ACTIVE case (case switches, source resets)
+  useEffect(() => {
+    const k = CAT_TABS.findIndex((t) => t.cat === theCase.category);
+    if (k >= 0) setCatTab(k);
+  }, [theCase]);
   useEffect(() => { setBench(null); }, [userModel]);
 
   // ---- section cell builders ------------------------------------------------------------------------------
@@ -282,17 +290,24 @@ export default function Tool() {
             </>
           ) : (
             <>
-              {CATS.map((cat) => (
-                <div key={cat} className="pf-catgroup">
-                  <div className="pf-catlabel">{cat.split(' (')[0]}</div>
-                  <div className="pf-chips">
-                    {CASES.filter((c) => c.category === cat).map((c) => (
-                      <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
-                              onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <div className="pf-seg pf-cattabs" role="tablist" aria-label={es ? 'categorías de caso' : 'case categories'}>
+                {CAT_TABS.map((t, k) => {
+                  const holdsActive = !userModel && theCase.category === t.cat;
+                  return (
+                    <button key={t.cat} role="tab" aria-selected={catTab === k}
+                            className={`chip ${catTab === k ? 'on' : ''}`} title={t.cat}
+                            onClick={() => setCatTab(k)}>
+                      {es ? t.es : t.en}{holdsActive ? ' •' : ''}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="pf-chips">
+                {CASES.filter((c) => c.category === CAT_TABS[catTab].cat).map((c) => (
+                  <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
+                          onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
+                ))}
+              </div>
               {userModel ? (
                 <>
                   <div className="pf-cap"><b>{es ? 'tu modelo' : 'your model'}</b> · {model.meta.name} · {userModel.dims.nx}×{userModel.dims.ny}×{userModel.dims.nz} · {userModel.nRows} {es ? 'bloques' : 'blocks'}</div>
