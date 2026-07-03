@@ -6,4 +6,4 @@ default pipeline is numpy-light: it reshapes the committed case-results.json (ba
 replay traces + manifests. `--retrain` regenerates the learned models (torch → ONNX) — see data-pipeline/pflab/science/.
 """
 
-__version__ = "0.01.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.1.0)
+__version__ = "0.06.000"  # display X.XX.XXX; PEP 440 form in pyproject.toml (0.6.0)
