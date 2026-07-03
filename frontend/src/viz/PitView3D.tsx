@@ -9,7 +9,7 @@ import { idx } from '../opt/types.ts';
  * optimiser EXTRACTS (the pit) are shown solid, the rest faded — so you watch the pit grow/shrink as you drag the
  * revenue factor / price / slope. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
  * InstancedMesh so the whole ~7 000-block model renders in one draw call. */
-export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12 }: {
+export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present }: {
   model: BlockModel;
   inPit: Uint8Array;
   gradeMax: number;
@@ -17,6 +17,8 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
   height?: number;
   shellOf?: Int32Array;
   nShells?: number;
+  /** sparse published models: 1 where a block exists; absent cells are never drawn. */
+  present?: Uint8Array;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -60,6 +62,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       for (let iy = 0; iy < ny; iy++) {
         for (let ix = 0; ix < nx; ix++) {
           const i = idx(model.dims, ix, iy, iz);
+          if (present && !present[i]) continue;         // sparse models: draw only existing blocks
           const out = !inPit[i];
           if (mode === 'pit' && out) continue;          // pit mode: only the extracted blocks
           if (mode === 'shells' && (!shellOf || shellOf[i] < 0)) continue;
@@ -120,7 +123,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       renderer.dispose();
       el.removeChild(renderer.domElement);
     };
-  }, [model, inPit, gradeMax, mode, height, shellOf, nShells]);
+  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present]);
 
   return <div className="pf-3d" ref={ref} style={{ width: '100%', height, borderRadius: 10, overflow: 'hidden' }} />;
 }

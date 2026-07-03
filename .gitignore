@@ -56,3 +56,6 @@ models/*.pth
 .DS_Store
 Thumbs.db
 *.log
+
+# --- MineLib runtime/bake cache (LICENSE: academic download only, NEVER redistributed/committed) ---
+frontend/.minelib-cache/

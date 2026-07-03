@@ -9,6 +9,7 @@ import { Gauge } from '../viz/Gauge.tsx';
 import { shellColor, viridisCss } from '../viz/colormap.ts';
 import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
 import { RealCasePanel } from '../viz/RealCasePanel.tsx';
+import { BarMini } from '../viz/BarMini.tsx';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
 const RFS = defaultRevenueFactors(12);
@@ -317,21 +318,4 @@ export default function Tool() {
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return <div className="pf-kpi"><div className="pf-kpi-v">{value}</div><div className="pf-kpi-l">{label}</div></div>;
-}
-
-/** A tiny inline bar chart (no extra deps) for the grade–tonnage + histogram readouts. */
-function BarMini({ values, labels, unit, caption }: { values: number[]; labels: string[]; unit: string; caption?: string }) {
-  const max = Math.max(1, ...values);
-  return (
-    <div className="pf-bars">
-      <div className="pf-bars-row">
-        {values.map((v, i) => (
-          <div key={i} className="pf-bar" title={`${labels[i]} ${v.toFixed(2)} ${unit}`}>
-            <i style={{ height: `${(v / max) * 100}%` }} />
-          </div>
-        ))}
-      </div>
-      {caption && <div className="pf-cap">{caption}</div>}
-    </div>
-  );
 }
