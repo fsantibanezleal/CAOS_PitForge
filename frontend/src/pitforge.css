@@ -20,6 +20,8 @@
 .pf-ctl.off { opacity: 0.45; }
 .pf-ctl input:disabled { cursor: not-allowed; }
 
+.pf-cattabs { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.55rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--color-border); }
+
 .pf-drop { border: 2px dashed var(--color-border); border-radius: 10px; padding: 1.6rem 1rem; text-align: center; color: var(--color-fg-subtle); font-size: 0.85rem; cursor: pointer; }
 .pf-drop.over, .pf-drop:hover { border-color: var(--color-accent); color: var(--color-fg); }
 .pf-list { margin: 0.3rem 0 0 1.1rem; padding: 0; font-size: 0.78rem; }
