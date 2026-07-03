@@ -4,6 +4,15 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display) — s
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.07.001] — 2026-07-03
+
+### Changed
+- **Case selector restructured as category tabs** (#33, Felipe's review): the four stacked
+  category chip groups collapse into a compact tab row (archetype / economics / slope /
+  oracle) showing one group at a time; a dot marks the tab holding the ACTIVE case; the
+  open tab follows the active case on switches/resets; the caption (name + expected band)
+  stays always visible.
+
 ## [0.07.000] — 2026-07-03
 
 The Faena real-workbench release (epic #18, issues #11–#17 + #26): PitForge now opens REAL published
