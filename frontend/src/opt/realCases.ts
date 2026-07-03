@@ -7,9 +7,10 @@
 // are NEVER committed to this repo and never bundled into the SPA. The app fetches them at
 // runtime into browser memory only; the offline bake (#17) uses a gitignored local cache. Only
 // SUMMARY facts live here (block/arc counts and the published UPIT optima are already public).
-//
-// This module is the boundary between the UI and the real-data lane: the registry + the solve
-// entry point. The fetch/parse/solve implementation lands with the parsers milestone (#13).
+
+import {
+  type BlocksLayout, buildRealEmbedding, parseMinelib, type RealEmbedding, solveUpitExplicit,
+} from './minelib.ts';
 
 export interface RealCase {
   id: string;
@@ -21,8 +22,10 @@ export interface RealCase {
   publishedOptimum: number;
   /** live: solve on select · size-gated: solve only on explicit confirm · offline-only: bake lane (#17). */
   gate: 'live' | 'size-gated' | 'offline-only';
-  /** plain-HTTPS runtime-fetch endpoints, or null when only an archive source exists (resolved in #13). */
+  /** plain-HTTPS runtime-fetch endpoints, or null when no verified mirror exists yet. */
   urls: { blocks: string; prec: string; upit: string } | null;
+  /** token indices of known free columns in this instance's .blocks rows (semantics are per-instance). */
+  blocksLayout: BlocksLayout;
   provenance_en: string;
   provenance_es: string;
 }
@@ -40,37 +43,98 @@ export const REAL_CASES: RealCase[] = [
       prec: `${MIRROR}/newman1/newman1.prec`,
       upit: `${MIRROR}/newman1/newman1.upit`,
     },
+    // verified against the mirror bytes: id x y z rocktype grade tonnage density costIfWaste valueIfOre flag
+    blocksLayout: { grade: 5, tonnage: 6, density: 7 },
     provenance_en: 'MineLib 2013 · smallest instance · fetched live from the AMPL GitHub mirror.',
     provenance_es: 'MineLib 2013 · la instancia más pequeña · descargada en vivo del espejo AMPL en GitHub.',
   },
   {
     id: 'zuck_small', name: 'Zuck small (copper, Whittle 4X example)', nBlocks: 9400, nPrecs: 145_640,
     publishedOptimum: 1_422_726_898, gate: 'size-gated',
-    urls: null, // no plain-HTTPS mirror found yet; archive source to be wired in #13
-    provenance_en: 'MineLib 2013 · mid-size · solve starts only on explicit confirm (145k precedence arcs).',
-    provenance_es: 'MineLib 2013 · tamaño medio · el solve parte sólo con confirmación explícita (145k arcos).',
+    urls: null, // no verified plain-HTTPS mirror yet; runs in the offline bake lane (#17)
+    blocksLayout: {},
+    provenance_en: 'MineLib 2013 · mid-size · no verified runtime mirror yet; runs in the offline Benchmark lane.',
+    provenance_es: 'MineLib 2013 · tamaño medio · sin espejo runtime verificado aún; corre en el carril offline del Benchmark.',
   },
   {
     id: 'kd', name: 'KD (copper, McLaughlin-style deposit)', nBlocks: 14_153, nPrecs: 219_778,
     publishedOptimum: 652_195_037, gate: 'size-gated',
-    urls: null, // no plain-HTTPS mirror found yet; archive source to be wired in #13
-    provenance_en: 'MineLib 2013 · the live-solve ceiling · larger instances run in the offline bake lane.',
-    provenance_es: 'MineLib 2013 · el techo del solve en vivo · instancias mayores corren en el carril offline.',
+    urls: null, // no verified plain-HTTPS mirror yet; runs in the offline bake lane (#17)
+    blocksLayout: {},
+    provenance_en: 'MineLib 2013 · the live-solve ceiling · no verified runtime mirror yet; offline Benchmark lane.',
+    provenance_es: 'MineLib 2013 · el techo del solve en vivo · sin espejo runtime verificado aún; carril offline del Benchmark.',
   },
 ];
 
-/** The live real-data solve state machine the App renders from. #13 adds the 'solved' arm
- *  (parsed model + exact pit); until then the boundary reports itself pending — the UI and the
- *  registry are real, only the connection is pending. */
+/** A completed live solve: the embedded model + the exact pit + the published-optimum check. */
+export interface RealSolved {
+  status: 'solved';
+  instance: string;
+  embedding: RealEmbedding;
+  /** per DENSE cell (0 where absent). */
+  inPitDense: Uint8Array;
+  /** per instance block — feeds the value histogram + grade–tonnage. */
+  instValue: Float64Array;
+  instInPit: Uint8Array;
+  instGrade: Float64Array | null;
+  instTonnage: Float64Array | null;
+  pitValue: number;
+  sumPositive: number;
+  maxflow: number;
+  nInPit: number;
+  publishedOptimum: number;
+  /** |pitValue − published| ≤ 1e-6·published → the solver reproduces the published optimum. */
+  matchPublished: boolean;
+  fetchMs: number;
+  solveMs: number;
+}
+
 export type RealSolveState =
   | { status: 'idle' }
+  | { status: 'no-source'; instance: string }
+  | { status: 'needs-confirm'; instance: string }
   | { status: 'fetching'; instance: string }
   | { status: 'solving'; instance: string }
-  | { status: 'pending-13'; instance: string }
+  | RealSolved
   | { status: 'error'; instance: string; message: string };
 
-/** Boundary entry point: fetch + parse + solve a MineLib instance with the exact engine.
- *  Implemented in #13 (minelib.ts parsers + solveUpitExplicit reusing MaxFlow + Picard). */
+const cache = new Map<string, RealSolved>();
+
+/** Fetch + parse + solve a MineLib instance with the exact engine (browser memory only). */
 export async function solveRealCase(rc: RealCase): Promise<RealSolveState> {
-  return { status: 'pending-13', instance: rc.id };
+  const hit = cache.get(rc.id);
+  if (hit) return hit;
+  if (!rc.urls) return { status: 'no-source', instance: rc.id };
+
+  const t0 = performance.now();
+  const [blocks, prec, upit] = await Promise.all(
+    [rc.urls.blocks, rc.urls.prec, rc.urls.upit].map(async (u) => {
+      const r = await fetch(u);
+      if (!r.ok) throw new Error(`fetch ${u.split('/').pop()}: HTTP ${r.status}`);
+      return r.text();
+    }),
+  );
+  const t1 = performance.now();
+
+  const parsed = parseMinelib({ blocks, prec, upit }, rc.blocksLayout);
+  if (parsed.n !== rc.nBlocks) throw new Error(`parsed ${parsed.n} blocks, published ${rc.nBlocks}`);
+  if (parsed.nPrecs !== rc.nPrecs) throw new Error(`parsed ${parsed.nPrecs} precedence arcs, published ${rc.nPrecs}`);
+
+  const pit = solveUpitExplicit(parsed.value, parsed.precStart, parsed.precList);
+  const t2 = performance.now();
+
+  const embedding = buildRealEmbedding(parsed, rc.name);
+  const inPitDense = new Uint8Array(embedding.model.dims.nx * embedding.model.dims.ny * embedding.model.dims.nz);
+  for (let d = 0; d < inPitDense.length; d++) if (embedding.instOf[d] >= 0) inPitDense[d] = pit.inPit[embedding.instOf[d]];
+
+  const solved: RealSolved = {
+    status: 'solved', instance: rc.id, embedding, inPitDense,
+    instValue: parsed.value, instInPit: pit.inPit, instGrade: parsed.grade, instTonnage: parsed.tonnage,
+    pitValue: pit.pitValue, sumPositive: pit.sumPositive, maxflow: pit.maxflow, nInPit: pit.nInPit,
+    publishedOptimum: rc.publishedOptimum,
+    matchPublished: Math.abs(pit.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+    fetchMs: t1 - t0, solveMs: t2 - t1,
+  };
+  cache.set(rc.id, solved);
+  return solved;
 }
