@@ -1,5 +1,9 @@
 # PitForge — open-pit ultimate-pit limit & nested pit shells
 
+[![CI](https://img.shields.io/github/actions/workflow/status/fsantibanezleal/CAOS_PitForge/ci.yml?branch=main&label=CI)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
+[![License](https://img.shields.io/github/license/fsantibanezleal/CAOS_PitForge)](LICENSE)
+[![Live demo](https://img.shields.io/badge/demo-live-2ea44f)](https://pitforge.fasl-work.com)
+
 [![CI](https://github.com/fsantibanezleal/CAOS_PitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
 **Live:** https://pitforge.fasl-work.com
 
