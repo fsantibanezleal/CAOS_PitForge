@@ -30,9 +30,10 @@ export interface RealCase {
   provenance_es: string;
 }
 
-// The only plain-HTTPS mirror verified alive (2026-07-03); the canonical MineLib site rejects
+// Plain-HTTPS mirrors verified alive (2026-07-03); the canonical MineLib site rejects
 // programmatic access (expired TLS + WAF). Fetched at runtime — never cached into the build.
 const MIRROR = 'https://raw.githubusercontent.com/ampl/colab.ampl.com/master/authors/eduardosalaz/minelib/data';
+const MIRROR2 = 'https://raw.githubusercontent.com/qarth/whattle/master/test/minelib';
 
 export const REAL_CASES: RealCase[] = [
   {
@@ -51,18 +52,27 @@ export const REAL_CASES: RealCase[] = [
   {
     id: 'zuck_small', name: 'Zuck small (copper, Whittle 4X example)', nBlocks: 9400, nPrecs: 145_640,
     publishedOptimum: 1_422_726_898, gate: 'size-gated',
-    urls: null, // no verified plain-HTTPS mirror yet; runs in the offline bake lane (#17)
-    blocksLayout: {},
-    provenance_en: 'MineLib 2013 · mid-size · no verified runtime mirror yet; runs in the offline Benchmark lane.',
-    provenance_es: 'MineLib 2013 · tamaño medio · sin espejo runtime verificado aún; corre en el carril offline del Benchmark.',
+    urls: {
+      blocks: `${MIRROR2}/zuck_small/zuck_small.blocks`,
+      prec: `${MIRROR2}/zuck_small/zuck_small.prec`,
+      upit: `${MIRROR2}/zuck_small/zuck_small.upit`,
+    },
+    blocksLayout: {}, // free columns are cost/value variants — no grade/tonnage semantics declared
+    provenance_en: 'MineLib 2013 · mid-size · fetched from the whattle GitHub mirror; solve starts on your confirm (~1.3 MB, 145k arcs).',
+    provenance_es: 'MineLib 2013 · tamaño medio · descargada del espejo whattle en GitHub; el solve parte con tu confirmación (~1.3 MB, 145k arcos).',
   },
   {
     id: 'kd', name: 'KD (copper, McLaughlin-style deposit)', nBlocks: 14_153, nPrecs: 219_778,
     publishedOptimum: 652_195_037, gate: 'size-gated',
-    urls: null, // no verified plain-HTTPS mirror yet; runs in the offline bake lane (#17)
-    blocksLayout: {},
-    provenance_en: 'MineLib 2013 · the live-solve ceiling · no verified runtime mirror yet; offline Benchmark lane.',
-    provenance_es: 'MineLib 2013 · el techo del solve en vivo · sin espejo runtime verificado aún; carril offline del Benchmark.',
+    urls: {
+      blocks: `${MIRROR2}/kd/kd.blocks`,
+      prec: `${MIRROR2}/kd/kd.prec`,
+      upit: `${MIRROR2}/kd/kd.upit`,
+    },
+    // verified against the mirror bytes: header row + id x y z tonn blockvalue destination CU process_profit
+    blocksLayout: { tonnage: 4, grade: 7 },
+    provenance_en: 'MineLib 2013 · the live-solve ceiling · whattle GitHub mirror; solve starts on your confirm (~2 MB, 220k arcs).',
+    provenance_es: 'MineLib 2013 · el techo del solve en vivo · espejo whattle en GitHub; el solve parte con tu confirmación (~2 MB, 220k arcos).',
   },
 ];
 
@@ -99,6 +109,9 @@ export type RealSolveState =
   | { status: 'error'; instance: string; message: string };
 
 const cache = new Map<string, RealSolved>();
+
+/** Synchronous cache peek — lets the UI skip the size-gate confirm for already-solved instances. */
+export const peekRealCase = (id: string): RealSolved | null => cache.get(id) ?? null;
 
 /** Fetch + parse + solve a MineLib instance with the exact engine (browser memory only). */
 export async function solveRealCase(rc: RealCase): Promise<RealSolveState> {

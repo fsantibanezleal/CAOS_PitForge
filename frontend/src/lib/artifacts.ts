@@ -18,8 +18,22 @@ export interface LearnedFile {
   honesty: string;
 }
 
+export interface MinelibBenchFile {
+  schema: string;
+  bakedAt: string;
+  engine: string;
+  license: string;
+  results: {
+    id: string; name: string; nBlocks: number; nPrecs: number;
+    publishedOptimum: number; ourValue: number; relError: number; match: boolean;
+    nInPit: number; parseMs: number; solveMsMedian: number;
+  }[];
+  excluded: { id: string; nBlocks: number; publishedOptimum: number | null; reason: string }[];
+}
+
 export const loadCaseResults = () => getJSON<CaseResultsFile>('case-results.json');
 export const loadLearned = () => getJSON<LearnedFile>('pit-learned.json');
+export const loadMinelibBench = () => getJSON<MinelibBenchFile>('minelib-results.json');
 export const loadIndex = () => getJSON<CaseIndex>('data/manifests/index.json');
 export const loadManifest = (caseId: string) => getJSON<CaseManifest>(`data/manifests/${caseId}.json`);
 export const loadTrace = (caseId: string) => getJSON<CaseTrace>(`data/${caseId}/trace.json`);

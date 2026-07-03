@@ -12,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { buildRealEmbedding, parseBlocks, parseMinelib, parsePrec, parseUpit, solveUpitExplicit } from '../src/opt/minelib.ts';
 import { REAL_CASES } from '../src/opt/realCases.ts';
 
-const CACHE = join(dirname(fileURLToPath(import.meta.url)), '..', '.minelib-cache', 'newman1');
+const CACHES = join(dirname(fileURLToPath(import.meta.url)), '..', '.minelib-cache');
+const CACHE = join(CACHES, 'newman1');
 
 // ---- fabricated fixtures (our own content, MineLib format) ----------------------------------
 const FIX_BLOCKS = `0 0 0 1 AA 0.5 100 2.7 -10 40 0
@@ -36,6 +37,12 @@ test('parseBlocks reads coords + declared free columns', () => {
   assert.equal(b.grade![2], 0.9);
   assert.equal(b.tonnage![0], 100);
   assert.equal(b.density![1], 2.7);
+});
+
+test('parseBlocks skips a column-name header row (kd mirror format)', () => {
+  const b = parseBlocks(`id x y z tonn grade\n${FIX_BLOCKS}`, { grade: 5 });
+  assert.equal(b.n, 3);
+  assert.equal(b.grade![2], 0.9);
 });
 
 test('parsePrec builds the CSR predecessor lists', () => {
@@ -113,3 +120,22 @@ test('newman1 reproduces the PUBLISHED UPIT optimum 26,086,899', { skip: !hasCac
   assert.equal([...e.present].reduce((a, b) => a + b, 0), rc.nBlocks);
   assert.ok(e.gradeAvailable && e.tonnageAvailable);
 });
+
+// zuck_small + kd oracles (same pattern; ~250 ms solves — local only)
+for (const id of ['zuck_small', 'kd']) {
+  const dir = join(CACHES, id);
+  const cached = existsSync(join(dir, `${id}.upit`));
+  test(`${id} reproduces the PUBLISHED UPIT optimum`, { skip: !cached && 'no .minelib-cache (run scripts/fetch-minelib.mjs)' }, () => {
+    const rc = REAL_CASES.find((r) => r.id === id)!;
+    const inst = parseMinelib({
+      blocks: readFileSync(join(dir, `${id}.blocks`), 'utf8'),
+      prec: readFileSync(join(dir, `${id}.prec`), 'utf8'),
+      upit: readFileSync(join(dir, `${id}.upit`), 'utf8'),
+    }, rc.blocksLayout);
+    assert.equal(inst.n, rc.nBlocks);
+    assert.equal(inst.nPrecs, rc.nPrecs);
+    const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
+    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+      `pitValue ${r.pitValue} != published ${rc.publishedOptimum}`);
+  });
+}

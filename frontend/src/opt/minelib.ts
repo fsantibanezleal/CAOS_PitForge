@@ -45,12 +45,14 @@ export interface ParsedInstance {
 const rows = (text: string): string[][] =>
   text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0).map((l) => l.split(/\s+/));
 
-/** `.blocks`: coords by block id (rows may be unordered). Free columns are read via `layout`. */
+/** `.blocks`: coords by block id (rows may be unordered). Free columns are read via `layout`.
+ *  Some mirrors prepend a column-name header row — any row whose first token is not an unsigned
+ *  integer is skipped as a header. */
 export function parseBlocks(text: string, layout: BlocksLayout = {}): {
   n: number; x: Int32Array; y: Int32Array; z: Int32Array;
   grade: Float64Array | null; tonnage: Float64Array | null; density: Float64Array | null;
 } {
-  const rs = rows(text);
+  const rs = rows(text).filter((t) => /^\d+$/.test(t[0]));
   const n = rs.length;
   const x = new Int32Array(n);
   const y = new Int32Array(n);
