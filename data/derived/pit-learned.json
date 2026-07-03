@@ -1,18 +1,18 @@
 {
   "schema": "pitforge.learned/v1",
   "gradeNN": {
-    "r2_vs_holdout": 0.9994,
-    "r2_idw": 0.936,
-    "r2_ok": 0.991,
-    "nTrain": 11059,
-    "nEval": 2765
+    "r2_vs_holdout": 0.9613,
+    "r2_idw": 0.9129,
+    "r2_ok": 0.958,
+    "nTrain": 22118,
+    "nEval": 5530
   },
   "pitSurrogate": {
-    "auc": 0.984,
-    "acc": 0.9186,
-    "baseline": 0.7572,
+    "auc": 0.9811,
+    "acc": 0.9117,
+    "baseline": 0.7642,
     "nTrain": 44236,
     "nEval": 11060
   },
-  "honesty": "Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and Ordinary Kriging; pit-surrogate against the exact min-cut. Fast approximations, never beating the exact result."
+  "honesty": "Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and Ordinary Kriging on the SAME held-out stencils, over a mixed stencil-density distribution (full 26-neighbour rows + random-dropout sparse rows, so partially-drilled what-ifs are in distribution); pit-surrogate against the exact min-cut. Fast approximations, never beating the exact result."
 }

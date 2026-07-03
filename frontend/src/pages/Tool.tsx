@@ -11,6 +11,8 @@ import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
 import { RealCasePanel } from '../viz/RealCasePanel.tsx';
 import { BarMini } from '../viz/BarMini.tsx';
 import { UploadPanel } from '../viz/UploadPanel.tsx';
+import { InfillPanel } from '../viz/InfillPanel.tsx';
+import { LearnedPanel } from '../viz/LearnedPanel.tsx';
 import type { UserModel } from '../lib/contractLive.ts';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
@@ -226,6 +228,14 @@ export default function Tool() {
                    unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`} />
         </div>
       ),
+    },
+    {
+      id: 'infill', label: es ? 'Infill · what-if' : 'Infill · what-if',
+      content: <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />,
+    },
+    {
+      id: 'surrogate', label: es ? 'Surrogate · preview' : 'Surrogate · preview',
+      content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
     },
     {
       id: 'byo', label: es ? 'Tu modelo' : 'Bring your own',

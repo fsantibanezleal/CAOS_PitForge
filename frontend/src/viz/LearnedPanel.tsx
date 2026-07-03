@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { blockValue, solveUltimatePit } from '../opt/index.ts';
 import { idx, type BlockModel, type EconParams } from '../opt/types.ts';
-import { loadLearned, type LearnedFile } from '../lib/artifacts.ts';
 import { runPitSurrogateBatch } from '../lib/ort.ts';
 import { SectionView, type SectionCell } from './SectionView.tsx';
 import { viridisCss } from './colormap.ts';
 
-/** Live demonstration of the pit-inclusion surrogate: it runs the ONNX model (onnxruntime-web) over the current
- * cross-section, renders P(block ∈ pit), and reports its agreement with the EXACT min-cut on that section. Honest —
- * the surrogate is a fast approximation; the exact solver is always the authority. Shows the held-out metrics too. */
+/** Surrogate FAST-PREVIEW tool: the ONNX inclusion classifier runs over the current section on
+ * every knob change (one batched onnxruntime-web call), rendered as P(block ∈ pit) against the
+ * EXACT pit outline + the live agreement %. Framing is operational: at this teaching scale the
+ * exact min-cut is already instant, so the surrogate's value is TRIAGE — at 10⁶–10⁷ blocks it
+ * screens candidates before the exact solve. It never replaces the min-cut; held-out metrics
+ * live in Benchmark. */
 export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {
-  const [metrics, setMetrics] = useState<LearnedFile | null>(null);
   const [prob, setProb] = useState<Float32Array | null>(null);
   const [agree, setAgree] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
-
-  useEffect(() => { loadLearned().then(setMetrics).catch(() => setMetrics(null)); }, []);
 
   // the exact RF=1 ultimate pit + per-block values (training semantics) for this case.
   const { exact, values } = useMemo(() => {
@@ -85,33 +84,29 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
     };
   };
 
-  if (metrics === null && !pending && prob === null) {
+  if (!pending && prob === null) {
     return (
       <div className="pf-pending">
-        <strong>{es ? 'Modelos aprendidos: pendientes de entrenamiento' : 'Learned models: pending training'}</strong>
-        <p>{es ? 'Corre `python -m pflab.pipeline all --retrain` para entrenarlos (torch → ONNX).' : 'Run `python -m pflab.pipeline all --retrain` to train them (torch → ONNX).'}</p>
+        <strong>{es ? 'Surrogate: pendiente de entrenamiento' : 'Surrogate: pending training'}</strong>
+        <p>{es ? 'Corre `python -m pflab.pipeline all --retrain` para entrenarlo (torch → ONNX).' : 'Run `python -m pflab.pipeline all --retrain` to train it (torch → ONNX).'}</p>
       </div>
     );
   }
 
   return (
     <div className="pf-vizstack">
-      {metrics && (
-        <table className="cmp-table">
-          <thead><tr><th>{es ? 'modelo' : 'model'}</th><th>{es ? 'métrica' : 'metric'}</th><th>{es ? 'aprendido' : 'learned'}</th><th>{es ? 'baseline clásico' : 'classical baseline'}</th></tr></thead>
-          <tbody>
-            <tr><td>grade-NN</td><td>R²</td><td><b>{metrics.gradeNN.r2_vs_holdout}</b></td><td>IDW {metrics.gradeNN.r2_idw} · OK {metrics.gradeNN.r2_ok}</td></tr>
-            <tr><td>pit-surrogate</td><td>AUC · acc</td><td><b>{metrics.pitSurrogate.auc}</b> · {metrics.pitSurrogate.acc}</td><td>{es ? 'mayoría' : 'majority'} {metrics.pitSurrogate.baseline}</td></tr>
-          </tbody>
-        </table>
-      )}
-      <div className="pf-plot-t">{es ? `Surrogate de inclusión EN VIVO (onnxruntime-web) en la sección Y=${iy} — color = P(en pit), contorno = pit EXACTO` : `LIVE inclusion surrogate (onnxruntime-web) on section Y=${iy} — colour = P(in pit), outline = EXACT pit`}</div>
+      <div className="pf-plot-t">{es
+        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy} — color = P(en pit), contorno = pit EXACTO. Mueve RF/precio/talud y compara.`
+        : `Instant pit preview (ONNX surrogate) on section Y=${iy} — colour = P(in pit), outline = EXACT pit. Drag RF/price/slope and compare.`}</div>
       <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cell} />
       <div className="pf-cap">
         {agree != null
-          ? (es ? `Acuerdo con el solver exacto en esta sección: ${(agree * 100).toFixed(1)}% — aproximación rápida, no reemplaza el corte mínimo.` : `Agreement with the exact solver on this section: ${(agree * 100).toFixed(1)}% — a fast approximation, it does not replace the min-cut.`)
+          ? (es ? `Acuerdo con el solver exacto en esta sección: ${(agree * 100).toFixed(1)}%.` : `Agreement with the exact solver on this section: ${(agree * 100).toFixed(1)}%.`)
           : (pending ? (es ? 'inferencia en curso…' : 'inference running…') : (es ? 'modelo no disponible' : 'model unavailable'))}
       </div>
+      <p className="pf-cap">{es
+        ? 'Herramienta de TRIAGE: a esta escala didáctica el min-cut exacto ya es instantáneo; a 10⁶–10⁷ bloques el surrogate filtra candidatos antes del solve exacto. Nunca reemplaza al exacto. Entrenado en depósitos sintéticos; métricas held-out en Benchmark.'
+        : 'A TRIAGE tool: at this teaching scale the exact min-cut is already instant; at 10⁶–10⁷ blocks the surrogate screens candidates before the exact solve. It never replaces the exact result. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
     </div>
   );
 }
