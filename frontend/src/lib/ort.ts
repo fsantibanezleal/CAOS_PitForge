@@ -40,6 +40,10 @@ async function run(file: string, input: string, output: string, flat: Float32Arr
 /** grade-nn: a 27-vec inverse-distance stencil of neighbouring sample grades → the estimated block grade. */
 export const runGradeNN = (x27: Float32Array) => run('grade-nn.onnx', 'x', 'y', x27, [1, 27]);
 
+/** Batched grade-nn: n×27 stencils → n estimated grades (one onnxruntime-web call). */
+export const runGradeNNBatch = (flat: Float32Array, n: number) =>
+  run('grade-nn.onnx', 'x', 'y', flat, [n, 27]);
+
 /** pit-surrogate: 4 raw per-block features → P(block ∈ optimal pit). */
 export const runPitSurrogate = (x4: Float32Array) => run('pit-surrogate.onnx', 'x', 'p', x4, [1, 4]);
 

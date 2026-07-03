@@ -7,9 +7,13 @@ import { SectionView, type SectionCell } from '../viz/SectionView.tsx';
 import { WhittleChart } from '../viz/WhittleChart.tsx';
 import { Gauge } from '../viz/Gauge.tsx';
 import { shellColor, viridisCss } from '../viz/colormap.ts';
-import { loadManifest } from '../lib/artifacts.ts';
+import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
+import { RealCasePanel } from '../viz/RealCasePanel.tsx';
+import { BarMini } from '../viz/BarMini.tsx';
+import { UploadPanel } from '../viz/UploadPanel.tsx';
+import { InfillPanel } from '../viz/InfillPanel.tsx';
 import { LearnedPanel } from '../viz/LearnedPanel.tsx';
-import type { CaseManifest } from '../lib/contract.types.ts';
+import type { UserModel } from '../lib/contractLive.ts';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
 const RFS = defaultRevenueFactors(12);
@@ -26,16 +30,26 @@ const CATS = [
 export default function Tool() {
   const lang = useShellLang();
   const es = lang === 'es';
+  // FIRST-LEVEL source decision (Faena pattern): synthetic seeded deposits vs a real published
+  // block model. In real mode you only pick WHICH instance; the scenario knobs are locked because
+  // the instance publishes explicit precedence + net values (re-deriving them would break
+  // comparability with the published optimum).
+  const [source, setSource] = useState<'synthetic' | 'real'>('synthetic');
   const [caseId, setCaseId] = useState('A01');
+  const [realId, setRealId] = useState(REAL_CASES[0].id);
   const [priceMul, setPriceMul] = useState(1);
   const [slope, setSlope] = useState<number | null>(null); // null → case default
   const [rf, setRf] = useState(1);
   const [bench, setBench] = useState<number | null>(null);
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
-  const [manifest, setManifest] = useState<CaseManifest | null>(null);
+  const real = source === 'real';
+  const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
+  // CONTRACT-1 upload: when set, the WHOLE App re-solves on the user's model (Controls econ applies).
+  const [userModel, setUserModel] = useState<UserModel | null>(null);
 
   const theCase = useMemo<PitCase>(() => CASES.find((c) => c.id === caseId) ?? CASES[0], [caseId]);
-  const model = useMemo(() => caseModel(theCase), [theCase]);
+  const model = useMemo(() => (userModel ? userModel.model : caseModel(theCase)), [userModel, theCase]);
+  const present = userModel?.present ?? null;
   const gradeMax = useMemo(() => Math.max(...model.grade), [model]);
   const slopeDeg = slope ?? theCase.econ.slopeAngleDeg;
 
@@ -52,11 +66,13 @@ export default function Tool() {
   const iy = bench ?? Math.floor(model.dims.ny / 2);
 
   useEffect(() => { setBench(null); setRf(1); }, [caseId]);
-  useEffect(() => { loadManifest(caseId).then(setManifest).catch(() => setManifest(null)); }, [caseId]);
+  useEffect(() => { setBench(null); setRf(1); setPriceMul(1); setSlope(null); setUserModel(null); }, [source]);
+  useEffect(() => { setBench(null); }, [userModel]);
 
   // ---- section cell builders ------------------------------------------------------------------------------
   const cellGrade = (ix: number, iz: number): SectionCell => {
     const i = idx(model.dims, ix, iy, iz);
+    if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const g = model.grade[i];
     return {
       color: viridisCss(Math.min(1, g / (gradeMax || 1))),
@@ -66,6 +82,7 @@ export default function Tool() {
   };
   const cellShell = (ix: number, iz: number): SectionCell => {
     const i = idx(model.dims, ix, iy, iz);
+    if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const s = shells.shellOf[i];
     return {
       color: s < 0 ? null : shellColor(s, RFS.length),
@@ -81,23 +98,27 @@ export default function Tool() {
       let t = 0;
       let gm = 0;
       for (let i = 0; i < model.grade.length; i++) {
+        if (present && !present[i]) continue;
         if (model.grade[i] >= cut) { t += model.tonnage[i]; gm += model.grade[i] * model.tonnage[i]; }
       }
       return { cut, tonnes: t, meanGrade: t > 0 ? gm / t : 0 };
     });
-  }, [model, gradeMax]);
+  }, [model, gradeMax, present]);
 
   // ---- block-value histogram ------------------------------------------------------------------------------
   const valueHist = useMemo(() => {
     const vals: number[] = [];
-    for (let i = 0; i < model.grade.length; i++) vals.push(blockValue(model, i, { ...econNoRF, revenueFactor: rf }));
+    for (let i = 0; i < model.grade.length; i++) {
+      if (present && !present[i]) continue;
+      vals.push(blockValue(model, i, { ...econNoRF, revenueFactor: rf }));
+    }
     const lo = Math.min(...vals);
     const hi = Math.max(...vals);
     const nb = 28;
     const bins = new Array(nb).fill(0);
     for (const v of vals) bins[Math.min(nb - 1, Math.max(0, Math.floor(((v - lo) / (hi - lo || 1)) * nb)))]++;
     return { bins, lo, hi };
-  }, [model, econNoRF, rf]);
+  }, [model, econNoRF, rf, present]);
 
   const stripZones = [
     { upTo: 1, color: '#3fb95066', label: es ? 'bajo' : 'low' },
@@ -123,7 +144,7 @@ export default function Tool() {
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
             <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length} />
+                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} />
           </Suspense>
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
@@ -209,87 +230,111 @@ export default function Tool() {
       ),
     },
     {
-      id: 'learned', label: es ? 'Modelos aprendidos' : 'Learned models',
+      id: 'infill', label: es ? 'Infill · what-if' : 'Infill · what-if',
+      content: <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />,
+    },
+    {
+      id: 'surrogate', label: es ? 'Surrogate · preview' : 'Surrogate · preview',
       content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
     },
     {
-      id: 'contract', label: es ? 'Contrato · gate' : 'Contract · gate',
-      content: (
-        <div className="pf-vizstack">
-          {manifest ? (
-            <>
-              <div className="pf-kpis">
-                <Kpi label="lane" value={manifest.lane} />
-                <Kpi label={es ? 'runtimes' : 'runtimes'} value={manifest.gate.runtimes.join(', ')} />
-                <Kpi label={es ? 'bytes traza' : 'trace bytes'} value={`${manifest.gate.trace_bytes}`} />
-              </div>
-              {manifest.flags.length > 0 && <p className="pf-note">⚑ {JSON.stringify(manifest.flags)}</p>}
-              <p className="pf-note">{manifest.honesty}</p>
-            </>
-          ) : <p className="pf-note">{es ? 'cargando manifiesto…' : 'loading manifest…'}</p>}
-        </div>
-      ),
-    },
-    {
       id: 'byo', label: es ? 'Tu modelo' : 'Bring your own',
-      content: (
-        <div className="pf-vizstack">
-          <p className="pf-note">{es
-            ? 'PitForge abre TU modelo de bloques, no solo los casos horneados. CONTRATO 1 (data/examples/blockmodel.csv) valida una tabla de bloques {ix,iy,iz,tonnage,density,grade}: rechaza tonelaje/densidad negativos, índices fuera de la caja y leyes no físicas; marca leyes implausibles y duplicados.'
-            : 'PitForge opens YOUR block model, not just the baked cases. CONTRACT 1 (data/examples/blockmodel.csv) validates a block table {ix,iy,iz,tonnage,density,grade}: it rejects negative tonnage/density, out-of-box indices and unphysical grades; it flags implausible grades and duplicates.'}</p>
-          <p className="pf-cap">{es ? 'El esquema completo está en docs/ y data/README.md.' : 'The full schema is in docs/ and data/README.md.'}</p>
-        </div>
-      ),
-    },
-    {
-      id: 'raw', label: es ? 'Traza' : 'Trace',
-      content: (
-        <pre className="codeblock" style={{ maxHeight: 360 }}>{JSON.stringify({
-          case: theCase.id, archetype: theCase.archetype, dims: model.dims,
-          econ: { ...econNoRF, revenueFactor: rf },
-          ultimate: { pitValue: pit.pitValue, oreTonnes: pit.oreTonnes, wasteTonnes: pit.wasteTonnes, stripRatio: pit.stripRatio, nBlocks: pit.nBlocks },
-        }, null, 2)}</pre>
-      ),
+      content: <UploadPanel es={es} active={!!userModel} onUse={setUserModel} onClear={() => setUserModel(null)} />,
     },
   ];
+
+  // in real mode the scenario/econ knobs are LOCKED: the instance publishes explicit precedence
+  // (.prec) + net block values (.upit); regenerating either breaks published-optimum comparability.
+  const lockTip = es
+    ? 'deshabilitado en modo real: la instancia publica valores netos y precedencia explícita; recalcular rompería la comparabilidad con el óptimo publicado'
+    : 'disabled in real mode: the instance publishes net values and explicit precedence; re-deriving them would break comparability with the published optimum';
 
   return (
     <div className="page-body pf-layout">
       <aside className="pf-side">
         <div className="pf-card">
-          <div className="pf-card-t">{es ? 'Caso' : 'Case'}</div>
-          {CATS.map((cat) => (
-            <div key={cat} className="pf-catgroup">
-              <div className="pf-catlabel">{cat.split(' (')[0]}</div>
+          <div className="pf-card-t">{es ? 'Fuente' : 'Source'}</div>
+          <div className="pf-chips">
+            <button className={`chip ${!real ? 'on' : ''}`} onClick={() => setSource('synthetic')}>
+              {es ? 'sintético (semilla)' : 'synthetic (seeded)'}
+            </button>
+            <button className={`chip ${real ? 'on' : ''}`} onClick={() => setSource('real')}>
+              {es ? 'real · MineLib' : 'real · MineLib'}
+            </button>
+          </div>
+          <div className="pf-cap pf-muted">{real
+            ? (es ? 'block models publicados; sólo eliges la instancia' : 'published block models; you only pick the instance')
+            : (es ? 'depósitos generados con semilla + oráculo CTRL' : 'seeded generated deposits + the CTRL oracle')}</div>
+        </div>
+
+        <div className="pf-card">
+          <div className="pf-card-t">{real ? (es ? 'Instancia' : 'Instance') : (es ? 'Caso' : 'Case')}</div>
+          {real ? (
+            <>
               <div className="pf-chips">
-                {CASES.filter((c) => c.category === cat).map((c) => (
-                  <button key={c.id} className={`chip ${caseId === c.id ? 'on' : ''}`} title={c.name}
-                          onClick={() => setCaseId(c.id)}>{c.id}</button>
+                {REAL_CASES.map((r) => (
+                  <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                          onClick={() => setRealId(r.id)}>{r.id}</button>
                 ))}
               </div>
-            </div>
-          ))}
-          <div className="pf-cap">{theCase.name}</div>
-          <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+              <div className="pf-cap">{realCase.name}</div>
+              <div className="pf-cap pf-muted">{es ? realCase.provenance_es : realCase.provenance_en}</div>
+            </>
+          ) : (
+            <>
+              {CATS.map((cat) => (
+                <div key={cat} className="pf-catgroup">
+                  <div className="pf-catlabel">{cat.split(' (')[0]}</div>
+                  <div className="pf-chips">
+                    {CASES.filter((c) => c.category === cat).map((c) => (
+                      <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
+                              onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {userModel ? (
+                <>
+                  <div className="pf-cap"><b>{es ? 'tu modelo' : 'your model'}</b> · {model.meta.name} · {userModel.dims.nx}×{userModel.dims.ny}×{userModel.dims.nz} · {userModel.nRows} {es ? 'bloques' : 'blocks'}</div>
+                  <div className="pf-cap pf-muted">{es ? 'todos los tabs resuelven sobre él (economía de Controles); elige un caso para volver' : 'every tab solves on it (Controls econ); pick a case to go back'}</div>
+                </>
+              ) : (
+                <>
+                  <div className="pf-cap">{theCase.name}</div>
+                  <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+                </>
+              )}
+            </>
+          )}
         </div>
 
         <div className="pf-card">
           <div className="pf-card-t">{es ? 'Controles (recálculo en vivo)' : 'Controls (live re-solve)'}</div>
-          <label className="pf-ctl">{es ? 'factor de ingreso RF' : 'revenue factor RF'}: {rf.toFixed(2)}
-            <input className="range" type="range" min={0.1} max={1} step={0.05} value={rf} onChange={(e) => setRf(+e.target.value)} />
+          <label className={`pf-ctl ${real ? 'off' : ''}`} title={real ? lockTip : undefined}>
+            {es ? 'factor de ingreso RF' : 'revenue factor RF'}: {rf.toFixed(2)}
+            <input className="range" type="range" min={0.1} max={1} step={0.05} value={rf} disabled={real}
+                   onChange={(e) => setRf(+e.target.value)} />
           </label>
-          <label className="pf-ctl">{es ? 'precio ×' : 'price ×'}: {priceMul.toFixed(2)} (${(theCase.econ.price * priceMul).toFixed(0)}/t)
-            <input className="range" type="range" min={0.3} max={2} step={0.05} value={priceMul} onChange={(e) => setPriceMul(+e.target.value)} />
+          <label className={`pf-ctl ${real ? 'off' : ''}`} title={real ? lockTip : undefined}>
+            {es ? 'precio ×' : 'price ×'}: {priceMul.toFixed(2)}{real ? '' : ` ($${(theCase.econ.price * priceMul).toFixed(0)}/t)`}
+            <input className="range" type="range" min={0.3} max={2} step={0.05} value={priceMul} disabled={real}
+                   onChange={(e) => setPriceMul(+e.target.value)} />
           </label>
-          <label className="pf-ctl">{es ? 'talud°' : 'slope°'}: {slopeDeg}
-            <input className="range" type="range" min={18} max={75} step={1} value={slopeDeg} onChange={(e) => setSlope(+e.target.value)} />
+          <label className={`pf-ctl ${real ? 'off' : ''}`} title={real ? lockTip : undefined}>
+            {es ? 'talud°' : 'slope°'}: {real ? (es ? 'de la instancia' : 'from the instance') : slopeDeg}
+            <input className="range" type="range" min={18} max={75} step={1} value={slopeDeg} disabled={real}
+                   onChange={(e) => setSlope(+e.target.value)} />
           </label>
-          <button className="chip" onClick={() => { setPriceMul(1); setSlope(null); setRf(1); }}>{es ? 'reset' : 'reset'}</button>
+          {real
+            ? <p className="pf-cap pf-muted">{es ? 'bloqueados: la instancia trae precedencia y valores publicados' : 'locked: the instance ships published precedence and values'}</p>
+            : <button className="chip" onClick={() => { setPriceMul(1); setSlope(null); setRf(1); }}>{es ? 'reset' : 'reset'}</button>}
         </div>
       </aside>
 
       <main className="pf-main">
-        <Tabs tabs={tabs} ariaLabel={es ? 'vistas del pit' : 'pit views'} />
+        {real
+          ? <RealCasePanel rc={realCase} es={es} />
+          : <Tabs tabs={tabs} ariaLabel={es ? 'vistas del pit' : 'pit views'} />}
       </main>
     </div>
   );
@@ -297,21 +342,4 @@ export default function Tool() {
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return <div className="pf-kpi"><div className="pf-kpi-v">{value}</div><div className="pf-kpi-l">{label}</div></div>;
-}
-
-/** A tiny inline bar chart (no extra deps) for the grade–tonnage + histogram readouts. */
-function BarMini({ values, labels, unit, caption }: { values: number[]; labels: string[]; unit: string; caption?: string }) {
-  const max = Math.max(1, ...values);
-  return (
-    <div className="pf-bars">
-      <div className="pf-bars-row">
-        {values.map((v, i) => (
-          <div key={i} className="pf-bar" title={`${labels[i]} ${v.toFixed(2)} ${unit}`}>
-            <i style={{ height: `${(v / max) * 100}%` }} />
-          </div>
-        ))}
-      </div>
-      {caption && <div className="pf-cap">{caption}</div>}
-    </div>
-  );
 }

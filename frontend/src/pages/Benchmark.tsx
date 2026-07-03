@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Callout, useShellLang } from '@fasl-work/caos-app-shell';
-import { loadCaseResults, loadLearned, type LearnedFile } from '../lib/artifacts.ts';
+import { loadCaseResults, loadLearned, loadMinelibBench, type LearnedFile, type MinelibBenchFile } from '../lib/artifacts.ts';
 import type { CaseResultsFile } from '../lib/contract.types.ts';
+
+const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
 
 export default function Benchmark() {
   const es = useShellLang() === 'es';
   const [data, setData] = useState<CaseResultsFile | null>(null);
   const [learned, setLearned] = useState<LearnedFile | null>(null);
+  const [minelib, setMinelib] = useState<MinelibBenchFile | null>(null);
   useEffect(() => { loadCaseResults().then(setData).catch(() => setData(null)); }, []);
   useEffect(() => { loadLearned().then(setLearned).catch(() => setLearned(null)); }, []);
+  useEffect(() => { loadMinelibBench().then(setMinelib).catch(() => setMinelib(null)); }, []);
   const u = (id: string) => data?.cases[id]?.ultimate;
 
   return (
@@ -52,6 +56,46 @@ export default function Benchmark() {
             {((u('G02')?.pitValue ?? 0) / 1e6).toFixed(0)}M (18°)
           </p>
         </>
+      )}
+
+      <h2>{es ? 'MineLib real (UPIT) — exacto vs óptimo publicado' : 'Real MineLib (UPIT) — exact vs published optimum'}</h2>
+      {minelib ? (
+        <>
+          <table className="cmp-table">
+            <thead><tr>
+              <th>{es ? 'instancia' : 'instance'}</th><th>{es ? 'bloques' : 'blocks'}</th><th>{es ? 'arcos' : 'arcs'}</th>
+              <th>{es ? 'nuestro valor (exacto)' : 'our value (exact)'}</th><th>{es ? 'óptimo publicado' : 'published optimum'}</th>
+              <th>{es ? 'error rel.' : 'rel. error'}</th><th>{es ? 'solve (ms)' : 'solve (ms)'}</th>
+            </tr></thead>
+            <tbody>
+              {minelib.results.map((r) => (
+                <tr key={r.id}>
+                  <td><b>{r.id}</b> {r.match ? '✓' : '✗'}</td>
+                  <td>{fInt(r.nBlocks)}</td><td>{fInt(r.nPrecs)}</td>
+                  <td>{fInt(r.ourValue)}</td><td>{fInt(r.publishedOptimum)}</td>
+                  <td>{r.relError.toExponential(1)}</td><td>{r.solveMsMedian}</td>
+                </tr>
+              ))}
+              {minelib.excluded.map((x) => (
+                <tr key={x.id} className="pf-muted">
+                  <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>—</td>
+                  <td>{es ? 'no horneado' : 'not baked'}</td>
+                  <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : '—'}</td>
+                  <td colSpan={2}>{x.reason}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
+            {es
+              ? `El MISMO motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). Las instancias se descargan bajo la licencia académica de MineLib y NUNCA se redistribuyen; aquí sólo se publican resúmenes. Horneado ${minelib.bakedAt.slice(0, 10)}.`
+              : `The SAME exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). Instances are downloaded under MineLib's academic grant and NEVER redistributed; only summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
+          </Callout>
+        </>
+      ) : (
+        <Callout variant="honest" title={es ? 'Bake MineLib no presente' : 'MineLib bake not present'}>
+          {es ? 'Corre `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` localmente (nunca en CI).' : 'Run `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` locally (never in CI).'}
+        </Callout>
       )}
 
       <h2>{es ? 'Aprendido vs clásico' : 'Learned vs classical'}</h2>

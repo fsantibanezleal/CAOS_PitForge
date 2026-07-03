@@ -17,7 +17,7 @@ if (!existsSync(derived)) {
   mkdirSync(join(PUB, 'data'), { recursive: true });
   cpSync(derived, join(PUB, 'data'), { recursive: true });
   // 2) the App + onnxruntime-web fetch these from the SITE ROOT, so place them there too (when present).
-  for (const f of ['case-results.json', 'pit-learned.json', 'grade-nn.onnx', 'pit-surrogate.onnx']) {
+  for (const f of ['case-results.json', 'pit-learned.json', 'minelib-results.json', 'grade-nn.onnx', 'pit-surrogate.onnx']) {
     const src = join(derived, f);
     if (existsSync(src)) copyFileSync(src, join(PUB, f));
   }

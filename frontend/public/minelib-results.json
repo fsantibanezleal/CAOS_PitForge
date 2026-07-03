@@ -1,0 +1,67 @@
+{
+  "schema": "pitforge.minelib-bench/v1",
+  "bakedAt": "2026-07-03T20:23:32.764Z",
+  "engine": "solveUpitExplicit (Picard max-closure -> Dinic min-cut, TypeScript, Node)",
+  "license": "instances fetched per the MineLib academic-download grant; only summary numbers are committed",
+  "results": [
+    {
+      "id": "newman1",
+      "name": "Newman1 (gold–copper test mine)",
+      "nBlocks": 1060,
+      "nPrecs": 3922,
+      "publishedOptimum": 26086899,
+      "ourValue": 26086899.026,
+      "relError": 9.95515035759146e-10,
+      "match": true,
+      "nInPit": 1059,
+      "parseMs": 6,
+      "solveMsMedian": 5.2
+    },
+    {
+      "id": "zuck_small",
+      "name": "Zuck small (copper, Whittle 4X example)",
+      "nBlocks": 9400,
+      "nPrecs": 145640,
+      "publishedOptimum": 1422726898,
+      "ourValue": 1422726897.735,
+      "relError": 1.8629025682866078e-10,
+      "match": true,
+      "nInPit": 9399,
+      "parseMs": 53,
+      "solveMsMedian": 237.3
+    },
+    {
+      "id": "kd",
+      "name": "KD (copper, McLaughlin-style deposit)",
+      "nBlocks": 14153,
+      "nPrecs": 219778,
+      "publishedOptimum": 652195037,
+      "ourValue": 652195036.915,
+      "relError": 1.304997057408205e-10,
+      "match": true,
+      "nInPit": 12154,
+      "parseMs": 65,
+      "solveMsMedian": 259.3
+    }
+  ],
+  "excluded": [
+    {
+      "id": "marvin",
+      "nBlocks": 53271,
+      "publishedOptimum": 1415655436,
+      "reason": "ships with the commercial Whittle software; no verified public mirror"
+    },
+    {
+      "id": "mclaughlin_limit",
+      "nBlocks": 112687,
+      "publishedOptimum": 1495726474,
+      "reason": "no verified public mirror (canonical site rejects programmatic access)"
+    },
+    {
+      "id": "mclaughlin",
+      "nBlocks": 2140342,
+      "publishedOptimum": null,
+      "reason": "no .prec on any verified mirror; 73M-arc scale untested for this Dinic — offline-infeasible for now"
+    }
+  ]
+}

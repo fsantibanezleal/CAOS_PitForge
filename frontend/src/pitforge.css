@@ -17,6 +17,13 @@
 
 .pf-ctl { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; color: var(--color-fg-subtle); margin-bottom: 0.5rem; }
 .pf-ctl .range { width: 100%; accent-color: var(--color-accent); }
+.pf-ctl.off { opacity: 0.45; }
+.pf-ctl input:disabled { cursor: not-allowed; }
+
+.pf-drop { border: 2px dashed var(--color-border); border-radius: 10px; padding: 1.6rem 1rem; text-align: center; color: var(--color-fg-subtle); font-size: 0.85rem; cursor: pointer; }
+.pf-drop.over, .pf-drop:hover { border-color: var(--color-accent); color: var(--color-fg); }
+.pf-list { margin: 0.3rem 0 0 1.1rem; padding: 0; font-size: 0.78rem; }
+.pf-list li { margin-bottom: 0.15rem; }
 .pf-cap { font-size: 0.78rem; color: var(--color-fg-subtle); margin-top: 0.3rem; }
 .pf-muted { color: var(--color-fg-faint); }
 .pf-note { font-size: 0.86rem; color: var(--color-fg-subtle); line-height: 1.6; }

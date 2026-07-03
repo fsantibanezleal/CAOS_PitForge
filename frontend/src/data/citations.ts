@@ -35,6 +35,12 @@ export const CITATIONS: Citation[] = [
     citation: 'Hustrulid, W., Kuchta, M. & Martin, R. (2013). Open Pit Mine Planning and Design (3rd ed.). CRC Press.',
   },
   {
+    id: 'espinoza2013',
+    label: 'Espinoza et al. 2013 (MineLib)',
+    citation: 'Espinoza, D., Goycoolea, M., Moreno, E. & Newman, A. (2013). MineLib: a library of open pit mining problems. Annals of Operations Research, 206, 93–114.',
+    doi: '10.1007/s10479-012-1258-3',
+  },
+  {
     id: 'caccetta2003',
     label: 'Caccetta & Hill 2003',
     citation: 'Caccetta, L. & Hill, S. P. (2003). An application of branch and cut to open pit mine scheduling. Journal of Global Optimization, 27, 349–365.',

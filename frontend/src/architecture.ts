@@ -20,7 +20,12 @@ export const architecture: ArchitectureConfig = {
         'It is a real system, not a demo. The ultimate-pit optimiser (frontend/src/opt/) recomputes the exact pit as the ' +
         'minimum cut of a max-flow network built from the block values + the slope precedence arcs — exact, not a ' +
         'heuristic. A grade-NN estimates block grades and a pit-surrogate predicts pit membership — both ONNX, ' +
-        'client-side. An inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor).',
+        'client-side. An inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor).\n\n' +
+        'Two sources, one engine. SYNTHETIC: seeded deposit archetypes (porphyry, vein, layered, core+halo — stated ' +
+        'openly as synthetic) plus the CTRL oracle. REAL: published MineLib benchmark instances (Espinoza et al. 2013), ' +
+        'fetched at runtime into browser memory — never redistributed with the app, because the MineLib license only ' +
+        'grants download for academic purposes. In real mode the scenario knobs lock: the instance ships explicit ' +
+        'precedence and net block values, and the solve must reproduce the published optimum.',
       body_es:
         'PitForge es un producto de planificación de rajo abierto: desde un modelo de bloques, la economía ' +
         '(precio/costo/recuperación) y una restricción de talud, computa el pit final EXACTO (Lerchs–Grossmann) y las ' +
@@ -31,7 +36,13 @@ export const architecture: ArchitectureConfig = {
         'corte mínimo de una red de flujo máximo construida desde los valores de bloque + los arcos de precedencia de ' +
         'talud — exacto, no una heurística. Una grade-NN estima las leyes de bloque y un pit-surrogate predice la ' +
         'pertenencia al pit — ambos ONNX, en el cliente. Un caso oráculo de pirámide invertida tiene un pit óptimo ' +
-        'calculable a mano (un ancla de corrección de forma cerrada).',
+        'calculable a mano (un ancla de corrección de forma cerrada).\n\n' +
+        'Dos fuentes, un motor. SINTÉTICO: arquetipos de depósito con semilla (pórfido, veta, estratificado, ' +
+        'núcleo+halo — declarados abiertamente como sintéticos) más el oráculo CTRL. REAL: instancias del benchmark ' +
+        'MineLib (Espinoza et al. 2013), descargadas en runtime a memoria del navegador — nunca redistribuidas con la ' +
+        'app, porque la licencia MineLib sólo permite descarga con fines académicos. En modo real las perillas de ' +
+        'escenario se bloquean: la instancia trae precedencia explícita y valores netos, y el solve debe reproducir el ' +
+        'óptimo publicado.',
     },
     {
       id: 'lanes',
@@ -116,7 +127,11 @@ export const architecture: ArchitectureConfig = {
         'the web reads (per-case pits + shells, the surrogate-vs-exact agreement, the model index), mirrored exactly by ' +
         'contract.types.ts. Between them the staged, deterministic pipeline runs the lane gate (numpy-light by default, ' +
         '--retrain for the heavy torch lane) and writes a provenance manifest, so every result is reproducible and the ' +
-        'web can never silently drift.',
+        'web can never silently drift.\n\n' +
+        'Honesty, on the record: every baked case carries a provenance manifest (lane verdict, runtimes, artifact ' +
+        'bytes and an explicit honesty statement — all deposits are synthetic and seeded; nothing is presented as ' +
+        'field data). The manifests are versioned in data/derived and enforced by the CI drift gate; the App shows ' +
+        'the domain views and keeps this meta-layer here and in Benchmark.',
       body_es:
         'Dos contratos de datos validados encierran el pipeline. El Contrato 1 (ingesta) define un modelo de bloques ' +
         'válido — las dimensiones de la grilla, ley + tipo de roca por bloque, los parámetros económicos y el ángulo de ' +
@@ -124,7 +139,11 @@ export const architecture: ArchitectureConfig = {
         '(artefacto) define la salida que lee la web (pits + cáscaras por caso, el acuerdo surrogate-vs-exacto, el ' +
         'índice de modelos), espejada exactamente por contract.types.ts. Entre ambos, el pipeline por etapas y ' +
         'determinista corre el lane gate (numpy-light por defecto, --retrain para el carril pesado de torch) y escribe ' +
-        'un manifest de procedencia, de modo que cada resultado es reproducible y la web nunca diverge en silencio.',
+        'un manifest de procedencia, de modo que cada resultado es reproducible y la web nunca diverge en silencio.\n\n' +
+        'Honestidad, en el registro: cada caso horneado lleva un manifest de procedencia (veredicto de carril, ' +
+        'runtimes, bytes del artefacto y una declaración explícita de honestidad — todos los depósitos son sintéticos ' +
+        'y con semilla; nada se presenta como datos de terreno). Los manifests están versionados en data/derived y los ' +
+        'exige el gate de deriva en CI; la App muestra las vistas de dominio y esta meta-capa vive aquí y en Benchmark.',
     },
   ],
 };

@@ -9,7 +9,7 @@ import { idx } from '../opt/types.ts';
  * optimiser EXTRACTS (the pit) are shown solid, the rest faded — so you watch the pit grow/shrink as you drag the
  * revenue factor / price / slope. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
  * InstancedMesh so the whole ~7 000-block model renders in one draw call. */
-export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12 }: {
+export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present }: {
   model: BlockModel;
   inPit: Uint8Array;
   gradeMax: number;
@@ -17,6 +17,8 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
   height?: number;
   shellOf?: Int32Array;
   nShells?: number;
+  /** sparse published models: 1 where a block exists; absent cells are never drawn. */
+  present?: Uint8Array;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -60,6 +62,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       for (let iy = 0; iy < ny; iy++) {
         for (let ix = 0; ix < nx; ix++) {
           const i = idx(model.dims, ix, iy, iz);
+          if (present && !present[i]) continue;         // sparse models: draw only existing blocks
           const out = !inPit[i];
           if (mode === 'pit' && out) continue;          // pit mode: only the extracted blocks
           if (mode === 'shells' && (!shellOf || shellOf[i] < 0)) continue;
@@ -97,22 +100,49 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     camera.position.set(2.4, 1.9, 2.6);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.dampingFactor = 0.1; // settles in ~120 frames — inside the interaction budget below
     controls.target.set(0, 0, 0);
 
+    // ON-DEMAND rendering (portfolio standard, no compute bomb): render only while the user
+    // interacts (+ a bounded damping tail), halt entirely on hidden tabs, repaint on restore.
+    // The damping itself fires 'change' every frame, so those self-inflicted changes must NOT
+    // refill the budget — only external input does — or the loop never terminates.
     let raf = 0;
-    const loop = () => { controls.update(); renderer.render(scene, camera); raf = requestAnimationFrame(loop); };
-    loop();
+    let deadline = 0; // wall-clock budget: robust to any frame rate
+    let inFrame = false;
+    const frame = () => {
+      inFrame = true;
+      controls.update();
+      inFrame = false;
+      renderer.render(scene, camera);
+      if (performance.now() < deadline && !document.hidden) raf = requestAnimationFrame(frame);
+      else raf = 0;
+    };
+    const kick = (ms: number) => {
+      deadline = Math.max(deadline, performance.now() + ms);
+      if (!raf && !document.hidden) raf = requestAnimationFrame(frame);
+    };
+    controls.addEventListener('start', () => kick(3000));               // gesture + damping tail
+    controls.addEventListener('change', () => { if (!inFrame) kick(1000); }); // wheel/programmatic
+    const onVis = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else kick(200); };
+    document.addEventListener('visibilitychange', onVis);
+    const onRestored = () => kick(200);
+    renderer.domElement.addEventListener('webglcontextrestored', onRestored);
+    kick(200); // first paint
 
     const ro = new ResizeObserver(() => {
       const w = el.clientWidth || W;
       renderer.setSize(w, H);
       camera.aspect = w / H;
       camera.updateProjectionMatrix();
+      kick(100);
     });
     ro.observe(el);
 
     return () => {
       cancelAnimationFrame(raf);
+      document.removeEventListener('visibilitychange', onVis);
+      renderer.domElement.removeEventListener('webglcontextrestored', onRestored);
       ro.disconnect();
       controls.dispose();
       geo.dispose();
@@ -120,7 +150,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       renderer.dispose();
       el.removeChild(renderer.domElement);
     };
-  }, [model, inPit, gradeMax, mode, height, shellOf, nShells]);
+  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present]);
 
   return <div className="pf-3d" ref={ref} style={{ width: '100%', height, borderRadius: 10, overflow: 'hidden' }} />;
 }
