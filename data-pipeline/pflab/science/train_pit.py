@@ -204,7 +204,9 @@ def main() -> None:
         "gradeNN": g["metrics"],
         "pitSurrogate": p["metrics"],
         "honesty": ("Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and "
-                    "Ordinary Kriging; pit-surrogate against the exact min-cut. Fast approximations, never beating "
+                    "Ordinary Kriging on the SAME held-out stencils, over a mixed stencil-density distribution "
+                    "(full 26-neighbour rows + random-dropout sparse rows, so partially-drilled what-ifs are in "
+                    "distribution); pit-surrogate against the exact min-cut. Fast approximations, never beating "
                     "the exact result."),
     }
     (DERIVED / "pit-learned.json").write_text(json.dumps(learned, indent=2))

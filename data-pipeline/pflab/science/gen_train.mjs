@@ -49,8 +49,19 @@ for (const c of CASES) {
 }
 
 // ---- grade-nn: a masked 3×3×3 grade stencil → the centre grade, across the 4 distinct geologies ----------
+// Each sampled centre contributes TWO rows: the full 26-neighbour stencil AND a sparse variant
+// with random neighbour dropout (keep-prob ~ U(0.1, 0.9), seeded). The sparse rows put the
+// drilling-density what-if (App Infill tool) IN distribution — without them the model only ever
+// sees complete neighbourhoods and collapses on partially-drilled stencils.
 const gX = [];
 const gY = [];
+let rngState = 0xC0FFEE;
+const rand = () => {
+  rngState |= 0; rngState = (rngState + 0x6d2b79f5) | 0;
+  let t = Math.imul(rngState ^ (rngState >>> 15), 1 | rngState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
 const seenModel = new Set();
 for (const c of CASES) {
   if (c.archetype === null) continue;
@@ -71,8 +82,12 @@ for (const c of CASES) {
           const inb = jx >= 0 && jx < nx && jy >= 0 && jy < ny && jz >= 0 && jz < nz;
           stencil.push(center || !inb ? 0 : model.grade[idx(model.dims, jx, jy, jz)]);   // centre masked
         }
+        const y = model.grade[idx(model.dims, ix, iy, iz)];
         gX.push(stencil);
-        gY.push(model.grade[idx(model.dims, ix, iy, iz)]);
+        gY.push(y);
+        const keep = 0.1 + 0.8 * rand();                      // sparse variant (drilling-density dropout)
+        gX.push(stencil.map((v) => (rand() < keep ? v : 0)));
+        gY.push(y);
       }
     }
   }

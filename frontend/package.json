@@ -10,7 +10,7 @@
     "build": "tsc --noEmit && vite build",
     "postbuild": "node spa-404.mjs",
     "preview": "vite preview",
-    "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts test/minelib.test.ts test/contract-live.test.ts",
+    "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts test/minelib.test.ts test/contract-live.test.ts test/infill.test.ts",
     "bake": "node --import tsx ../data-pipeline/pflab/science/bake_cases.mjs",
     "fetch-minelib": "node scripts/fetch-minelib.mjs"
   },
