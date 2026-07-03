@@ -10,6 +10,8 @@ import { shellColor, viridisCss } from '../viz/colormap.ts';
 import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
 import { RealCasePanel } from '../viz/RealCasePanel.tsx';
 import { BarMini } from '../viz/BarMini.tsx';
+import { UploadPanel } from '../viz/UploadPanel.tsx';
+import type { UserModel } from '../lib/contractLive.ts';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
 const RFS = defaultRevenueFactors(12);
@@ -40,9 +42,12 @@ export default function Tool() {
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
   const real = source === 'real';
   const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
+  // CONTRACT-1 upload: when set, the WHOLE App re-solves on the user's model (Controls econ applies).
+  const [userModel, setUserModel] = useState<UserModel | null>(null);
 
   const theCase = useMemo<PitCase>(() => CASES.find((c) => c.id === caseId) ?? CASES[0], [caseId]);
-  const model = useMemo(() => caseModel(theCase), [theCase]);
+  const model = useMemo(() => (userModel ? userModel.model : caseModel(theCase)), [userModel, theCase]);
+  const present = userModel?.present ?? null;
   const gradeMax = useMemo(() => Math.max(...model.grade), [model]);
   const slopeDeg = slope ?? theCase.econ.slopeAngleDeg;
 
@@ -59,11 +64,13 @@ export default function Tool() {
   const iy = bench ?? Math.floor(model.dims.ny / 2);
 
   useEffect(() => { setBench(null); setRf(1); }, [caseId]);
-  useEffect(() => { setBench(null); setRf(1); setPriceMul(1); setSlope(null); }, [source]);
+  useEffect(() => { setBench(null); setRf(1); setPriceMul(1); setSlope(null); setUserModel(null); }, [source]);
+  useEffect(() => { setBench(null); }, [userModel]);
 
   // ---- section cell builders ------------------------------------------------------------------------------
   const cellGrade = (ix: number, iz: number): SectionCell => {
     const i = idx(model.dims, ix, iy, iz);
+    if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const g = model.grade[i];
     return {
       color: viridisCss(Math.min(1, g / (gradeMax || 1))),
@@ -73,6 +80,7 @@ export default function Tool() {
   };
   const cellShell = (ix: number, iz: number): SectionCell => {
     const i = idx(model.dims, ix, iy, iz);
+    if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const s = shells.shellOf[i];
     return {
       color: s < 0 ? null : shellColor(s, RFS.length),
@@ -88,23 +96,27 @@ export default function Tool() {
       let t = 0;
       let gm = 0;
       for (let i = 0; i < model.grade.length; i++) {
+        if (present && !present[i]) continue;
         if (model.grade[i] >= cut) { t += model.tonnage[i]; gm += model.grade[i] * model.tonnage[i]; }
       }
       return { cut, tonnes: t, meanGrade: t > 0 ? gm / t : 0 };
     });
-  }, [model, gradeMax]);
+  }, [model, gradeMax, present]);
 
   // ---- block-value histogram ------------------------------------------------------------------------------
   const valueHist = useMemo(() => {
     const vals: number[] = [];
-    for (let i = 0; i < model.grade.length; i++) vals.push(blockValue(model, i, { ...econNoRF, revenueFactor: rf }));
+    for (let i = 0; i < model.grade.length; i++) {
+      if (present && !present[i]) continue;
+      vals.push(blockValue(model, i, { ...econNoRF, revenueFactor: rf }));
+    }
     const lo = Math.min(...vals);
     const hi = Math.max(...vals);
     const nb = 28;
     const bins = new Array(nb).fill(0);
     for (const v of vals) bins[Math.min(nb - 1, Math.max(0, Math.floor(((v - lo) / (hi - lo || 1)) * nb)))]++;
     return { bins, lo, hi };
-  }, [model, econNoRF, rf]);
+  }, [model, econNoRF, rf, present]);
 
   const stripZones = [
     { upTo: 1, color: '#3fb95066', label: es ? 'bajo' : 'low' },
@@ -130,7 +142,7 @@ export default function Tool() {
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
             <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length} />
+                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} />
           </Suspense>
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
@@ -217,14 +229,7 @@ export default function Tool() {
     },
     {
       id: 'byo', label: es ? 'Tu modelo' : 'Bring your own',
-      content: (
-        <div className="pf-vizstack">
-          <p className="pf-note">{es
-            ? 'PitForge abre TU modelo de bloques, no solo los casos horneados. CONTRATO 1 (data/examples/blockmodel.csv) valida una tabla de bloques {ix,iy,iz,tonnage,density,grade}: rechaza tonelaje/densidad negativos, índices fuera de la caja y leyes no físicas; marca leyes implausibles y duplicados.'
-            : 'PitForge opens YOUR block model, not just the baked cases. CONTRACT 1 (data/examples/blockmodel.csv) validates a block table {ix,iy,iz,tonnage,density,grade}: it rejects negative tonnage/density, out-of-box indices and unphysical grades; it flags implausible grades and duplicates.'}</p>
-          <p className="pf-cap">{es ? 'El esquema completo está en docs/ y data/README.md.' : 'The full schema is in docs/ and data/README.md.'}</p>
-        </div>
-      ),
+      content: <UploadPanel es={es} active={!!userModel} onUse={setUserModel} onClear={() => setUserModel(null)} />,
     },
   ];
 
@@ -272,14 +277,23 @@ export default function Tool() {
                   <div className="pf-catlabel">{cat.split(' (')[0]}</div>
                   <div className="pf-chips">
                     {CASES.filter((c) => c.category === cat).map((c) => (
-                      <button key={c.id} className={`chip ${caseId === c.id ? 'on' : ''}`} title={c.name}
-                              onClick={() => setCaseId(c.id)}>{c.id}</button>
+                      <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
+                              onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
                     ))}
                   </div>
                 </div>
               ))}
-              <div className="pf-cap">{theCase.name}</div>
-              <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+              {userModel ? (
+                <>
+                  <div className="pf-cap"><b>{es ? 'tu modelo' : 'your model'}</b> · {model.meta.name} · {userModel.dims.nx}×{userModel.dims.ny}×{userModel.dims.nz} · {userModel.nRows} {es ? 'bloques' : 'blocks'}</div>
+                  <div className="pf-cap pf-muted">{es ? 'todos los tabs resuelven sobre él (economía de Controles); elige un caso para volver' : 'every tab solves on it (Controls econ); pick a case to go back'}</div>
+                </>
+              ) : (
+                <>
+                  <div className="pf-cap">{theCase.name}</div>
+                  <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+                </>
+              )}
             </>
           )}
         </div>
