@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pflab"
 # PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + pflab.__version__).
-version = "0.6.0"
+version = "0.7.0"
 description = "PitForge — open-pit mine design: pseudoflow ultimate-pit + Whittle nested pit shells (ADR-0057)."
 readme = "README.md"
 requires-python = ">=3.11"

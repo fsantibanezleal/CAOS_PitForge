@@ -1,7 +1,49 @@
 # Changelog
 
 All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display) — see `pflab.__version__` and
-`frontend/package.json`. The project stays in `0.x` while the deposits are synthetic.
+`frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
+block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
+
+## [0.07.000] — 2026-07-03
+
+The Faena real-workbench release (epic #18, issues #11–#17 + #26): PitForge now opens REAL published
+block models and reproduces their published optima, alongside the synthetic teaching lane.
+
+### Added
+- **First-level SOURCE selector** (App): `synthetic (seeded)` (4 archetypes + econ/slope scenarios + the CTRL
+  oracle) vs `real · MineLib` (published benchmark instances; you only pick the instance). (#12, PR #24)
+- **Real MineLib lane, exact and live** (#13, PR #25; #17, PR #29): `.blocks/.prec/.upit` parsers (formats
+  verified against live mirror bytes), `solveUpitExplicit()` (Picard → Dinic on the published explicit
+  precedence, closure + value-identity self-checks), sparse bounding-box embedding for the standard viz.
+  **All three mirror-verified instances reproduce their published UPIT optimum**: newman1 26,086,899
+  (rel 1.0e-9, 5 ms) · zuck_small 1,422,726,898 (rel 1.9e-10, 237 ms) · kd 652,195,037 (rel 1.3e-10, 259 ms).
+  newman1 solves on select; zuck_small/kd behind an explicit size-gate confirm (in-browser 272/317 ms).
+  License posture enforced in code: runtime fetch into browser memory only, gitignored local cache for the
+  offline bake, instance files never committed or redistributed (MineLib grants academic download only).
+- **CONTRACT-1 drag-drop** (#14/#15, PR #27): `lib/contractLive.ts` mirrors the Python block rules 1:1
+  (drift-guarded by shared-fixture tests); drop a `{ix,iy,iz,tonnage,density,grade}` CSV → accept/reject/flag
+  report with row reasons → the WHOLE App re-solves on your model with the live Controls econ.
+- **Learned models as working tools** (#16, PR #28): `Infill · what-if` (drilling density → grade-nn ONNX +
+  IDW baseline infill → the EXACT pit re-solved per estimated deposit; pit-value delta + RMSE readout) and
+  `Surrogate · preview` (instant P(in-pit) heatmap vs the exact outline + live agreement %, honest TRIAGE
+  framing). grade-nn retrained on mixed-density stencils (full + random-dropout) so partial drilling is in
+  distribution: held-out R² 0.9613 vs IDW 0.9129 vs OK 0.958; pit-surrogate AUC 0.9811.
+- **Benchmark: Real MineLib (UPIT) table** (#17): our exact value vs the published optimum, rel error, solve
+  times; marvin / mclaughlin_limit / mclaughlin excluded WITH reasons. Offline bake (`bake-minelib.mjs`,
+  local-only, never CI) writes summary numbers only.
+- Citations: Espinoza, Goycoolea, Moreno & Newman 2013 (MineLib, doi:10.1007/s10479-012-1258-3).
+
+### Changed
+- **Meta-tabs removed from the App** (#16/#12): `learned` metrics table (now Benchmark-only), `contract · gate`
+  and `raw trace` (manifests/traces/CI drift gate all stay; the honesty statement moved into the Architecture
+  ⓘ modal). The prose-only `bring your own` tab became the working upload panel.
+- Real mode locks RF / price× / slope° with an explanatory tooltip (the instance publishes explicit precedence
+  + net values; re-deriving them would break published-optimum comparability). Row-Y / 3-D mode stay live.
+
+### Fixed
+- **PitView3D on-demand rendering** (#26, PR #30): the unconditional rAF loop is gone — a wall-clock budget per
+  gesture (damping's self-inflicted change events can never refill it), halt on hidden tabs, repaint on
+  visibility/context restore. Measured: idle 0 frames / drag 43 / post-drag idle 0.
 
 ## [0.06.000] — 2026-06-21
 

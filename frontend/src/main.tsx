@@ -20,14 +20,14 @@ const config: ShellConfig = {
   product: { name: 'PitForge', mark: <Mountain size={18} aria-hidden="true" /> },
   routes: [
     { path: '/', en: 'App', es: 'App' },
-    { path: '/introduction', en: 'Introduction', es: 'Introducción' },
-    { path: '/methodology', en: 'Methodology', es: 'Metodología' },
-    { path: '/implementation', en: 'Implementation', es: 'Implementación' },
+    { path: '/introduction', en: 'Introduction', es: 'IntroducciÃ³n' },
+    { path: '/methodology', en: 'Methodology', es: 'MetodologÃ­a' },
+    { path: '/implementation', en: 'Implementation', es: 'ImplementaciÃ³n' },
     { path: '/experiments', en: 'Experiments', es: 'Experimentos' },
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
-  version: '0.06.000',
+  version: '0.07.000',
   architecture,
 };
 
