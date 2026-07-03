@@ -10,7 +10,7 @@
     "build": "tsc --noEmit && vite build",
     "postbuild": "node spa-404.mjs",
     "preview": "vite preview",
-    "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts",
+    "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts",
     "bake": "node --import tsx ../data-pipeline/pflab/science/bake_cases.mjs"
   },
   "dependencies": {

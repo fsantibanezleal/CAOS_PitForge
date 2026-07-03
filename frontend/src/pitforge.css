@@ -17,6 +17,8 @@
 
 .pf-ctl { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; color: var(--color-fg-subtle); margin-bottom: 0.5rem; }
 .pf-ctl .range { width: 100%; accent-color: var(--color-accent); }
+.pf-ctl.off { opacity: 0.45; }
+.pf-ctl input:disabled { cursor: not-allowed; }
 .pf-cap { font-size: 0.78rem; color: var(--color-fg-subtle); margin-top: 0.3rem; }
 .pf-muted { color: var(--color-fg-faint); }
 .pf-note { font-size: 0.86rem; color: var(--color-fg-subtle); line-height: 1.6; }
