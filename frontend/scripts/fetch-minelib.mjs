@@ -9,13 +9,16 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const MIRROR = 'https://raw.githubusercontent.com/ampl/colab.ampl.com/master/authors/eduardosalaz/minelib/data';
+const MIRROR2 = 'https://raw.githubusercontent.com/qarth/whattle/master/test/minelib';
 const SOURCES = {
   newman1: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR}/newman1/newman1.${ext}`),
-  // zuck_small / kd: no verified plain-HTTPS mirror yet — wire here when one is found (#17).
+  zuck_small: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR2}/zuck_small/zuck_small.${ext}`),
+  kd: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR2}/kd/kd.${ext}`),
+  // mclaughlin: 83 MB .blocks / no .prec on any verified mirror — excluded-with-reason (see bake).
 };
 
 const cacheRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '.minelib-cache');
-const wanted = process.argv.slice(2).length ? process.argv.slice(2) : ['newman1'];
+const wanted = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(SOURCES);
 
 for (const id of wanted) {
   const urls = SOURCES[id];

@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts test/minelib.test.ts test/contract-live.test.ts test/infill.test.ts",
     "bake": "node --import tsx ../data-pipeline/pflab/science/bake_cases.mjs",
-    "fetch-minelib": "node scripts/fetch-minelib.mjs"
+    "fetch-minelib": "node scripts/fetch-minelib.mjs",
+    "bake:minelib": "node --import tsx scripts/bake-minelib.mjs"
   },
   "dependencies": {
     "@fasl-work/caos-app-shell": "^0.2.0",

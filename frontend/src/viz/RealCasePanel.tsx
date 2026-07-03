@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Tabs } from '@fasl-work/caos-app-shell';
-import { solveRealCase, type RealCase, type RealSolved, type RealSolveState } from '../opt/realCases.ts';
+import { peekRealCase, solveRealCase, type RealCase, type RealSolved, type RealSolveState } from '../opt/realCases.ts';
 import { idx } from '../opt/types.ts';
 import { SectionView, type SectionCell } from './SectionView.tsx';
 import { BarMini } from './BarMini.tsx';
@@ -15,16 +15,20 @@ const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
  *  RF sweep, which needs a per-instance econ decomposition — documented out of the v1 real mode. */
 export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
   const [state, setState] = useState<RealSolveState>({ status: 'idle' });
+  const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let alive = true;
+    const cached = peekRealCase(rc.id);
+    if (cached) { setState(cached); return; }
     if (!rc.urls) { setState({ status: 'no-source', instance: rc.id }); return; }
+    if (rc.gate === 'size-gated' && !confirmed[rc.id]) { setState({ status: 'needs-confirm', instance: rc.id }); return; }
     setState({ status: 'fetching', instance: rc.id });
     solveRealCase(rc)
       .then((s) => { if (alive) setState(s); })
       .catch((e) => { if (alive) setState({ status: 'error', instance: rc.id, message: String(e?.message ?? e) }); });
     return () => { alive = false; };
-  }, [rc]);
+  }, [rc, confirmed]);
 
   if (state.status === 'solved') return <SolvedTabs rc={rc} s={state} es={es} />;
 
@@ -38,7 +42,12 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
         <Kpi label={es ? 'carril' : 'gate'} value={rc.gate} />
       </div>
       <p className="pf-note">{es ? rc.provenance_es : rc.provenance_en}</p>
-      {state.status === 'fetching' && <p className="pf-note">{es ? 'descargando la instancia…' : 'fetching the instance…'}</p>}
+      {state.status === 'needs-confirm' && (
+        <button className="chip on" onClick={() => setConfirmed((c) => ({ ...c, [rc.id]: true }))}>
+          {es ? `▶ descargar + resolver (${fInt(rc.nBlocks)} bloques, ${fInt(rc.nPrecs)} arcos)` : `▶ fetch + solve (${fInt(rc.nBlocks)} blocks, ${fInt(rc.nPrecs)} arcs)`}
+        </button>
+      )}
+      {state.status === 'fetching' && <p className="pf-note">{es ? 'descargando + resolviendo (min-cut exacto)…' : 'fetching + solving (exact min-cut)…'}</p>}
       {state.status === 'solving' && <p className="pf-note">{es ? 'resolviendo (min-cut exacto)…' : 'solving (exact min-cut)…'}</p>}
       {state.status === 'no-source' && (
         <p className="pf-note">{es
