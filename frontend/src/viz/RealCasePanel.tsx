@@ -13,6 +13,10 @@ const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
  *  domain views as the synthetic side — 3-D pit, section, summary, block-value histogram and
  *  grade–tonnage (where the instance publishes grade/tonnage columns). Whittle/pushbacks need an
  *  RF sweep, which needs a per-instance econ decomposition — documented out of the v1 real mode. */
+// synthetic oreblocks twins carry a "stamped" optimum (from our generator), not a "published" one.
+const optLabel = (rc: RealCase, es: boolean) =>
+  rc.synthetic ? (es ? 'óptimo estampado' : 'stamped optimum') : (es ? 'óptimo publicado' : 'published optimum');
+
 export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
   const [state, setState] = useState<RealSolveState>({ status: 'idle' });
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
@@ -38,7 +42,7 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
       <div className="pf-kpis">
         <Kpi label={es ? 'bloques' : 'blocks'} value={fInt(rc.nBlocks)} />
         <Kpi label={es ? 'arcos de precedencia' : 'precedence arcs'} value={fInt(rc.nPrecs)} />
-        <Kpi label={es ? 'óptimo UPIT publicado' : 'published UPIT optimum'} value={fInt(rc.publishedOptimum)} />
+        <Kpi label={optLabel(rc, es)} value={fInt(rc.publishedOptimum)} />
         <Kpi label={es ? 'carril' : 'gate'} value={rc.gate} />
       </div>
       <p className="pf-note">{es ? rc.provenance_es : rc.provenance_en}</p>
@@ -127,7 +131,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
   }, [s]);
 
   const matchChip = s.matchPublished
-    ? (es ? '✓ reproduce el óptimo publicado' : '✓ reproduces the published optimum')
+    ? (es ? `✓ reproduce el ${optLabel(rc, es)}` : `✓ reproduces the ${optLabel(rc, es)}`)
     : (es ? `✗ difiere del publicado (Δ ${fInt(s.pitValue - s.publishedOptimum)})` : `✗ differs from published (Δ ${fInt(s.pitValue - s.publishedOptimum)})`);
 
   const tabs = [
@@ -151,7 +155,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={fInt(s.pitValue)} />
             <Kpi label={es ? 'bloques en pit' : 'blocks in pit'} value={`${fInt(s.nInPit)} / ${fInt(rc.nBlocks)}`} />
             {pitTonnes !== null && <Kpi label={es ? 'toneladas en pit' : 'tonnes in pit'} value={fInt(pitTonnes)} />}
-            <Kpi label={es ? 'vs publicado' : 'vs published'} value={s.matchPublished ? '✓' : '✗'} />
+            <Kpi label={rc.synthetic ? (es ? 'vs estampado' : 'vs stamped') : (es ? 'vs publicado' : 'vs published')} value={s.matchPublished ? '✓' : '✗'} />
           </div>
           <p className="pf-cap">{matchChip} · {es ? 'resuelto en' : 'solved in'} {s.solveMs.toFixed(0)} ms ({es ? 'descarga' : 'fetch'} {s.fetchMs.toFixed(0)} ms)</p>
         </div>
@@ -177,7 +181,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
         <div className="pf-vizstack">
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit (exacto)' : 'pit value (exact)'} value={fInt(s.pitValue)} />
-            <Kpi label={es ? 'óptimo publicado' : 'published optimum'} value={fInt(s.publishedOptimum)} />
+            <Kpi label={optLabel(rc, es)} value={fInt(s.publishedOptimum)} />
             <Kpi label={es ? 'bloques en pit' : 'blocks in pit'} value={`${fInt(s.nInPit)} / ${fInt(rc.nBlocks)}`} />
             <Kpi label={es ? 'identidad maxflow' : 'maxflow identity'} value={Math.abs(s.pitValue - (s.sumPositive - s.maxflow)) < 1 ? '✓' : '✗'} />
             {pitTonnes !== null && <Kpi label={es ? 'toneladas en pit' : 'tonnes in pit'} value={fInt(pitTonnes)} />}

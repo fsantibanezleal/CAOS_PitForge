@@ -279,11 +279,25 @@ export default function Tool() {
           <div className="pf-card-t">{real ? (es ? 'Instancia' : 'Instance') : (es ? 'Caso' : 'Case')}</div>
           {real ? (
             <>
-              <div className="pf-chips">
-                {REAL_CASES.map((r) => (
-                  <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
-                          onClick={() => setRealId(r.id)}>{r.id}</button>
-                ))}
+              {/* #34: split the picker so published MineLib instances and our own oreblocks twins
+                  read as distinct provenances (one licensed-remote, one synthetic-committed). */}
+              <div className="pf-catgroup">
+                <div className="pf-catlabel">{es ? 'publicadas · MineLib' : 'published · MineLib'}</div>
+                <div className="pf-chips">
+                  {REAL_CASES.filter((r) => !r.synthetic).map((r) => (
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                            onClick={() => setRealId(r.id)}>{r.id}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="pf-catgroup">
+                <div className="pf-catlabel">{es ? 'gemelos sintéticos · oreblocks' : 'synthetic twins · oreblocks'}</div>
+                <div className="pf-chips">
+                  {REAL_CASES.filter((r) => r.synthetic).map((r) => (
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                            onClick={() => setRealId(r.id)}>{r.id.replace('twin-', '')}</button>
+                  ))}
+                </div>
               </div>
               <div className="pf-cap">{realCase.name}</div>
               <div className="pf-cap pf-muted">{es ? realCase.provenance_es : realCase.provenance_en}</div>
