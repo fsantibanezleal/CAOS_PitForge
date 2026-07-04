@@ -139,3 +139,28 @@ for (const id of ['zuck_small', 'kd']) {
       `pitValue ${r.pitValue} != published ${rc.publishedOptimum}`);
   });
 }
+
+
+// --- synthetic twins (committed) reproduce their stamped optimum (#34) -------------------------
+for (const tw of ['twin-porphyry-s', 'twin-vein-m', 'twin-corehalo-m']) {
+  const dir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'twins');
+  const has = existsSync(join(dir, `${tw}.upit`));
+  test(`${tw} reproduces its oreblocks-stamped optimum`, { skip: !has && 'twin files absent' }, () => {
+    const rc = REAL_CASES.find((r) => r.id === tw)!;
+    const inst = parseMinelib({
+      blocks: readFileSync(join(dir, `${tw}.blocks`), 'utf8'),
+      prec: readFileSync(join(dir, `${tw}.prec`), 'utf8'),
+      upit: readFileSync(join(dir, `${tw}.upit`), 'utf8'),
+    }, rc.blocksLayout);
+    assert.equal(inst.n, rc.nBlocks);
+    assert.equal(inst.nPrecs, rc.nPrecs);
+    const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
+    // the stamped optimum is in the registry as publishedOptimum; the TS engine must match it
+    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+      `${tw}: ${r.pitValue} != stamped ${rc.publishedOptimum}`);
+    // and the meta sidecar agrees
+    const meta = JSON.parse(readFileSync(join(dir, `${tw}.meta.json`), 'utf8'));
+    assert.ok(Math.abs(r.pitValue - meta.stamped_optimum) <= 1e-6 * meta.stamped_optimum);
+    assert.equal(r.nInPit, meta.stamped_n_in_pit);
+  });
+}

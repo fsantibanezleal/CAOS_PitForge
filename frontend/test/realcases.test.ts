@@ -23,13 +23,27 @@ test('published facts match the MineLib record (Espinoza et al. 2013)', () => {
   assert.equal(byId.kd.publishedOptimum, 652_195_037);
 });
 
-test('license posture: fetch URLs are remote HTTPS, never local bundle paths', () => {
+test('license posture: PUBLISHED MineLib instances fetch from remote HTTPS, never bundled', () => {
+  // synthetic twins are OUR data (no MineLib license) and are committed + served locally — exempt.
   for (const r of REAL_CASES) {
-    if (r.urls === null) continue;
+    if (r.urls === null || r.synthetic) continue;
     for (const u of Object.values(r.urls)) {
-      assert.match(u, /^https:\/\//, `${r.id}: must be a remote HTTPS fetch`);
-      assert.ok(!u.startsWith('/') && !u.includes('data/derived'), `${r.id}: must not point into the bundle`);
+      assert.match(u, /^https:\/\//, `${r.id}: published instance must be a remote HTTPS fetch`);
+      assert.ok(!u.includes('data/derived'), `${r.id}: must not point into the derived bundle`);
     }
+  }
+});
+
+test('synthetic twins are committed locally (not remote), with a stamped optimum', () => {
+  const twins = REAL_CASES.filter((r) => r.synthetic);
+  assert.ok(twins.length >= 2, 'expected the oreblocks synthetic twins');
+  for (const r of twins) {
+    assert.ok(r.urls, `${r.id}: twin needs local urls`);
+    for (const u of Object.values(r.urls!)) {
+      assert.ok(!/^https?:\/\//.test(u), `${r.id}: twin must be served locally, not fetched remotely`);
+      assert.match(u, /twins\//, `${r.id}: twin url must point at the committed twins dir`);
+    }
+    assert.ok(r.publishedOptimum > 0 && r.nBlocks > 0 && r.nPrecs > 0);
   }
 });
 

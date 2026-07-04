@@ -1,0 +1,47 @@
+{
+  "schema": "pitforge.twins/v1",
+  "twins": [
+    {
+      "id": "twin-porphyry-s",
+      "name": "porphyry twin 16x16x8",
+      "archetype": "porphyry",
+      "nBlocks": 2048,
+      "nPrecs": 14812,
+      "stampedOptimum": 126908453.74,
+      "nInPit": 1337,
+      "blocksLayout": {
+        "grade": 4,
+        "tonnage": 5,
+        "density": 6
+      }
+    },
+    {
+      "id": "twin-vein-m",
+      "name": "vein twin 20x20x10",
+      "archetype": "vein",
+      "nBlocks": 4000,
+      "nPrecs": 30276,
+      "stampedOptimum": 213735284.681,
+      "nInPit": 2561,
+      "blocksLayout": {
+        "grade": 4,
+        "tonnage": 5,
+        "density": 6
+      }
+    },
+    {
+      "id": "twin-corehalo-m",
+      "name": "core_halo twin 22x22x10",
+      "archetype": "core_halo",
+      "nBlocks": 4840,
+      "nPrecs": 36864,
+      "stampedOptimum": 65696305.786,
+      "nInPit": 2521,
+      "blocksLayout": {
+        "grade": 4,
+        "tonnage": 5,
+        "density": 6
+      }
+    }
+  ]
+}

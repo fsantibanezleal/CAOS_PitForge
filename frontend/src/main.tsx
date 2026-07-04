@@ -27,7 +27,7 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
-  version: '0.07.001',
+  version: '0.08.000',
   architecture,
 };
 
