@@ -1,8 +1,8 @@
-// Block economic value — the floating-cutoff model that turns grade + prices into the per-block value v_i the
+// Block economic value, the floating-cutoff model that turns grade + prices into the per-block value v_i the
 // optimiser maximises.
 //
 // Every block pays the mining cost (you must dig it to move it). A block is sent to the MILL only if milling it is
-// worth more than dumping it as waste, i.e. its recovered revenue beats the processing cost — this is the floating
+// worth more than dumping it as waste, i.e. its recovered revenue beats the processing cost, this is the floating
 // cutoff, decided per block:
 //
 //   revenue_i = price · tonnage_i · grade_i · recovery                 (recoverable metal value)

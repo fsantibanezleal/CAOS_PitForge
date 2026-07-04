@@ -1,4 +1,4 @@
-// PitForge engine — shared types for the ultimate-pit / nested-shells solver.
+// PitForge engine, shared types for the ultimate-pit / nested-shells solver.
 //
 // A block model is a regular 3-D grid. The z index increases DOWNWARD (z=0 is the top bench / surface), which is the
 // mining convention and the direction the slope-precedence cone opens against. All arrays are flat, length

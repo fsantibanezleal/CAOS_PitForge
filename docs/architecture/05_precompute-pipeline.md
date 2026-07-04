@@ -13,7 +13,7 @@ re-implementing the optimiser in Python.
 | `train` | fit the 2 learned models → ONNX (`science/train_pit.py`, torch) |
 | `infer` | bake the exact UPL + Whittle shells over every case (`science/bake_cases.mjs`) → `case-results.json` |
 | `evaluate` | the held-out learned-model metrics vs their classical baselines |
-| `export` | build the compact per-case trace + manifest (CONTRACT 2) — the LIGHT, numpy-only step |
+| `export` | build the compact per-case trace + manifest (CONTRACT 2), the LIGHT, numpy-only step |
 
 ## The two lanes of `pflab.pipeline`
 
@@ -33,5 +33,5 @@ train_pit.py   ──► data/derived/{grade-nn.onnx, pit-surrogate.onnx, pit-le
 pipeline.export──► data/derived/<case>/trace.json + manifests/<case>.json + index.json   (CONTRACT 2)
 ```
 
-Determinism: the light pipeline is a pure function of the committed artifacts — re-running it is byte-identical (the
+Determinism: the light pipeline is a pure function of the committed artifacts, re-running it is byte-identical (the
 manifest carries no wall-clock; see [02](02_determinism-and-trace.md)).

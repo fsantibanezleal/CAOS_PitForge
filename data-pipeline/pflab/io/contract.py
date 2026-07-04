@@ -1,10 +1,10 @@
-"""CONTRACT 1 — ingestion (raw -> pipeline). The *bring-your-own-orebody* gate.
+"""CONTRACT 1, ingestion (raw -> pipeline). The *bring-your-own-orebody* gate.
 
 Two entry points, one policy:
 
-* ``validate_records`` — validates SCENARIO rows (one per case: archetype, grid, economics, slope). This is what the
+* ``validate_records``, validates SCENARIO rows (one per case: archetype, grid, economics, slope). This is what the
   pipeline runs over the case set; it proves the gate and carries flags into the manifest.
-* ``validate_blocks`` — validates a real block-model table (one row per BLOCK: ix,iy,iz, tonnage, density, grade).
+* ``validate_blocks``, validates a real block-model table (one row per BLOCK: ix,iy,iz, tonnage, density, grade).
   This is the path that lets PitForge open a NEW deposit instead of only replaying the baked cases.
 
 A row is ACCEPTED iff it passes; ill-formed rows are REJECTED with a reason (never silently coerced); plausible-but-
@@ -91,7 +91,7 @@ def validate_records(raw_rows: list[dict[str, Any]]) -> ContractReport:
 
         rec_flags: list[str] = []
         if not (SLOPE_FLAG_LO <= slope <= SLOPE_FLAG_HI):
-            rec_flags.append(f"slope {slope:g}° outside [{SLOPE_FLAG_LO:g},{SLOPE_FLAG_HI:g}] — the discrete cone is "
+            rec_flags.append(f"slope {slope:g}° outside [{SLOPE_FLAG_LO:g},{SLOPE_FLAG_HI:g}], the discrete cone is "
                              f"coarse at this angle (verify against a bench-by-bench geotech model)")
         if rec_flags:
             flagged.append({"case_id": cid, "flags": rec_flags})
@@ -143,7 +143,7 @@ def validate_blocks(raw_rows: list[dict[str, Any]], *, dims: tuple[int, int, int
             rec_flags.append(f"duplicate block index ({ix},{iy},{iz})")
         seen.add((ix, iy, iz))
         if grade > GRADE_FLAG_MAX:
-            rec_flags.append(f"grade {grade:g} > {GRADE_FLAG_MAX:g} — implausibly rich for a bulk metal")
+            rec_flags.append(f"grade {grade:g} > {GRADE_FLAG_MAX:g}, implausibly rich for a bulk metal")
         if rec_flags:
             flagged.append({"index": [ix, iy, iz], "flags": rec_flags})
         accepted.append({"ix": ix, "iy": iy, "iz": iz, "tonnage": tonnage, "density": density, "grade": grade})

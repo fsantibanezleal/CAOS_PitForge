@@ -1,4 +1,4 @@
-// Engine correctness — run with: node --import tsx --test test/opt.test.ts
+// Engine correctness, run with: node --import tsx --test test/opt.test.ts
 //
 // The headline asset is the EXACT optimiser, so it is pinned against hand-computable ground truth: the inverted-
 // pyramid oracle (a single deep ore block under a 45° slope drags up a known 9-block cone), the floating-cutoff

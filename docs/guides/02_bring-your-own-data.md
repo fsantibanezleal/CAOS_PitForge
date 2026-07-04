@@ -1,4 +1,4 @@
-# Guide — bring your own block model
+# Guide, bring your own block model
 
 PitForge is built to open **your** block model, not just the baked synthetic cases. The gate is CONTRACT 1
 (`pflab/io/contract.py`); the schema + outlier policy are documented in [data-contracts](../architecture/08_data-contracts.md)
@@ -37,7 +37,7 @@ slope, and the same TS optimiser that powers the App computes your ultimate pit 
 
 ## What to check first
 
-- **Units** — grade must be a *mass fraction*, not a percentage or ppm. A 1.2 % block is `0.012`, not `1.2`.
-- **Orientation** — `iz = 0` is the **top** bench (surface); the slope cone opens upward against increasing `iz`.
-- **Economics** — the floating cutoff is implicit in the costs; a block is ore iff `RF·revenue > processingCost·tonnage`
+- **Units**, grade must be a *mass fraction*, not a percentage or ppm. A 1.2 % block is `0.012`, not `1.2`.
+- **Orientation**, `iz = 0` is the **top** bench (surface); the slope cone opens upward against increasing `iz`.
+- **Economics**, the floating cutoff is implicit in the costs; a block is ore iff `RF·revenue > processingCost·tonnage`
   (see [the optimiser](../frameworks/01_optimiser.md)).

@@ -1,4 +1,4 @@
-/** A tiny inline bar chart (no extra deps) — grade–tonnage curves + value histograms. */
+/** A tiny inline bar chart (no extra deps), grade–tonnage curves + value histograms. */
 export function BarMini({ values, labels, unit, caption }: { values: number[]; labels: string[]; unit: string; caption?: string }) {
   const max = Math.max(1, ...values);
   return (

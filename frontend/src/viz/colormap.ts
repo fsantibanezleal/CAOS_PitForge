@@ -1,4 +1,4 @@
-// Perceptually-uniform-ish viridis ramp (avoids the jet trap) — shared by the 2-D section + the 3-D pit.
+// Perceptually-uniform-ish viridis ramp (avoids the jet trap), shared by the 2-D section + the 3-D pit.
 const STOPS: [number, number, number][] = [
   [0.27, 0.0, 0.33], [0.23, 0.32, 0.55], [0.13, 0.57, 0.55], [0.37, 0.79, 0.38], [0.99, 0.91, 0.14],
 ];
@@ -18,7 +18,7 @@ export const viridisCss = (t: number): string => {
   return `rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`;
 };
 
-/** A distinct hue per nested-shell index (pushback phases) — a qualitative ramp. */
+/** A distinct hue per nested-shell index (pushback phases), a qualitative ramp. */
 export function shellColor(shell: number, nShells: number): string {
   if (shell < 0) return 'transparent';
   const h = (shell / Math.max(1, nShells)) * 280; // blue→red sweep

@@ -1,4 +1,4 @@
-// The canonical case set — shared by the offline bake (data-pipeline/pflab/science/bake_cases.mjs) and the SPA. Cases
+// The canonical case set, shared by the offline bake (data-pipeline/pflab/science/bake_cases.mjs) and the SPA. Cases
 // are grouped by CATEGORY (deposit archetype / economic scenario / slope-geotech / oracle control). The App shows ONE
 // selected case; Experiments/Benchmark show cross-case summaries. All deposits are SYNTHETIC (seeded), stated openly;
 // CTRL is the closed-form ORACLE (a single deep ore block under a 45° slope → the exact 9-block inverted pyramid).
@@ -49,11 +49,11 @@ export const CASES: PitCase[] = [
     validationAnchor: 'RF-driven halo inclusion', realOrSynthetic: 'synthetic' },
   { id: 'E01', name: 'Low price ($5 500/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, price: 5500 },
-    expectedBand: 'a markedly smaller pit — only the richest core pays', validationAnchor: 'pit ⊂ the base-price pit',
+    expectedBand: 'a markedly smaller pit, only the richest core pays', validationAnchor: 'pit ⊂ the base-price pit',
     realOrSynthetic: 'synthetic' },
   { id: 'E02', name: 'High price ($14 000/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, price: 14000 },
-    expectedBand: 'a larger pit — lower-grade material becomes ore', validationAnchor: 'pit ⊃ the base-price pit',
+    expectedBand: 'a larger pit, lower-grade material becomes ore', validationAnchor: 'pit ⊃ the base-price pit',
     realOrSynthetic: 'synthetic' },
   { id: 'G01', name: 'Shallow walls (30°)', category: CAT_SLOPE, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, slopeAngleDeg: 30 },
@@ -63,7 +63,7 @@ export const CASES: PitCase[] = [
     seed: 11, peakGrade: 0.025, econ: { ...BASE, slopeAngleDeg: 18 },
     expectedBand: 'the flattest walls → the widest cone and the most stripping → the lowest value',
     validationAnchor: 'value ≤ the 30° pit (even more stripping)', realOrSynthetic: 'synthetic' },
-  { id: 'CTRL', name: 'Oracle — single deep ore block (45°)', category: CAT_ORACLE, archetype: null,
+  { id: 'CTRL', name: 'Oracle, single deep ore block (45°)', category: CAT_ORACLE, archetype: null,
     dims: { nx: 5, ny: 1, nz: 3 }, seed: 0, peakGrade: 0,
     econ: { price: 11, recovery: 1, miningCost: 1, processingCost: 0, slopeAngleDeg: 45 },
     expectedBand: 'the optimal pit is EXACTLY the 9-block inverted pyramid; value = 10 − 8 = 2',

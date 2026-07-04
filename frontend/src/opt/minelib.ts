@@ -1,18 +1,18 @@
-// MineLib instance support — parsers for the published .blocks / .prec / .upit formats, the
+// MineLib instance support, parsers for the published .blocks / .prec / .upit formats, the
 // explicit-precedence UPIT solve, and the dense-grid embedding the viz reads.
 //
 // Formats (verified against the live newman1 mirror bytes, 2026-07-03):
 //   .blocks  one row per block: `id x y z <instance-specific free columns>`; id counts from 0,
-//            z increases UPWARD (published convention — the opposite of our viz convention).
-//   .prec    one row per block: `b n p_1 .. p_n` — the n blocks that must be extracted BEFORE b.
-//   .upit    a short keyword header (NAME/TYPE/NBLOCKS/OBJECTIVE_FUNCTION:) then `b value` rows —
+//            z increases UPWARD (published convention, the opposite of our viz convention).
+//   .prec    one row per block: `b n p_1 .. p_n`, the n blocks that must be extracted BEFORE b.
+//   .upit    a short keyword header (NAME/TYPE/NBLOCKS/OBJECTIVE_FUNCTION:) then `b value` rows , 
 //            the authoritative net block value (destination already optimised per block).
 //
 // The free-column semantics of .blocks vary per instance, so each RealCase declares a
 // BlocksLayout mapping token indices to grade/tonnage/density where known (newman1: 5/6/7).
 //
-// solveUpitExplicit reuses the exact machinery of the synthetic engine — Picard's max-closure →
-// min-cut reduction on Dinic max-flow — with the published explicit precedence instead of the
+// solveUpitExplicit reuses the exact machinery of the synthetic engine, Picard's max-closure →
+// min-cut reduction on Dinic max-flow, with the published explicit precedence instead of the
 // slope cone, and asserts the same value identity: pitValue = Σ positive − maxflow.
 
 import { MaxFlow } from './maxflow.ts';
@@ -46,7 +46,7 @@ const rows = (text: string): string[][] =>
   text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0).map((l) => l.split(/\s+/));
 
 /** `.blocks`: coords by block id (rows may be unordered). Free columns are read via `layout`.
- *  Some mirrors prepend a column-name header row — any row whose first token is not an unsigned
+ *  Some mirrors prepend a column-name header row, any row whose first token is not an unsigned
  *  integer is skipped as a header. */
 export function parseBlocks(text: string, layout: BlocksLayout = {}): {
   n: number; x: Int32Array; y: Int32Array; z: Int32Array;
@@ -129,7 +129,7 @@ export interface ExplicitPit {
   nInPit: number;
 }
 
-/** Exact UPIT over explicit precedence — same Picard/Dinic machinery as the synthetic engine.
+/** Exact UPIT over explicit precedence, same Picard/Dinic machinery as the synthetic engine.
  *  Self-checks closure feasibility and the value identity before returning. */
 export function solveUpitExplicit(value: Float64Array, precStart: Int32Array, precList: Int32Array): ExplicitPit {
   const n = value.length;

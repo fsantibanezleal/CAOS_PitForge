@@ -39,7 +39,7 @@ def build_trace(case: Any, *, case_result: dict, learned: dict | None) -> dict:
         },
         "ultimate": case_result.get("ultimate"),       # {pitValue, oreTonnes, wasteTonnes, metalTonnes, stripRatio, nBlocks}
         "curve": case_result.get("curve", []),         # the Whittle nested-shell curve (per revenue factor)
-        "section": case_result.get("section"),         # {iy, nx, nz, shellOf[][]} — a vertical cross-section
+        "section": case_result.get("section"),         # {iy, nx, nz, shellOf[][]}, a vertical cross-section
         "grade_stats": case_result.get("gradeStats"),
         "learned": _learned_block(learned),
     }

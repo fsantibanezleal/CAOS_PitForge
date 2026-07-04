@@ -1,8 +1,8 @@
-// CONTRACT 1 (ingestion) — LIVE browser port of data-pipeline/pflab/io/contract.py::validate_blocks.
+// CONTRACT 1 (ingestion), LIVE browser port of data-pipeline/pflab/io/contract.py::validate_blocks.
 // The rule set is mirrored 1:1 and guarded against drift by test/contract-live.test.ts (same
 // fixtures as the Python suite): a row is ACCEPTED iff it passes; ill-formed rows are REJECTED
 // with a reason (never silently coerced); plausible-but-extreme rows are FLAGGED (accepted, the
-// flag travels with the report). Schema: ix,iy,iz,tonnage,density,grade — data/README.md.
+// flag travels with the report). Schema: ix,iy,iz,tonnage,density,grade, data/README.md.
 
 import { type BlockModel, type GridDims, idx } from '../opt/types.ts';
 
@@ -74,7 +74,7 @@ export function validateBlocksLive(rawRows: Record<string, string>[], dims?: [nu
     const key = `${ix},${iy},${iz}`;
     if (seen.has(key)) flags.push(`duplicate block index (${ix},${iy},${iz})`);
     seen.add(key);
-    if (grade > GRADE_FLAG_MAX) flags.push(`grade ${grade} > ${GRADE_FLAG_MAX} — implausibly rich for a bulk metal`);
+    if (grade > GRADE_FLAG_MAX) flags.push(`grade ${grade} > ${GRADE_FLAG_MAX}, implausibly rich for a bulk metal`);
     if (flags.length) flagged.push({ index: [ix, iy, iz], flags });
     accepted.push({ ix, iy, iz, tonnage, density, grade });
   });

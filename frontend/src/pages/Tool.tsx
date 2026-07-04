@@ -20,7 +20,7 @@ const RFS = defaultRevenueFactors(12);
 const fM = (v: number) => `${(v / 1e6).toFixed(1)}`;
 const fMt = (v: number) => `${(v / 1e6).toFixed(2)}`;
 
-// Case categories as sidebar TABS (one group visible at a time — the stacked chip rows read as
+// Case categories as sidebar TABS (one group visible at a time, the stacked chip rows read as
 // clutter). Short bilingual labels; the full category phrase stays as the tooltip.
 const CAT_TABS = [
   { cat: 'deposit archetype (the orebody shape)', en: 'archetype', es: 'arquetipo' },
@@ -61,9 +61,9 @@ export default function Tool() {
     () => ({ ...theCase.econ, price: theCase.econ.price * priceMul, slopeAngleDeg: slopeDeg }),
     [theCase, priceMul, slopeDeg],
   );
-  // the heavy nested-shell solve (12 UPLs) — recompute only when the case/price/slope change, not on RF.
+  // the heavy nested-shell solve (12 UPLs), recompute only when the case/price/slope change, not on RF.
   const shells = useMemo(() => nestedPitShells(model, econNoRF, RFS), [model, econNoRF]);
-  // the live pit at the current RF — one fast UPL on every slider move.
+  // the live pit at the current RF, one fast UPL on every slider move.
   const pit = useMemo(() => solveUltimatePit(model, { ...econNoRF, revenueFactor: rf }), [model, econNoRF, rf]);
 
   const iy = bench ?? Math.floor(model.dims.ny / 2);
@@ -141,7 +141,7 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-th">
-            <div className="pf-plot-t">{es ? 'Pit último — voxels extraídos; orbita para rotar' : 'Ultimate pit — extracted voxels; orbit to rotate'}</div>
+            <div className="pf-plot-t">{es ? 'Pit último, voxels extraídos; orbita para rotar' : 'Ultimate pit, extracted voxels; orbit to rotate'}</div>
             <div className="pf-seg">
               {(['pit', 'grade', 'shells'] as const).map((m) => (
                 <button key={m} className={`chip ${mode3d === m ? 'on' : ''}`} onClick={() => setMode3d(m)}>
@@ -180,7 +180,7 @@ export default function Tool() {
       id: 'whittle', label: es ? 'Curvas Whittle' : 'Whittle curves',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? 'Pit anidado por factor de ingreso (RF) — valor + tonelaje; click para fijar RF' : 'Nested pits by revenue factor (RF) — value + tonnage; click to set RF'}</div>
+          <div className="pf-plot-t">{es ? 'Pit anidado por factor de ingreso (RF), valor + tonelaje; click para fijar RF' : 'Nested pits by revenue factor (RF), value + tonnage; click to set RF'}</div>
           <WhittleChart curve={shells.curve} currentRF={rf} onPickRF={setRf} />
           <div className="pf-cap">{es ? `RF = ${rf.toFixed(2)} · valor $${fM(pit.pitValue)} M · ${pit.nBlocks} bloques` : `RF = ${rf.toFixed(2)} · value $${fM(pit.pitValue)} M · ${pit.nBlocks} blocks`}</div>
         </div>
@@ -190,7 +190,7 @@ export default function Tool() {
       id: 'pushback', label: es ? 'Shells' : 'Shells',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? `Shells de RF anidados en la sección Y=${iy} — guía de pushbacks (shells crudos, sin agrupar ni chequear ancho mínimo de minado)` : `Nested RF shells on section Y=${iy} — a pushback guide (raw shells, not grouped or width-checked)`}</div>
+          <div className="pf-plot-t">{es ? `Shells de RF anidados en la sección Y=${iy}, guía de pushbacks (shells crudos, sin agrupar ni chequear ancho mínimo de minado)` : `Nested RF shells on section Y=${iy}, a pushback guide (raw shells, not grouped or width-checked)`}</div>
           <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cellShell} />
           <div className="pf-legend">
             {RFS.map((r, k) => <span key={k}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
@@ -231,7 +231,7 @@ export default function Tool() {
       id: 'hist', label: es ? 'Valor bloque' : 'Block value',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? `Histograma del valor de bloque (RF ${rf.toFixed(2)}) — negativos = lastre` : `Block-value histogram (RF ${rf.toFixed(2)}) — negatives = waste`}</div>
+          <div className="pf-plot-t">{es ? `Histograma del valor de bloque (RF ${rf.toFixed(2)}), negativos = lastre` : `Block-value histogram (RF ${rf.toFixed(2)}), negatives = waste`}</div>
           <BarMini values={valueHist.bins} labels={valueHist.bins.map(() => '')}
                    unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`} />
         </div>

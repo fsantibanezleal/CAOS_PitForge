@@ -1,9 +1,9 @@
-# Guide — run the precompute / retrain lane
+# Guide, run the precompute / retrain lane
 
 The committed artifacts (`data/derived/`) are everything the site needs, so most of the time you only run the **light**
 lane. You run the **heavy** lane when you change the engine, the cases, or want to retrain the learned models.
 
-## Light lane (numpy only — no torch, no Node)
+## Light lane (numpy only, no torch, no Node)
 
 ```bash
 python -m venv .venv-pipeline
@@ -12,9 +12,9 @@ python -m venv .venv-pipeline
 .venv-pipeline/Scripts/python scripts/check_artifacts.py   # CONTRACT 2 OK
 ```
 
-This is what CI and `deploy-pages` run — it is fast and deterministic (a re-run is byte-identical).
+This is what CI and `deploy-pages` run, it is fast and deterministic (a re-run is byte-identical).
 
-## Heavy lane (`--retrain` — re-bake the solver + train the learned models)
+## Heavy lane (`--retrain`, re-bake the solver + train the learned models)
 
 ```bash
 python -m venv .venv-precompute
@@ -25,5 +25,5 @@ python -m venv .venv-precompute
 
 `--retrain` runs, in order: `bake_cases.mjs` (the exact UPL + Whittle shells over every case → `case-results.json`),
 `gen_train.mjs` (the training tables → `data/raw/`, git-ignored), `train_pit.py` (torch → `grade-nn.onnx` +
-`pit-surrogate.onnx` + `pit-learned.json`), then the light reshape. Commit only the small ONNX + JSON — never the
+`pit-surrogate.onnx` + `pit-learned.json`), then the light reshape. Commit only the small ONNX + JSON, never the
 `.venv-precompute` or `data/raw/` (both git-ignored; CI guards reject venvs/heavy data).

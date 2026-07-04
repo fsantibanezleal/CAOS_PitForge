@@ -2,7 +2,7 @@
 
 Each case (`data-pipeline/pflab/cases/pit_cases.py`, mirrored in `frontend/src/opt/cases.ts`) declares a
 **CATEGORY**, its parameters, an **expected band** (what a domain reader should see), a **validation anchor** (a
-property the result MUST satisfy — checked in `frontend/test/contract.test.ts`), and a real|synthetic flag. The **App
+property the result MUST satisfy, checked in `frontend/test/contract.test.ts`), and a real|synthetic flag. The **App
 shows ONE selected case**; **Experiments/Benchmark show cross-case summaries** (never mixed into the App).
 
 ## The 9-case matrix
@@ -20,5 +20,5 @@ shows ONE selected case**; **Experiments/Benchmark show cross-case summaries** (
 | `CTRL` | oracle control | single deep ore block (5×1×3, 45°) | **closed-form**: the 9-block inverted pyramid, value 2 |
 
 The archetypes vary the **geology**; the economic + slope cases reuse the porphyry geology and vary the **decision**,
-so the cross-case comparisons isolate one axis at a time. `CTRL` is the exactness anchor — its optimum is computable
+so the cross-case comparisons isolate one axis at a time. `CTRL` is the exactness anchor, its optimum is computable
 by hand, so any regression in the solver is caught immediately.

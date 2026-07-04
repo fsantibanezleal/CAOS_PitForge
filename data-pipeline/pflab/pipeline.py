@@ -3,7 +3,7 @@ trace from the committed solver outputs (case-results.json) + the learned-model 
 present), runs the lane gate, and writes the manifest + a flat index (CONTRACT 2). The committed case-results.json IS
 the exact optimiser's real output (baked by the SAME TS solver the browser runs), so the DEFAULT path is light
 (numpy/stdlib, no torch/node) and deterministic. `--retrain` regenerates the artifacts (bake case-results via the TS
-solver; train the learned models torch → ONNX) — see pflab/science/.
+solver; train the learned models torch → ONNX), see pflab/science/.
 
     python -m pflab.pipeline                 # rebuild all replay traces + manifests from committed artifacts
     python -m pflab.pipeline A01             # one case
@@ -32,7 +32,7 @@ def _load_artifacts() -> tuple[dict, dict | None]:
     if not cr.exists():
         raise SystemExit(
             f"missing committed artifact {cr}. case-results.json is baked by the TS solver "
-            f"(science/bake_cases.mjs) — run `python -m pflab.pipeline all --retrain` (or `npm run bake` in frontend/)."
+            f"(science/bake_cases.mjs), run `python -m pflab.pipeline all --retrain` (or `npm run bake` in frontend/)."
         )
     learned_path = DERIVED / "pit-learned.json"
     learned = read_json(learned_path) if learned_path.exists() else None  # learned models are optional until trained
@@ -40,7 +40,7 @@ def _load_artifacts() -> tuple[dict, dict | None]:
 
 
 def _contract_flags() -> list[dict]:
-    """Apply CONTRACT 1 to the cases' design scenarios — proves the ingestion gate, carries the slope flags."""
+    """Apply CONTRACT 1 to the cases' design scenarios, proves the ingestion gate, carries the slope flags."""
     rows = [{"case_id": c.id, "archetype": c.archetype, "nx": c.nx, "ny": c.ny, "nz": c.nz, "price": c.price,
              "recovery": c.recovery, "mining_cost": c.mining_cost, "processing_cost": c.processing_cost,
              "slope_angle_deg": c.slope_angle_deg} for c in registry.list_cases()]
@@ -77,7 +77,7 @@ def retrain(seed: int = 42) -> None:
         py = str(vp) if vp.exists() else "python"
         subprocess.run([py, str(train)], check=True, cwd=str(REPO_ROOT))
     else:
-        print("[retrain] (science/train_pit.py absent — learned models pending; traces record learned=pending)",
+        print("[retrain] (science/train_pit.py absent, learned models pending; traces record learned=pending)",
               flush=True)
     print(f"[retrain] artifacts -> {DERIVED}", flush=True)
 

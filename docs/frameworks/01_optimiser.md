@@ -1,4 +1,4 @@
-# Framework — the optimiser
+# Framework, the optimiser
 
 The headline science. PitForge computes the **exact** ultimate pit, the modern way.
 
@@ -25,14 +25,14 @@ i  ──∞───►  j      for every precedence arc (j must be removed to 
 ```
 
 The blocks on the **source side of the min cut** are the optimal pit, and `pitValue = Σ_{v_i>0} v_i − maxflow`.
-PitForge solves the max-flow with **Dinic’s algorithm** — exact, deterministic. This is the same cut that Lerchs &
+PitForge solves the max-flow with **Dinic’s algorithm**, exact, deterministic. This is the same cut that Lerchs &
 Grossmann’s 1965 graph algorithm and Hochbaum’s 2008 pseudoflow compute; we keep it transparent and self-checking
 (the value identity is asserted every solve).
 
 ## Slope precedence
 
 A wall at angle θ moves `Δz/tanθ` horizontally per bench up; in blocks, `r = round(Δz/(Δx·tanθ))`. We add arcs only to
-the (2r+1)² template at the immediately-overlying bench and let **transitivity** rebuild the full cone — the standard
+the (2r+1)² template at the immediately-overlying bench and let **transitivity** rebuild the full cone, the standard
 reduced precedence (efficient; keeps the live solve fast).
 
 ## Nested pit shells (Whittle)

@@ -1,4 +1,4 @@
-// Synthetic deposit generators — geostatistically plausible block models for the canonical cases.
+// Synthetic deposit generators, geostatistically plausible block models for the canonical cases.
 //
 // These are clearly SYNTHETIC (no real drillholes), but they are built the way real deposits are described: a
 // deterministic grade trend (the geological "shape") plus spatially-correlated noise (a smoothed white field that
@@ -9,7 +9,7 @@ import { type BlockModel, type BlockSize, type GridDims, idx } from './types.ts'
 
 export type Archetype = 'porphyry' | 'vein' | 'layered' | 'coreHalo';
 
-/** mulberry32 — a tiny, fast, seedable PRNG (deterministic across Node and the browser). */
+/** mulberry32, a tiny, fast, seedable PRNG (deterministic across Node and the browser). */
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {

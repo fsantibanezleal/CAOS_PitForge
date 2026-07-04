@@ -1,11 +1,11 @@
-// Grade-infill what-if — the pure logic under viz/InfillPanel.tsx (kept UI-free so tests cover it).
+// Grade-infill what-if, the pure logic under viz/InfillPanel.tsx (kept UI-free so tests cover it).
 //
 // The question the tool answers: with only a FRACTION of the blocks drilled (grades known), how
-// well does each infill method recover the deposit — and what does that do to the EXACT pit?
+// well does each infill method recover the deposit, and what does that do to the EXACT pit?
 // Stencil contract (mirrors science/train_pit.py + gen_train.mjs): a flat 27-vector over the
 // 3×3×3 neighbourhood in dz→dy→dx order; the centre (flat index 13) is ALWAYS 0 (that is the
 // value being estimated); unknown/undrilled/out-of-bounds neighbours are 0. grade-nn takes the
-// raw 27-vec; the IDW baseline weights the >0 entries by inverse distance — exactly the
+// raw 27-vec; the IDW baseline weights the >0 entries by inverse distance, exactly the
 // benchmark implementation the model was measured against.
 
 import { type BlockModel, type GridDims, idx } from '../opt/types.ts';
@@ -47,7 +47,7 @@ export function stencilAt(model: BlockModel, drilled: Uint8Array, ix: number, iy
   }
 }
 
-/** IDW estimate from a 27-stencil — the exact classical baseline grade-nn was benchmarked against. */
+/** IDW estimate from a 27-stencil, the exact classical baseline grade-nn was benchmarked against. */
 export function idwFromStencil(stencil: Float32Array, at = 0): number {
   let wsum = 0;
   let vsum = 0;

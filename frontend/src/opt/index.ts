@@ -1,8 +1,8 @@
-// PitForge optimisation engine — the live client-side core (also run from Node by the offline bake via tsx).
+// PitForge optimisation engine, the live client-side core (also run from Node by the offline bake via tsx).
 //
-//   solveUltimatePit  — exact Lerchs–Grossmann ultimate pit via min-cut / max-flow
-//   nestedPitShells   — the Whittle revenue-factor nested shells + value/tonnage/strip curves
-//   makeDeposit       — seeded synthetic deposit archetypes (block models)
+//   solveUltimatePit , exact Lerchs–Grossmann ultimate pit via min-cut / max-flow
+//   nestedPitShells  , the Whittle revenue-factor nested shells + value/tonnage/strip curves
+//   makeDeposit      , seeded synthetic deposit archetypes (block models)
 //
 // Everything is deterministic and dependency-free (no DOM, no npm runtime deps) so the same engine runs in the
 // browser and in the offline Node bake.

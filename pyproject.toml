@@ -1,4 +1,4 @@
-# PitForge — the offline engine package (ADR-0057, instantiated from the product-repo archetype).
+# PitForge, the offline engine package (ADR-0057, instantiated from the product-repo archetype).
 # The default lane is numpy-only (instantly installable); the heavy --retrain lane (torch -> ONNX) + the Node bake
 # of the cases are pinned in requirements-precompute.txt. The optimiser itself is the TypeScript engine in
 [build-system]
@@ -8,8 +8,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pflab"
 # PEP 440 form of the display version X.XX.XXX (see CHANGELOG.md + pflab.__version__).
-version = "0.8.0"
-description = "PitForge — open-pit mine design: pseudoflow ultimate-pit + Whittle nested pit shells (ADR-0057)."
+version = "0.8.1"
+description = "PitForge, open-pit mine design: pseudoflow ultimate-pit + Whittle nested pit shells (ADR-0057)."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -28,5 +28,5 @@ line-length = 110
 target-version = "py311"
 
 [tool.ruff.lint]
-# allow short index names (i, j, ix, iy, iz) in the block-grid loops — intentional domain notation.
+# allow short index names (i, j, ix, iy, iz) in the block-grid loops, intentional domain notation.
 ignore = ["E741"]

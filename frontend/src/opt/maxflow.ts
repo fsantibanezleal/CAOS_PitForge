@@ -1,8 +1,8 @@
-// Dinic's maximum-flow / minimum-cut — the exact engine under the ultimate-pit solver.
+// Dinic's maximum-flow / minimum-cut, the exact engine under the ultimate-pit solver.
 //
 // The ultimate-pit (Lerchs–Grossmann) problem is the maximum-weight CLOSURE of the block-precedence graph, and
 // maximum closure reduces to a minimum s–t cut (Picard 1976): the blocks on the SOURCE side of the min cut are the
-// optimal pit. We solve the equivalent max-flow with Dinic's algorithm — exact, deterministic, O(V²E) worst case but
+// optimal pit. We solve the equivalent max-flow with Dinic's algorithm, exact, deterministic, O(V²E) worst case but
 // near-linear on these sparse precedence graphs, and fast enough in the browser for teaching-scale models. This is
 // the same min-cut that Hochbaum's pseudoflow computes; we keep the implementation transparent and self-checking.
 //
@@ -82,7 +82,7 @@ export class MaxFlow {
     while (this.bfs(s, t)) {
       for (let i = 0; i < this.n; i++) this.it[i] = this.first[i];
       let f: number;
-      // Use a large finite "infinite" push bound — INF caps already bound real flow.
+      // Use a large finite "infinite" push bound, INF caps already bound real flow.
       while ((f = this.dfs(s, t, Number.MAX_VALUE)) > EPS) flow += f;
     }
     return flow;

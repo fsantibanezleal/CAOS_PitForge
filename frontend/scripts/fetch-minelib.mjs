@@ -1,5 +1,5 @@
 // Fetch MineLib instances into the GITIGNORED local cache (frontend/.minelib-cache/).
-// LICENSE: MineLib grants download for academic purposes only — the cache is never committed,
+// LICENSE: MineLib grants download for academic purposes only, the cache is never committed,
 // never bundled, never served. Used by the local oracle test (test/minelib.test.ts) and the
 // offline Benchmark bake (#17). CI must NOT run this script.
 //
@@ -14,7 +14,7 @@ const SOURCES = {
   newman1: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR}/newman1/newman1.${ext}`),
   zuck_small: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR2}/zuck_small/zuck_small.${ext}`),
   kd: ['blocks', 'prec', 'upit'].map((ext) => `${MIRROR2}/kd/kd.${ext}`),
-  // mclaughlin: 83 MB .blocks / no .prec on any verified mirror — excluded-with-reason (see bake).
+  // mclaughlin: 83 MB .blocks / no .prec on any verified mirror, excluded-with-reason (see bake).
 };
 
 const cacheRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '.minelib-cache');
@@ -22,7 +22,7 @@ const wanted = process.argv.slice(2).length ? process.argv.slice(2) : Object.key
 
 for (const id of wanted) {
   const urls = SOURCES[id];
-  if (!urls) { console.error(`[fetch-minelib] no verified source for '${id}' — skipping`); continue; }
+  if (!urls) { console.error(`[fetch-minelib] no verified source for '${id}', skipping`); continue; }
   const dir = join(cacheRoot, id);
   mkdirSync(dir, { recursive: true });
   for (const url of urls) {
@@ -34,4 +34,4 @@ for (const id of wanted) {
     console.log(`[fetch-minelib] ${id}: fetched ${url.split('/').pop()}`);
   }
 }
-console.log(`[fetch-minelib] cache at ${cacheRoot} (gitignored — do not commit)`);
+console.log(`[fetch-minelib] cache at ${cacheRoot} (gitignored, do not commit)`);

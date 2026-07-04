@@ -8,7 +8,7 @@ import { viridisCss } from './colormap.ts';
 /** Surrogate FAST-PREVIEW tool: the ONNX inclusion classifier runs over the current section on
  * every knob change (one batched onnxruntime-web call), rendered as P(block ∈ pit) against the
  * EXACT pit outline + the live agreement %. Framing is operational: at this teaching scale the
- * exact min-cut is already instant, so the surrogate's value is TRIAGE — at 10⁶–10⁷ blocks it
+ * exact min-cut is already instant, so the surrogate's value is TRIAGE, at 10⁶–10⁷ blocks it
  * screens candidates before the exact solve. It never replaces the min-cut; held-out metrics
  * live in Benchmark. */
 export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {
@@ -80,7 +80,7 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
     return {
       color: prob ? viridisCss(p) : null,
       inPit: !!exact.inPit[i], // outline = the EXACT pit, for visual comparison
-      label: `(${ix},${iz}) · P(in pit)=${prob ? p.toFixed(2) : '—'} · exact ${exact.inPit[i] ? 'in' : 'out'}`,
+      label: `(${ix},${iz}) · P(in pit)=${prob ? p.toFixed(2) : ', '} · exact ${exact.inPit[i] ? 'in' : 'out'}`,
     };
   };
 
@@ -96,8 +96,8 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy}, a RF=1 (semántica de entrenamiento) — color = P(en pit), contorno = pit EXACTO a RF=1. Mueve precio/talud y compara; el slider RF no afecta este tab.`
-        : `Instant pit preview (ONNX surrogate) on section Y=${iy}, at RF=1 (training semantics) — colour = P(in pit), outline = the EXACT RF=1 pit. Drag price/slope and compare; the RF slider does not affect this tab.`}</div>
+        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy}, a RF=1 (semántica de entrenamiento), color = P(en pit), contorno = pit EXACTO a RF=1. Mueve precio/talud y compara; el slider RF no afecta este tab.`
+        : `Instant pit preview (ONNX surrogate) on section Y=${iy}, at RF=1 (training semantics), colour = P(in pit), outline = the EXACT RF=1 pit. Drag price/slope and compare; the RF slider does not affect this tab.`}</div>
       <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cell} />
       <div className="pf-cap">
         {agree != null

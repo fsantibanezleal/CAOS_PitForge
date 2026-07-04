@@ -1,7 +1,7 @@
 // Registry guards for the real-data lane (MineLib). Two invariants matter here:
 // (1) the summary facts must match the published record exactly (they are the oracle the exact
 //     solver is later asserted against), and
-// (2) the license posture must hold structurally — runtime-fetch URLs only, never bundled paths.
+// (2) the license posture must hold structurally, runtime-fetch URLs only, never bundled paths.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { REAL_CASES } from '../src/opt/realCases.ts';
@@ -24,7 +24,7 @@ test('published facts match the MineLib record (Espinoza et al. 2013)', () => {
 });
 
 test('license posture: PUBLISHED MineLib instances fetch from remote HTTPS, never bundled', () => {
-  // synthetic twins are OUR data (no MineLib license) and are committed + served locally — exempt.
+  // synthetic twins are OUR data (no MineLib license) and are committed + served locally, exempt.
   for (const r of REAL_CASES) {
     if (r.urls === null || r.synthetic) continue;
     for (const u of Object.values(r.urls)) {
