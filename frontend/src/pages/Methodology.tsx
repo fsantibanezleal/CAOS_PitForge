@@ -28,7 +28,7 @@ export default function Methodology() {
               <Equation tex="s \xrightarrow{v_i} i\ (v_i>0),\quad i \xrightarrow{-v_i} t\ (v_i<0),\quad i \xrightarrow{\infty} j\ \text{(precedencia)}" />
               <p>{es ? 'Los bloques del lado de la fuente del corte mínimo forman el pit óptimo, y ' : 'The blocks on the source side of the min cut form the optimal pit, and '}<InlineMath tex="\text{valor} = \sum_{v_i>0} v_i - \text{maxflow}" />{es ? '. PitForge verifica esta identidad en cada solve.' : '. PitForge checks this identity on every solve.'}</p>
               <Callout variant="note" title={es ? 'El motor de flujo' : 'The flow engine'}>
-                {es ? 'Resolvemos el flujo máximo con el algoritmo de Dinic ' : 'We solve the max-flow with Dinic’s algorithm '}<Cite id="dinic1970" paren />{es ? ' — exacto y determinista. Es el mismo corte que calcula el pseudoflow de Hochbaum ' : ' — exact and deterministic. It is the same cut Hochbaum’s pseudoflow computes '}<Cite id="hochbaum2008" paren />{es ? '; lo mantenemos transparente y auto-verificable.' : '; we keep it transparent and self-checking.'}
+                {es ? 'Resolvemos el flujo máximo con el algoritmo de Dinic ' : 'We solve the max-flow with Dinic’s algorithm '}<Cite id="dinic1970" paren />{es ? ', exacto y determinista. Es el mismo corte que calcula el pseudoflow de Hochbaum ' : ', exact and deterministic. It is the same cut Hochbaum’s pseudoflow computes '}<Cite id="hochbaum2008" paren />{es ? '; lo mantenemos transparente y auto-verificable.' : '; we keep it transparent and self-checking.'}
               </Callout>
             </div>
           ),
@@ -38,7 +38,7 @@ export default function Methodology() {
           content: (
             <div className="pf-doc-sec">
               <p>{es ? 'Una pared a ángulo θ desde la horizontal: por cada banco que se sube (Δz), la pared puede moverse Δz/tan θ en horizontal. En bloques: ' : 'A wall at angle θ from horizontal: per bench up (Δz), the wall may move Δz/tan θ horizontally. In blocks: '}<InlineMath tex="r = \mathrm{round}(\Delta z / (\Delta x\,\tan\theta))" />.</p>
-              <p>{es ? 'Añadimos arcos sólo al banco inmediatamente superior (la plantilla (2r+1)²) y dejamos que la transitividad reconstruya el cono completo — la precedencia reducida estándar.' : 'We add arcs only to the immediately-overlying bench (the (2r+1)² template) and let transitivity rebuild the full cone — the standard reduced precedence.'}</p>
+              <p>{es ? 'Añadimos arcos sólo al banco inmediatamente superior (la plantilla (2r+1)²) y dejamos que la transitividad reconstruya el cono completo, la precedencia reducida estándar.' : 'We add arcs only to the immediately-overlying bench (the (2r+1)² template) and let transitivity rebuild the full cone, the standard reduced precedence.'}</p>
             </div>
           ),
         },

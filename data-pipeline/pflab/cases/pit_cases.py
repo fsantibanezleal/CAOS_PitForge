@@ -1,6 +1,6 @@
 """PitForge cases spanning CATEGORIES (the open-pit design problem-type taxonomy). The App shows ONE selected case;
 Experiments/Benchmark show cross-case summaries by category. The 9 cases mirror the SPA's src/opt/cases.ts. All
-deposits are SYNTHETIC (seeded) — stated openly; CTRL is the closed-form ORACLE control (the optimal pit is exactly
+deposits are SYNTHETIC (seeded), stated openly; CTRL is the closed-form ORACLE control (the optimal pit is exactly
 the 9-block inverted pyramid, value 10 − 8 = 2)."""
 from __future__ import annotations
 
@@ -48,10 +48,10 @@ CASES: list[Case] = [
          expected_band="a deep central pit; the halo enters only at high revenue factors",
          validation_anchor="RF-driven halo inclusion"),
     Case("E01", "Low price ($5 500/t)", CAT_ECON, "porphyry", *_D, price=5500, **_BASE,
-         expected_band="a markedly smaller pit — only the richest core pays",
+         expected_band="a markedly smaller pit, only the richest core pays",
          validation_anchor="pit ⊂ the base-price pit"),
     Case("E02", "High price ($14 000/t)", CAT_ECON, "porphyry", *_D, price=14000, **_BASE,
-         expected_band="a larger pit — lower-grade material becomes ore",
+         expected_band="a larger pit, lower-grade material becomes ore",
          validation_anchor="pit ⊃ the base-price pit"),
     Case("G01", "Shallow walls (30°)", CAT_SLOPE, "porphyry", *_D, price=9000,
          recovery=0.88, mining_cost=2.5, processing_cost=9.0, slope_angle_deg=30.0,
@@ -61,7 +61,7 @@ CASES: list[Case] = [
          recovery=0.88, mining_cost=2.5, processing_cost=9.0, slope_angle_deg=18.0,
          expected_band="the flattest walls → the widest cone and the most stripping → the lowest value",
          validation_anchor="value ≤ the 30° pit (even more stripping)"),
-    Case("CTRL", "Oracle — single deep ore block (45°)", CAT_ORACLE, "oracle", 5, 1, 3, price=11.0,
+    Case("CTRL", "Oracle, single deep ore block (45°)", CAT_ORACLE, "oracle", 5, 1, 3, price=11.0,
          recovery=1.0, mining_cost=1.0, processing_cost=0.0, slope_angle_deg=45.0,
          expected_band="the optimal pit is EXACTLY the 9-block inverted pyramid; value = 10 − 8 = 2",
          validation_anchor="closed-form inverted pyramid (hand-computed)", real_or_synthetic="analytic control"),

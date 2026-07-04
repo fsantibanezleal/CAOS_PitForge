@@ -1,6 +1,6 @@
-"""Stage 6 — export (CONTRACT 2): build the compact per-case trace from the committed solver outputs
+"""Stage 6, export (CONTRACT 2): build the compact per-case trace from the committed solver outputs
 (case-results.json, baked by the SAME TS optimiser the browser runs) + the learned-model metrics (pit-learned.json,
-when trained), run the lane gate, and write the manifest. No torch/node — so the contract + replay regenerate
+when trained), run the lane gate, and write the manifest. No torch/node, so the contract + replay regenerate
 deterministically anywhere, and CI stays fast. The HEAVY export (baking case-results.json + training the ONNX) is done
 by the preserved science (pflab/science/bake_cases.mjs + train_pit.py), invoked by pipeline.retrain."""
 from __future__ import annotations
@@ -13,7 +13,7 @@ from ..core.manifest import build_case_manifest
 from ..core.trace import build_trace
 from ..io.formats import write_json
 
-_RUN_MS = 60.0   # a teaching-scale full solve + nested shells — tens of ms; deterministic gate budget
+_RUN_MS = 60.0   # a teaching-scale full solve + nested shells, tens of ms; deterministic gate budget
 _RUNTIMES = {"ts-pseudoflow", "onnxruntime-web"}
 
 

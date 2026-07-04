@@ -1,10 +1,10 @@
-// Slope-precedence template — which blocks must be removed ABOVE a block before it can be mined.
+// Slope-precedence template, which blocks must be removed ABOVE a block before it can be mined.
 //
 // A pit wall stands at the overall slope angle θ (from horizontal). To mine a block, every block within the inverted
 // cone above it (the cone whose wall is at θ) must already be gone. On a regular grid we encode this with arcs to the
 // blocks one bench ABOVE (z−1): for a vertical step dz, the wall may move horizontally by dz/tan(θ). Converted to
 // block counts that is rx = round(dz/(dx·tanθ)), ry = round(dz/(dy·tanθ)). Adding arcs only to the (2rx+1)×(2ry+1)
-// box at z−1 and letting TRANSITIVITY climb the levels reproduces the full cone exactly — the standard reduced
+// box at z−1 and letting TRANSITIVITY climb the levels reproduces the full cone exactly, the standard reduced
 // precedence pattern (e.g. θ≈45° with cubic blocks gives rx=ry=1, the classic 9-point template).
 //
 // Returns, for each block, the list of overlying blocks it depends on at the immediately-higher bench.

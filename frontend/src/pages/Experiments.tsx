@@ -35,8 +35,8 @@ export default function Experiments() {
 
       <Callout variant="strong" title={es ? 'El oráculo CTRL' : 'The CTRL oracle'}>
         {es
-          ? 'CTRL es un modelo de 5×1×3 con un único bloque de mineral profundo: bajo talud 45° el pit óptimo es EXACTAMENTE la pirámide invertida de 9 bloques, valor 10 − 8 = 2. Calculado a mano y verificado por el motor — el ancla de exactitud del solver.'
-          : 'CTRL is a 5×1×3 model with a single deep ore block: under a 45° slope the optimal pit is EXACTLY the 9-block inverted pyramid, value 10 − 8 = 2. Hand-computed and verified by the engine — the solver’s exactness anchor.'}
+          ? 'CTRL es un modelo de 5×1×3 con un único bloque de mineral profundo: bajo talud 45° el pit óptimo es EXACTAMENTE la pirámide invertida de 9 bloques, valor 10 − 8 = 2. Calculado a mano y verificado por el motor, el ancla de exactitud del solver.'
+          : 'CTRL is a 5×1×3 model with a single deep ore block: under a 45° slope the optimal pit is EXACTLY the 9-block inverted pyramid, value 10 − 8 = 2. Hand-computed and verified by the engine, the solver’s exactness anchor.'}
       </Callout>
     </article>
   );

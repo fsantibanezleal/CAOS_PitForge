@@ -1,6 +1,6 @@
 import type { Citation } from '@fasl-work/caos-app-shell';
 
-// The references PitForge's methodology rests on — ultimate-pit OR + open-pit design.
+// The references PitForge's methodology rests on, ultimate-pit OR + open-pit design.
 export const CITATIONS: Citation[] = [
   {
     id: 'lerchs1965',

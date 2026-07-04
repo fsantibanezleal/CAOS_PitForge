@@ -1,19 +1,19 @@
-# Architecture — overview
+# Architecture, overview
 
 PitForge is an instance of the **CAOS product-repo archetype** ([ADR-0057]): an offline-pipeline-heavy, backend-
 optional product that deploys as a static, deterministic-replay viewer. The base is **frozen** (instantiated, never
-re-litigated); per-product rework lives only in the **core** — the algorithm, the visualisations, the cases, content.
+re-litigated); per-product rework lives only in the **core**, the algorithm, the visualisations, the cases, content.
 
 The distinctive thing about PitForge is that the **core algorithm is the live lane**: the exact ultimate-pit solver
 is TypeScript that runs in the browser, so the App re-solves the pit exactly as you drag the sliders. There is no
-"reduced" live model — the live optimiser IS the exact optimiser.
+"reduced" live model, the live optimiser IS the exact optimiser.
 
 ## The lanes (and what runs where)
 
 | Lane | Where | Deps | Notes |
 |---|---|---|---|
 | **Live (client-side)** | `frontend/src/opt/` (the exact min-cut/Whittle solver) + onnxruntime-web | web npm | the interactive core; re-solves on every slider move |
-| **Offline (precompute)** | `pflab/science/` — Node bake of the SAME TS engine + torch training | `data-pipeline/requirements-precompute.txt` | bakes `case-results.json` + the ONNX |
+| **Offline (precompute)** | `pflab/science/`, Node bake of the SAME TS engine + torch training | `data-pipeline/requirements-precompute.txt` | bakes `case-results.json` + the ONNX |
 | **Replay (light)** | `pflab.pipeline` (numpy) | `data-pipeline/requirements.txt` | reshapes the committed bake → per-case traces + manifests |
 | **API (backend)** | `app/` (FastAPI) | `requirements-api.txt` | DORMANT; activate only on an ADR-0002 trigger |
 

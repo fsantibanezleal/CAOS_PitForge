@@ -19,8 +19,8 @@ export default function Benchmark() {
     <article className="page-body prose">
       <h1>Benchmark</h1>
       <p className="lede">{es
-        ? 'Comparaciones cruzadas entre casos — las que NO dependen de un solo caso van aquí (no en la App). Todas salen del horneado exacto del solver.'
-        : 'Cross-case comparisons — the ones that do NOT depend on a single case live here (not in the App). All come from the exact solver bake.'}</p>
+        ? 'Comparaciones cruzadas entre casos, las que NO dependen de un solo caso van aquí (no en la App). Todas salen del horneado exacto del solver.'
+        : 'Cross-case comparisons, the ones that do NOT depend on a single case live here (not in the App). All come from the exact solver bake.'}</p>
 
       {!data ? <p className="pf-note">{es ? 'cargando…' : 'loading…'}</p> : (
         <>
@@ -58,7 +58,7 @@ export default function Benchmark() {
         </>
       )}
 
-      <h2>{es ? 'MineLib real (UPIT) — exacto vs óptimo publicado' : 'Real MineLib (UPIT) — exact vs published optimum'}</h2>
+      <h2>{es ? 'MineLib real (UPIT), exacto vs óptimo publicado' : 'Real MineLib (UPIT), exact vs published optimum'}</h2>
       {minelib ? (
         <>
           <table className="cmp-table">
@@ -78,9 +78,9 @@ export default function Benchmark() {
               ))}
               {minelib.excluded.map((x) => (
                 <tr key={x.id} className="pf-muted">
-                  <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>—</td>
+                  <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>, </td>
                   <td>{es ? 'no horneado' : 'not baked'}</td>
-                  <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : '—'}</td>
+                  <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : ', '}</td>
                   <td colSpan={2}>{x.reason}</td>
                 </tr>
               ))}
@@ -116,8 +116,8 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto — la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta; el corte mínimo siempre manda.'
-              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high — the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but NOT the exact answer; the min-cut is always the authority.'}
+              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta; el corte mínimo siempre manda.'
+              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but NOT the exact answer; the min-cut is always the authority.'}
           </Callout>
         </>
       ) : (

@@ -1,9 +1,9 @@
 // MineLib lane tests. Two layers:
-// (1) always-on: parsers on FABRICATED fixtures (our own strings in the MineLib format — no
+// (1) always-on: parsers on FABRICATED fixtures (our own strings in the MineLib format, no
 //     licensed data committed) + solveUpitExplicit on hand-computable instances.
 // (2) local-only ORACLE: when the gitignored .minelib-cache holds newman1 (scripts/fetch-minelib.mjs),
 //     the full parse→solve pipeline must reproduce the PUBLISHED optimum 26,086,899. CI never
-//     fetches MineLib, so this layer skips there — the fabricated layer still guards the code.
+//     fetches MineLib, so this layer skips there, the fabricated layer still guards the code.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -76,7 +76,7 @@ test('solveUpitExplicit: unprofitable closure left in the ground', () => {
 });
 
 test('solveUpitExplicit: partial pit picks only the paying branch', () => {
-  // two independent branches over a shared surface? No — two separate chains:
+  // two independent branches over a shared surface? No, two separate chains:
   //   3 (+20) over 4 (−5): pays → in. 0 (+5) over 1,2 (−4,−4): loses → out.
   const prec = parsePrec('0 2 1 2\n1 0\n2 0\n3 1 4\n4 0', 5);
   const r = solveUpitExplicit(new Float64Array([5, -4, -4, 20, -5]), prec.precStart, prec.precList);
@@ -121,7 +121,7 @@ test('newman1 reproduces the PUBLISHED UPIT optimum 26,086,899', { skip: !hasCac
   assert.ok(e.gradeAvailable && e.tonnageAvailable);
 });
 
-// zuck_small + kd oracles (same pattern; ~250 ms solves — local only)
+// zuck_small + kd oracles (same pattern; ~250 ms solves, local only)
 for (const id of ['zuck_small', 'kd']) {
   const dir = join(CACHES, id);
   const cached = existsSync(join(dir, `${id}.upit`));

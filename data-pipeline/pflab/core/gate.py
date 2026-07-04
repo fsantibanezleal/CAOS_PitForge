@@ -1,6 +1,6 @@
 """The measured live-vs-precompute GATE (ADR-0054), adapted for PitForge's client-side lane.
 
-PitForge runs its ultimate-pit optimiser ENTIRELY in the browser — a pure-TypeScript min-cut/max-flow solver
+PitForge runs its ultimate-pit optimiser ENTIRELY in the browser, a pure-TypeScript min-cut/max-flow solver
 (frontend/src/opt/) plus the two learned models via onnxruntime-web. A case runs LIVE iff it is client-side AND its
 runtimes are a subset of the deployed set AND a full solve + its replay trace are within budget; otherwise it is
 PRECOMPUTE and the SPA replays the committed trace. A teaching-scale block model (≈7 000 blocks) solves in tens of

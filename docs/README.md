@@ -1,14 +1,14 @@
-# PitForge — documentation
+# PitForge, documentation
 
 The navigable wiki for PitForge: open-pit **ultimate-pit limit** + **nested pit shells** (Whittle), with the exact
 optimiser running live in the browser. Instantiated on the CAOS product-repo archetype (ADR-0057).
 
-- **[Architecture](architecture.md)** — the archetype, the lanes, the gate, the two data contracts, determinism,
+- **[Architecture](architecture.md)**, the archetype, the lanes, the gate, the two data contracts, determinism,
   deploy.
-- **[Frameworks](frameworks.md)** — the optimiser (min-cut/pseudoflow + Whittle), the viz stack (three.js + µPlot),
+- **[Frameworks](frameworks.md)**, the optimiser (min-cut/pseudoflow + Whittle), the viz stack (three.js + µPlot),
   the learned models (torch → ONNX).
-- **[Cases](cases.md)** — the 9 cases by category + their validation anchors.
-- **[Guides](guides.md)** — instantiate, run the precompute/retrain lane, bring your own block model.
+- **[Cases](cases.md)**, the 9 cases by category + their validation anchors.
+- **[Guides](guides.md)**, instantiate, run the precompute/retrain lane, bring your own block model.
 
 ## One-paragraph orientation
 

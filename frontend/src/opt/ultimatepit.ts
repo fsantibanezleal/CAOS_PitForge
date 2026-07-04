@@ -1,4 +1,4 @@
-// Ultimate pit limit (UPL) — assemble the min-cut graph from block values + the slope-precedence cone, solve it, and
+// Ultimate pit limit (UPL), assemble the min-cut graph from block values + the slope-precedence cone, solve it, and
 // read the optimal pit off the source side of the cut. This is the exact Lerchs–Grossmann result via max-flow.
 //
 // Graph (Picard's max-closure → min-cut reduction):

@@ -64,8 +64,8 @@ export function UploadPanel({ es, active, onUse, onClear }: {
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? 'Tu modelo de bloques — CONTRATO 1 en vivo: valida, nunca coerciona; el App entero se re-resuelve sobre tu modelo'
-        : 'Your block model — CONTRACT 1 live: validates, never coerces; the whole App re-solves on your model'}</div>
+        ? 'Tu modelo de bloques, CONTRATO 1 en vivo: valida, nunca coerciona; el App entero se re-resuelve sobre tu modelo'
+        : 'Your block model, CONTRACT 1 live: validates, never coerces; the whole App re-solves on your model'}</div>
 
       <div
         className={`pf-drop ${over ? 'over' : ''}`}

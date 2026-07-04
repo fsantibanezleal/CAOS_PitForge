@@ -10,7 +10,7 @@ export interface SectionCell {
 }
 
 /** A vertical cross-section of the block model: nx columns × nz benches (z increases downward). Each block is a
- * coloured cell; pit blocks are outlined. Hover reads the block out. Pure canvas — fast + theme-aware. */
+ * coloured cell; pit blocks are outlined. Hover reads the block out. Pure canvas, fast + theme-aware. */
 export function SectionView({
   nx, nz, cell, height = 300, caption,
 }: {
