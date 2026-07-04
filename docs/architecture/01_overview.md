@@ -35,9 +35,10 @@ compact per-case trace) → `data/derived/` (committed) → the `frontend/` App 
 
 ## What PitForge is and is NOT
 
-- **Is:** an exact ultimate-pit + nested-shell teaching/analysis tool over synthetic block models, with two honest
-  learned baselines.
-- **Is NOT:** a production mine-planning package (no real block-model import pipelines, no scheduling/haulage, no
-  geotechnical wall-stability beyond the discrete slope cone). The deposits are synthetic; the optimiser is exact.
+- **Is:** an exact ultimate-pit + nested-shell teaching/analysis tool over synthetic block models, published MineLib
+  instances (fetched at runtime, published optima reproduced) and user-uploaded block models (CONTRACT 1, in-app
+  drag & drop), with two honest learned baselines.
+- **Is NOT:** a production mine-planning package (no scheduling/haulage, no geotechnical wall-stability beyond the
+  discrete slope cone). The synthetic deposits are seeded generated fields; the optimiser is exact.
 
 [ADR-0057]: ../../../conventions/architecture/0-archetype/ADR-0057-product-repo-archetype.md

@@ -122,8 +122,8 @@ export function UploadPanel({ es, active, onUse, onClear }: {
             </button>
           )}
           {active && <p className="pf-note">{es
-            ? 'El App está resuelto sobre TU modelo con la economía actual de Controles: todos los tabs (3D, sección, Whittle, pushbacks, resumen, ley–tonelaje, valor) leen de él.'
-            : 'The App is solved on YOUR model with the current Controls econ: every tab (3D, section, Whittle, pushbacks, summary, grade–tonnage, value) reads from it.'}</p>}
+            ? 'El App está resuelto sobre TU modelo con la economía actual de Controles: todos los tabs (3D, sección, Whittle, shells, resumen, ley–tonelaje, valor) leen de él.'
+            : 'The App is solved on YOUR model with the current Controls econ: every tab (3D, section, Whittle, shells, summary, grade–tonnage, value) reads from it.'}</p>}
         </>
       )}
 

@@ -96,8 +96,8 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy} — color = P(en pit), contorno = pit EXACTO. Mueve RF/precio/talud y compara.`
-        : `Instant pit preview (ONNX surrogate) on section Y=${iy} — colour = P(in pit), outline = EXACT pit. Drag RF/price/slope and compare.`}</div>
+        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy}, a RF=1 (semántica de entrenamiento) — color = P(en pit), contorno = pit EXACTO a RF=1. Mueve precio/talud y compara; el slider RF no afecta este tab.`
+        : `Instant pit preview (ONNX surrogate) on section Y=${iy}, at RF=1 (training semantics) — colour = P(in pit), outline = the EXACT RF=1 pit. Drag price/slope and compare; the RF slider does not affect this tab.`}</div>
       <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cell} />
       <div className="pf-cap">
         {agree != null

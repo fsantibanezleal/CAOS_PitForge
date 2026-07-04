@@ -95,7 +95,7 @@ export default function Tool() {
     return {
       color: s < 0 ? null : shellColor(s, RFS.length),
       inPit: false,
-      label: s < 0 ? `(${ix},${iz}) · never mined` : `(${ix},${iz}) · pushback shell ${s + 1}/${RFS.length} (RF ${RFS[s]})`,
+      label: s < 0 ? `(${ix},${iz}) · never mined` : `(${ix},${iz}) · RF shell ${s + 1}/${RFS.length} (RF ${RFS[s]})`,
     };
   };
 
@@ -145,7 +145,7 @@ export default function Tool() {
             <div className="pf-seg">
               {(['pit', 'grade', 'shells'] as const).map((m) => (
                 <button key={m} className={`chip ${mode3d === m ? 'on' : ''}`} onClick={() => setMode3d(m)}>
-                  {m === 'pit' ? (es ? 'solo pit' : 'pit only') : m === 'grade' ? (es ? 'orebody' : 'orebody') : (es ? 'pushbacks' : 'pushbacks')}
+                  {m === 'pit' ? (es ? 'solo pit' : 'pit only') : m === 'grade' ? (es ? 'orebody' : 'orebody') : (es ? 'shells' : 'shells')}
                 </button>
               ))}
             </div>
@@ -187,10 +187,10 @@ export default function Tool() {
       ),
     },
     {
-      id: 'pushback', label: es ? 'Pushbacks' : 'Pushbacks',
+      id: 'pushback', label: es ? 'Shells' : 'Shells',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? `Fases (pushbacks) en la sección Y=${iy} — el orden de minado por shell` : `Phases (pushbacks) on section Y=${iy} — the mining order by shell`}</div>
+          <div className="pf-plot-t">{es ? `Shells de RF anidados en la sección Y=${iy} — guía de pushbacks (shells crudos, sin agrupar ni chequear ancho mínimo de minado)` : `Nested RF shells on section Y=${iy} — a pushback guide (raw shells, not grouped or width-checked)`}</div>
           <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cellShell} />
           <div className="pf-legend">
             {RFS.map((r, k) => <span key={k}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
@@ -212,8 +212,8 @@ export default function Tool() {
             <Kpi label={es ? 'identidad maxflow' : 'maxflow identity'} value={Math.abs(pit.pitValue - (pit.sumPositive - pit.maxflow)) < 1 ? '✓' : '✗'} />
           </div>
           <p className="pf-note">{es
-            ? 'El valor del pit es exacto: Σ valores positivos − flujo máximo (min-cut). Depósitos sintéticos.'
-            : 'The pit value is exact: Σ positive values − max-flow (min-cut). Synthetic deposits.'}</p>
+            ? `El valor del pit es exacto: Σ valores positivos − flujo máximo (min-cut). ${userModel ? 'Modelo de bloques subido por el usuario.' : 'Depósitos sintéticos.'}`
+            : `The pit value is exact: Σ positive values − max-flow (min-cut). ${userModel ? 'User-uploaded block model.' : 'Synthetic deposits.'}`}</p>
         </div>
       ),
     },

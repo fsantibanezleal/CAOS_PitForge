@@ -17,14 +17,17 @@ The ultimate pit is an EXACT combinatorial result, so it is checked for **correc
 ## The learned models — held-out, vs a classical baseline
 
 Both are trained offline (`science/train_pit.py`, torch) and reported next to the baseline they would replace. The
-metrics live in `data/derived/pit-learned.json` and show in the App’s Learned-models tab + Benchmark.
+metrics live in `data/derived/pit-learned.json` and show in Benchmark; the models run live in the App’s
+**Infill · what-if** (grade-NN) and **Surrogate · preview** (pit-surrogate) tabs.
 
 | Model | Task | Baseline | Held-out metric (this build) |
 |---|---|---|---|
-| `grade-nn` | masked 3×3×3 grade stencil → centre grade | IDW · Ordinary Kriging | **R² 0.999** vs IDW 0.936 / OK 0.991 |
-| `pit-surrogate` | 4 block features → P(block ∈ pit) | the EXACT min-cut | **AUC 0.984 · acc 0.919** vs majority 0.757 |
+| `grade-nn` | masked 3×3×3 grade stencil → centre grade | IDW · Ordinary Kriging | **R² 0.9613** vs IDW 0.9129 / OK 0.958 |
+| `pit-surrogate` | 4 block features → P(block ∈ pit) | the EXACT min-cut | **AUC 0.9811 · acc 0.9117** vs majority 0.7642 |
 
-**Honesty.** On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score
-high — the NN is *competitive* with geostatistics, not a dramatic win. The pit-surrogate is a strong fast
-approximation (AUC 0.98) but **not** the exact answer; the App shows its agreement with the exact pit per section, and
-the exact min-cut is always the authority. No metric is computed on training data; the split is a held-out fraction.
+**Honesty.** On the smooth synthetic fields the local grade is quite predictable, so all three grade methods score
+high — the NN is *competitive* with geostatistics, not a dramatic win. The held-out stencils mix full 26-neighbour
+rows with random-dropout sparse rows (so partially-drilled what-ifs are in distribution). The pit-surrogate is a
+strong fast approximation (AUC 0.98) but **not** the exact answer; the App shows its agreement with the exact pit per
+section, and the exact min-cut is always the authority. No metric is computed on training data; the split is a
+held-out fraction.

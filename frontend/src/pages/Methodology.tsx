@@ -46,7 +46,7 @@ export default function Methodology() {
           id: 'whittle', label: es ? 'Pits anidados (Whittle)' : 'Nested pits (Whittle)',
           content: (
             <div className="pf-doc-sec">
-              <p>{es ? 'Resolviendo el pit último para una secuencia creciente de RF se obtiene una familia de pits ANIDADOS (Whittle ' : 'Solving the ultimate pit for an increasing sequence of RF yields a family of NESTED pits (Whittle '}<Cite id="whittle1988" paren />{es ? '): cada pit contiene al anterior. Dan las curvas valor / tonelaje / razón de descapote vs RF y el orden de fases (pushbacks).' : '): each pit contains the previous. They give the value / tonnage / strip-ratio vs RF curves and the phase (pushback) order.'}</p>
+              <p>{es ? 'Resolviendo el pit último para una secuencia creciente de RF se obtiene una familia de pits ANIDADOS (Whittle ' : 'Solving the ultimate pit for an increasing sequence of RF yields a family of NESTED pits (Whittle '}<Cite id="whittle1988" paren />{es ? '): cada pit contiene al anterior. Dan las curvas valor / tonelaje / razón de descapote vs RF y guían el orden de fases (pushbacks).' : '): each pit contains the previous. They give the value / tonnage / strip-ratio vs RF curves and guide the phase (pushback) order.'}</p>
               <p>{es ? 'El anidamiento se garantiza analíticamente (bajar RF sólo baja valores) y además unimos cada shell con el anterior para absorber cualquier empate numérico.' : 'Nesting is guaranteed analytically (lowering RF only lowers values) and we additionally union each shell with the previous to absorb any float tie.'}</p>
             </div>
           ),
