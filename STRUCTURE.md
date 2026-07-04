@@ -1,4 +1,4 @@
-# PitForge — repository structure
+# PitForge, repository structure
 
 Instantiated from the CAOS product-repo archetype ([ADR-0057](docs/architecture/01_overview.md)). The **frozen base**
 (layout, the two contracts, the staged pipeline, the lane gate, the manifest/trace, CI guards) is never re-litigated;
@@ -15,14 +15,14 @@ CAOS_PitForge/
 │     ├─ __init__.py (version) · pipeline.py (orchestrator+CLI, numpy-light + --retrain) · registry.py
 │     ├─ io/     contract.py (CONTRACT 1: scenario + block-model ingestion + outliers) · schema.py · formats.py
 │     ├─ core/   gate.py (live/precompute gate) · trace.py + manifest.py (CONTRACT 2) · rng.py
-│     ├─ model/  learned.py (the 2 learned models' feature contracts — the SOURCE OF TRUTH the SPA reproduces)
+│     ├─ model/  learned.py (the 2 learned models' feature contracts, the SOURCE OF TRUTH the SPA reproduces)
 │     ├─ stages/ preprocess · feature_extraction · train · infer · evaluate · export (thin over the science)
 │     ├─ science/  bake_cases.mjs · gen_train.mjs (Node+tsx, the SAME TS engine) · train_pit.py (torch → ONNX)
-│     └─ live.py  (dormant — the live lane is TypeScript, not Pyodide)
+│     └─ live.py  (dormant, the live lane is TypeScript, not Pyodide)
 ├─ data/
 │  ├─ examples/  scenarios.csv · blockmodel.csv (tiny committed CONTRACT-1 samples)
 │  ├─ derived/   case-results.json + per-case <case>/trace.json + manifests/ + the ONNX + pit-learned.json  (committed)
-│  └─ raw/       (git-ignored — regenerable training tables)
+│  └─ raw/       (git-ignored, regenerable training tables)
 ├─ frontend/
 │  ├─ src/opt/    THE SCIENCE: maxflow · precedence · econ · ultimatepit · whittle · blockmodel · cases · index
 │  ├─ src/pages/  Tool (App) · Introduction · Methodology · Implementation · Experiments · Benchmark
@@ -30,7 +30,7 @@ CAOS_PitForge/
 │  ├─ src/lib/    contract.types.ts (CONTRACT 2 mirror) · artifacts.ts · ort.ts (onnxruntime-web)
 │  ├─ test/       opt.test.ts (engine oracle) · contract.test.ts   (node:test + tsx)
 │  └─ copy-data.mjs · vite.config.ts · package.json
-├─ app/           (dormant FastAPI — activate only on an ADR-0002 trigger)
+├─ app/           (dormant FastAPI, activate only on an ADR-0002 trigger)
 ├─ deploy/        VPS/pages notes
 ├─ docs/          the navigable wiki (architecture · frameworks · cases · guides)
 └─ .github/workflows/  ci.yml (python + frontend) · deploy-pages.yml

@@ -61,7 +61,7 @@
       "id": "mclaughlin",
       "nBlocks": 2140342,
       "publishedOptimum": null,
-      "reason": "no .prec on any verified mirror; 73M-arc scale untested for this Dinic — offline-infeasible for now"
+      "reason": "no .prec on any verified mirror; 73M-arc scale untested for this Dinic, offline-infeasible for now"
     }
   ]
 }

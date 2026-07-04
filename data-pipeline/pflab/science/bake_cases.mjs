@@ -1,6 +1,6 @@
 // Bake the per-case ultimate pit + Whittle nested shells through the SAME TypeScript engine the browser runs, and
-// write data/derived/case-results.json — the committed, deterministic per-case outputs the LIGHT Python pipeline
-// reshapes into per-case replay traces + manifests (CONTRACT 2). No Python re-port of the optimiser — the lesson from
+// write data/derived/case-results.json, the committed, deterministic per-case outputs the LIGHT Python pipeline
+// reshapes into per-case replay traces + manifests (CONTRACT 2). No Python re-port of the optimiser, the lesson from
 // the sibling products (ChancaDEM / DispatchLab). Run after the SPA lives under frontend/:
 //   node --import tsx data-pipeline/pflab/science/bake_cases.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -48,7 +48,7 @@ for (const c of CASES) {
   const model = caseModel(c);
   const ultimate = solveUltimatePit(model, { ...c.econ, revenueFactor: 1 });
   const shells = nestedPitShells(model, c.econ, RFS);
-  // a vertical cross-section through the pit centre: shell index per (ix, iz) at the mid row — instant 2-D preview.
+  // a vertical cross-section through the pit centre: shell index per (ix, iz) at the mid row, instant 2-D preview.
   const iy = Math.floor(model.dims.ny / 2);
   const section = [];
   for (let iz = 0; iz < model.dims.nz; iz++) {

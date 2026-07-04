@@ -1,11 +1,11 @@
-"""HEAVY lane (local-only) — train PitForge's two HONEST learned models and export them to ONNX + a metrics JSON.
+"""HEAVY lane (local-only), train PitForge's two HONEST learned models and export them to ONNX + a metrics JSON.
 Run inside the .venv-precompute (torch) after gen_train.mjs has written data/raw/{pit-train,grade-train}.json:
 
     python data-pipeline/pflab/science/train_pit.py
 
-1. grade-nn      — a small MLP grade estimator (masked 3×3×3 stencil → centre grade), benchmarked vs IDW and Ordinary
+1. grade-nn     , a small MLP grade estimator (masked 3×3×3 stencil → centre grade), benchmarked vs IDW and Ordinary
                    Kriging (cross-validated R² on a held-out spatial split). Honest claim: competitive with geostatistics.
-2. pit-surrogate — an MLP ultimate-pit INCLUSION classifier (4 features → P(in pit)), trained on the EXACT solver
+2. pit-surrogate, an MLP ultimate-pit INCLUSION classifier (4 features → P(in pit)), trained on the EXACT solver
                    labels, benchmarked vs the exact solver as ground truth (AUC/accuracy). A fast approximation; the
                    exact min-cut is always the authority. Standardisation is BAKED into the ONNX graph (raw features in).
 
@@ -85,7 +85,7 @@ def train_grade() -> dict:
     # IDW: inverse-distance weighted mean of the present neighbours.
     w = np.where(present & mask, 1.0 / np.where(dist > 0, dist, 1.0), 0.0)
     idw = (w * Xte).sum(1) / np.where(w.sum(1) > 0, w.sum(1), 1.0)
-    # Ordinary Kriging with a fixed spherical variogram (range 2 blocks, sill 1, nugget 0.1) — a per-estimate solve
+    # Ordinary Kriging with a fixed spherical variogram (range 2 blocks, sill 1, nugget 0.1), a per-estimate solve
     # over the present neighbours; a legitimate OK with an assumed model (not a per-block variogram fit).
     ok = _ordinary_kriging(Xte, present & mask, offs, dist)
 

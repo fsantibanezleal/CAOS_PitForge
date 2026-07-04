@@ -1,4 +1,4 @@
-# Framework — the visualisation stack
+# Framework, the visualisation stack
 
 PitForge uses one library per data type (per the CAOS interactive-visualisation rubric), all theme-aware and
 interactive.
@@ -12,5 +12,5 @@ interactive.
 
 Every panel **reacts to the case selector** and the live solve; aggregate/cross-case views (the case comparison
 table, the economic/slope sensitivity) live in **Benchmark/Experiments**, never in the App (per the design rule).
-Colours follow the theme tokens (light + dark) — the 3-D background, the section colours and the chart strokes are
+Colours follow the theme tokens (light + dark), the 3-D background, the section colours and the chart strokes are
 all read from the CSS palette so they flip with the theme.

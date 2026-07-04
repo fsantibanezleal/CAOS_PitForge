@@ -1,7 +1,7 @@
-// OFFLINE MineLib benchmark bake — run LOCALLY, never in CI (CI must not fetch MineLib):
+// OFFLINE MineLib benchmark bake, run LOCALLY, never in CI (CI must not fetch MineLib):
 //   node --import tsx scripts/bake-minelib.mjs        (after scripts/fetch-minelib.mjs)
 // Reads the GITIGNORED .minelib-cache, solves each instance with the exact engine
-// (solveUpitExplicit) and writes data/derived/minelib-results.json — SUMMARY numbers only
+// (solveUpitExplicit) and writes data/derived/minelib-results.json, SUMMARY numbers only
 // (counts, values, runtimes; the published optima are already public facts). Instance files are
 // never committed (MineLib grants academic download only).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -19,7 +19,7 @@ for (const rc of REAL_CASES) {
   const dir = join(CACHE, rc.id);
   const files = ['blocks', 'prec', 'upit'].map((ext) => join(dir, `${rc.id}.${ext}`));
   if (!files.every((f) => existsSync(f))) {
-    console.warn(`[bake-minelib] ${rc.id}: not in cache — run scripts/fetch-minelib.mjs first`);
+    console.warn(`[bake-minelib] ${rc.id}: not in cache, run scripts/fetch-minelib.mjs first`);
     continue;
   }
   const [blocks, prec, upit] = files.map((f) => readFileSync(f, 'utf8'));
@@ -47,14 +47,14 @@ for (const rc of REAL_CASES) {
     solveMsMedian: Math.round(times[1] * 10) / 10,
   });
   console.log(`[bake-minelib] ${rc.id}: ${pit.pitValue.toFixed(3)} vs published ${rc.publishedOptimum} ` +
-    `(rel ${relError.toExponential(2)}) — parse ${Math.round(t1 - t0)} ms, solve ${times[1].toFixed(1)} ms (median of 3)`);
+    `(rel ${relError.toExponential(2)}), parse ${Math.round(t1 - t0)} ms, solve ${times[1].toFixed(1)} ms (median of 3)`);
 }
 
 // the rest of the published library, excluded with reasons (counts/optima are published facts).
 const excluded = [
   { id: 'marvin', nBlocks: 53_271, publishedOptimum: 1_415_655_436, reason: 'ships with the commercial Whittle software; no verified public mirror' },
   { id: 'mclaughlin_limit', nBlocks: 112_687, publishedOptimum: 1_495_726_474, reason: 'no verified public mirror (canonical site rejects programmatic access)' },
-  { id: 'mclaughlin', nBlocks: 2_140_342, publishedOptimum: null, reason: 'no .prec on any verified mirror; 73M-arc scale untested for this Dinic — offline-infeasible for now' },
+  { id: 'mclaughlin', nBlocks: 2_140_342, publishedOptimum: null, reason: 'no .prec on any verified mirror; 73M-arc scale untested for this Dinic, offline-infeasible for now' },
 ];
 
 writeFileSync(OUT, JSON.stringify({

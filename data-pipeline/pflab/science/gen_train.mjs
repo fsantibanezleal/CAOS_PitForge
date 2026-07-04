@@ -1,4 +1,4 @@
-// Generate the learned-model training tables by running the SAME TypeScript engine the browser runs — so the learned
+// Generate the learned-model training tables by running the SAME TypeScript engine the browser runs, so the learned
 // models are trained on EXACTLY the deposits + the EXACT-solver labels the App shows. Writes to data/raw/ (git-ignored,
 // regenerable). Invoked by pipeline.retrain before train_pit.py. Run:
 //   node --import tsx data-pipeline/pflab/science/gen_train.mjs
@@ -51,7 +51,7 @@ for (const c of CASES) {
 // ---- grade-nn: a masked 3×3×3 grade stencil → the centre grade, across the 4 distinct geologies ----------
 // Each sampled centre contributes TWO rows: the full 26-neighbour stencil AND a sparse variant
 // with random neighbour dropout (keep-prob ~ U(0.1, 0.9), seeded). The sparse rows put the
-// drilling-density what-if (App Infill tool) IN distribution — without them the model only ever
+// drilling-density what-if (App Infill tool) IN distribution, without them the model only ever
 // sees complete neighbourhoods and collapses on partially-drilled stencils.
 const gX = [];
 const gY = [];

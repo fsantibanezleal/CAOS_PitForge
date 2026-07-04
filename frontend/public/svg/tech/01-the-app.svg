@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 460" width="900" class="arch-svg" role="img" aria-label="PitForge — block model to the ultimate pit">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 460" width="900" class="arch-svg" role="img" aria-label="PitForge, block model to the ultimate pit">
   <style>
     .arch-svg text { font-family: var(--font-sans, Inter, "Segoe UI", system-ui, sans-serif); }
     .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); }
@@ -22,7 +22,7 @@
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">PitForge — what is the most valuable pit you can dig?</text>
+  <text class="ttl" x="22" y="30">PitForge, what is the most valuable pit you can dig?</text>
   <text class="sub" x="22" y="47">an open-pit planning product: from a block model + economics + a slope constraint, compute the EXACT ultimate pit (Lerchs–Grossmann) + the Whittle nested shells</text>
 
   <!-- 1. The question -->
@@ -77,8 +77,8 @@
   <rect class="bx" x="20" y="252" width="860" height="184" rx="11"/>
   <text class="it" x="36" y="278">It is a real system, not a demo:</text>
   <text class="mu" x="36" y="302">• the ultimate-pit optimiser (frontend/src/opt/) recomputes the EXACT Lerchs–Grossmann pit live when you change the price, cost or slope;</text>
-  <text class="mu" x="36" y="324">• the pit is the minimum cut of a max-flow network built from the block values + the slope precedence arcs — exact, not a heuristic;</text>
-  <text class="mu" x="36" y="346">• the Whittle nested shells (by revenue factor) trace the value-vs-tonnage curve; a grade-NN estimates block grades and a pit-surrogate predicts the pit — both ONNX, client-side;</text>
+  <text class="mu" x="36" y="324">• the pit is the minimum cut of a max-flow network built from the block values + the slope precedence arcs, exact, not a heuristic;</text>
+  <text class="mu" x="36" y="346">• the Whittle nested shells (by revenue factor) trace the value-vs-tonnage curve; a grade-NN estimates block grades and a pit-surrogate predicts the pit, both ONNX, client-side;</text>
   <text class="mu" x="36" y="368">• an inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor);</text>
   <text class="mu" x="36" y="390">• Contract 1 accepts your own block model; six documented pages; every number sourced or labelled synthetic.</text>
   <text class="cd mono" x="36" y="418">block model + econ + slope  →  max-flow / min-cut (Lerchs–Grossmann)  →  ultimate pit + Whittle shells · tonnes · grade · NPV</text>

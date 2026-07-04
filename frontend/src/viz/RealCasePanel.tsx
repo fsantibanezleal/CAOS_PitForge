@@ -10,9 +10,9 @@ const PitView3D = lazy(() => import('./PitView3D.tsx').then((m) => ({ default: m
 const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
 
 /** The real-source workbench: fetch + exact solve of a published MineLib instance, then the same
- *  domain views as the synthetic side — 3-D pit, section, summary, block-value histogram and
+ *  domain views as the synthetic side, 3-D pit, section, summary, block-value histogram and
  *  grade–tonnage (where the instance publishes grade/tonnage columns). Whittle/pushbacks need an
- *  RF sweep, which needs a per-instance econ decomposition — documented out of the v1 real mode. */
+ *  RF sweep, which needs a per-instance econ decomposition, documented out of the v1 real mode. */
 // synthetic oreblocks twins carry a "stamped" optimum (from our generator), not a "published" one.
 const optLabel = (rc: RealCase, es: boolean) =>
   rc.synthetic ? (es ? 'óptimo estampado' : 'stamped optimum') : (es ? 'óptimo publicado' : 'published optimum');
@@ -189,8 +189,8 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
           </div>
           <p className="pf-note">{matchChip}.</p>
           <p className="pf-note">{es
-            ? 'Instancia publicada: valores netos (.upit) + precedencia explícita (.prec) resueltos por el MISMO motor min-cut exacto del modo sintético (solveUpitExplicit). Whittle/pushbacks requieren el barrido de RF, que exige descomponer la economía por instancia — fuera del modo real v1, documentado.'
-            : 'Published instance: net values (.upit) + explicit precedence (.prec) solved by the SAME exact min-cut engine as the synthetic mode (solveUpitExplicit). Whittle/pushbacks need the RF sweep, which needs a per-instance econ decomposition — out of real-mode v1, documented.'}</p>
+            ? 'Instancia publicada: valores netos (.upit) + precedencia explícita (.prec) resueltos por el MISMO motor min-cut exacto del modo sintético (solveUpitExplicit). Whittle/pushbacks requieren el barrido de RF, que exige descomponer la economía por instancia, fuera del modo real v1, documentado.'
+            : 'Published instance: net values (.upit) + explicit precedence (.prec) solved by the SAME exact min-cut engine as the synthetic mode (solveUpitExplicit). Whittle/pushbacks need the RF sweep, which needs a per-instance econ decomposition, out of real-mode v1, documented.'}</p>
         </div>
       ),
     },
@@ -198,7 +198,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
       id: 'hist', label: es ? 'Valor bloque' : 'Block value',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? 'Histograma del valor neto publicado por bloque (.upit) — negativos = lastre' : 'Published per-block net value histogram (.upit) — negatives = waste'}</div>
+          <div className="pf-plot-t">{es ? 'Histograma del valor neto publicado por bloque (.upit), negativos = lastre' : 'Published per-block net value histogram (.upit), negatives = waste'}</div>
           <BarMini values={hist.bins} labels={hist.bins.map(() => '')} unit=""
                    caption={`${fInt(hist.lo)} … ${fInt(hist.hi)}`} />
         </div>

@@ -25,7 +25,7 @@ test('mirror: rejects unphysical, flags rich (tests/test_contract.py::test_block
   assert.ok(rep.flagged.length > 0);
 });
 
-test('mirror: never coerces — non-numeric, NaN/Inf, missing, out-of-box, density', () => {
+test('mirror: never coerces, non-numeric, NaN/Inf, missing, out-of-box, density', () => {
   const rep = validateBlocksLive([
     R({ ix: 0, iy: 0, iz: 0, tonnage: 'lots', density: 2.7, grade: 0.01 }), // non-numeric → reject
     R({ ix: 0, iy: 0, iz: 1, tonnage: 'NaN', density: 2.7, grade: 0.01 }),  // literal NaN → NaN/Inf reject

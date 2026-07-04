@@ -1,6 +1,6 @@
 export interface Zone { upTo: number; color: string; label: string }
 
-/** Horizontal gauge with coloured zones + a needle. Used for the pit KPIs (strip ratio, value/tonne) — an
+/** Horizontal gauge with coloured zones + a needle. Used for the pit KPIs (strip ratio, value/tonne), an
  * illustrative readout over the synthetic deposits, not a certified reserve statement. */
 export function Gauge({ value, max, zones, unit, title, fmt }: {
   value: number; max: number; zones: Zone[]; unit?: string; title?: string; fmt?: (v: number) => string;

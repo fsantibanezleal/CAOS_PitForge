@@ -1,8 +1,8 @@
-// The REAL block-model registry — MineLib benchmark instances (Espinoza, Goycoolea, Moreno &
+// The REAL block-model registry, MineLib benchmark instances (Espinoza, Goycoolea, Moreno &
 // Newman 2013, Annals of OR 206:93–114, doi:10.1007/s10479-012-1258-3).
 //
 // LICENSE POSTURE (issue #11 re-analysis). MineLib's only grant is "these files may be downloaded
-// for academic purposes" — there is NO redistribution permission (datasets come from anonymous
+// for academic purposes", there is NO redistribution permission (datasets come from anonymous
 // industrial donors; marvin ships with the commercial Whittle software). Therefore instance files
 // are NEVER committed to this repo and never bundled into the SPA. The app fetches them at
 // runtime into browser memory only; the offline bake (#17) uses a gitignored local cache. Only
@@ -18,7 +18,7 @@ export interface RealCase {
   /** block / precedence-arc counts, from the MineLib paper (public facts). */
   nBlocks: number;
   nPrecs: number;
-  /** the published UPIT optimum — the oracle the exact solver must reproduce. */
+  /** the published UPIT optimum, the oracle the exact solver must reproduce. */
   publishedOptimum: number;
   /** live: solve on select · size-gated: solve only on explicit confirm · offline-only: bake lane (#17). */
   gate: 'live' | 'size-gated' | 'offline-only';
@@ -35,7 +35,7 @@ export interface RealCase {
 }
 
 // Plain-HTTPS mirrors verified alive (2026-07-03); the canonical MineLib site rejects
-// programmatic access (expired TLS + WAF). Fetched at runtime — never cached into the build.
+// programmatic access (expired TLS + WAF). Fetched at runtime, never cached into the build.
 const MIRROR = 'https://raw.githubusercontent.com/ampl/colab.ampl.com/master/authors/eduardosalaz/minelib/data';
 const MIRROR2 = 'https://raw.githubusercontent.com/qarth/whattle/master/test/minelib';
 // our own synthetic twins, committed under frontend/public/twins/ (served locally, no license issue).
@@ -64,7 +64,7 @@ export const REAL_CASES: RealCase[] = [
       prec: `${MIRROR2}/zuck_small/zuck_small.prec`,
       upit: `${MIRROR2}/zuck_small/zuck_small.upit`,
     },
-    blocksLayout: {}, // free columns are cost/value variants — no grade/tonnage semantics declared
+    blocksLayout: {}, // free columns are cost/value variants, no grade/tonnage semantics declared
     provenance_en: 'MineLib 2013 · mid-size · fetched from the whattle GitHub mirror; solve starts on your confirm (~1.3 MB, 145k arcs).',
     provenance_es: 'MineLib 2013 · tamaño medio · descargada del espejo whattle en GitHub; el solve parte con tu confirmación (~1.3 MB, 145k arcos).',
   },
@@ -92,24 +92,24 @@ export const REAL_CASES: RealCase[] = [
     publishedOptimum: 126_908_453.74, gate: 'live', synthetic: true,
     urls: { blocks: `${TWINS}/twin-porphyry-s.blocks`, prec: `${TWINS}/twin-porphyry-s.prec`, upit: `${TWINS}/twin-porphyry-s.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
-    provenance_en: 'Synthetic twin (oreblocks): seeded porphyry, exact ultimate pit, MineLib format — committed here (no license), optimum stamped by the generator.',
-    provenance_es: 'Gemelo sintético (oreblocks): pórfido con semilla, pit último exacto, formato MineLib — versionado aquí (sin licencia), óptimo estampado por el generador.',
+    provenance_en: 'Synthetic twin (oreblocks): seeded porphyry, exact ultimate pit, MineLib format, committed here (no license), optimum stamped by the generator.',
+    provenance_es: 'Gemelo sintético (oreblocks): pórfido con semilla, pit último exacto, formato MineLib, versionado aquí (sin licencia), óptimo estampado por el generador.',
   },
   {
     id: 'twin-vein-m', name: 'Synthetic twin · vein (20×20×10)', nBlocks: 4000, nPrecs: 30_276,
     publishedOptimum: 213_735_284.68, gate: 'size-gated', synthetic: true,
     urls: { blocks: `${TWINS}/twin-vein-m.blocks`, prec: `${TWINS}/twin-vein-m.prec`, upit: `${TWINS}/twin-vein-m.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
-    provenance_en: 'Synthetic twin (oreblocks): seeded dipping vein, exact ultimate pit, MineLib format — committed here, optimum stamped by the generator.',
-    provenance_es: 'Gemelo sintético (oreblocks): veta inclinada con semilla, pit último exacto, formato MineLib — versionado aquí, óptimo estampado por el generador.',
+    provenance_en: 'Synthetic twin (oreblocks): seeded dipping vein, exact ultimate pit, MineLib format, committed here, optimum stamped by the generator.',
+    provenance_es: 'Gemelo sintético (oreblocks): veta inclinada con semilla, pit último exacto, formato MineLib, versionado aquí, óptimo estampado por el generador.',
   },
   {
     id: 'twin-corehalo-m', name: 'Synthetic twin · core+halo (22×22×10)', nBlocks: 4840, nPrecs: 36_864,
     publishedOptimum: 65_696_305.79, gate: 'size-gated', synthetic: true,
     urls: { blocks: `${TWINS}/twin-corehalo-m.blocks`, prec: `${TWINS}/twin-corehalo-m.prec`, upit: `${TWINS}/twin-corehalo-m.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
-    provenance_en: 'Synthetic twin (oreblocks): seeded rich core + low-grade halo, exact ultimate pit, MineLib format — committed here, optimum stamped by the generator.',
-    provenance_es: 'Gemelo sintético (oreblocks): núcleo rico + halo de baja ley con semilla, pit último exacto, formato MineLib — versionado aquí, óptimo estampado por el generador.',
+    provenance_en: 'Synthetic twin (oreblocks): seeded rich core + low-grade halo, exact ultimate pit, MineLib format, committed here, optimum stamped by the generator.',
+    provenance_es: 'Gemelo sintético (oreblocks): núcleo rico + halo de baja ley con semilla, pit último exacto, formato MineLib, versionado aquí, óptimo estampado por el generador.',
   },
 ];
 
@@ -120,7 +120,7 @@ export interface RealSolved {
   embedding: RealEmbedding;
   /** per DENSE cell (0 where absent). */
   inPitDense: Uint8Array;
-  /** per instance block — feeds the value histogram + grade–tonnage. */
+  /** per instance block, feeds the value histogram + grade–tonnage. */
   instValue: Float64Array;
   instInPit: Uint8Array;
   instGrade: Float64Array | null;
@@ -147,7 +147,7 @@ export type RealSolveState =
 
 const cache = new Map<string, RealSolved>();
 
-/** Synchronous cache peek — lets the UI skip the size-gate confirm for already-solved instances. */
+/** Synchronous cache peek, lets the UI skip the size-gate confirm for already-solved instances. */
 export const peekRealCase = (id: string): RealSolved | null => cache.get(id) ?? null;
 
 /** Fetch + parse + solve a MineLib instance with the exact engine (browser memory only). */
