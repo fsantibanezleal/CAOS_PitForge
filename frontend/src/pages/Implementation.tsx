@@ -39,8 +39,8 @@ export default function Implementation() {
           content: (
             <Callout variant="honest" title={es ? 'Dos modelos honestos, no AE/CNN postizos' : 'Two honest models, not bolted-on AE/CNN'}>
               {es
-                ? '(1) grade-NN: un estimador de ley por red neuronal vs kriging ordinario / IDW (R² validado cruzado). (2) pit-surrogate: un clasificador de inclusión en el pit entrenado con las etiquetas EXACTAS del solver, comparado contra el solver exacto como verdad de terreno (AUC). Ambos entrenan offline (torch → ONNX) y corren en vivo (onnxruntime-web). El optimizador exacto es el titular; estos son aproximaciones rápidas medidas contra su baseline. En este build están PENDIENTES de entrenamiento (la app lo declara honestamente).'
-                : '(1) grade-NN: a neural-network grade estimator vs Ordinary Kriging / IDW (cross-validated R²). (2) pit-surrogate: a pit-inclusion classifier trained on the EXACT solver labels, benchmarked against the exact solver as ground truth (AUC). Both train offline (torch → ONNX) and run live (onnxruntime-web). The exact optimiser is the headline; these are fast approximations measured against their baseline. In this build they are PENDING training (the app says so honestly).'}
+                ? '(1) grade-NN: un estimador de ley por red neuronal vs kriging ordinario / IDW (R² held-out). (2) pit-surrogate: un clasificador de inclusión en el pit entrenado con las etiquetas EXACTAS del solver, comparado contra el solver exacto como verdad de terreno (AUC). Ambos entrenan offline (torch → ONNX) y corren en vivo (onnxruntime-web). El optimizador exacto es el titular; estos son aproximaciones rápidas medidas contra su baseline. En este build ambos van ENTRENADOS (los .onnx están commiteados; métricas held-out en Benchmark); si un modelo no carga, la app lo degrada y lo declara en el tab.'
+                : '(1) grade-NN: a neural-network grade estimator vs Ordinary Kriging / IDW (held-out R²). (2) pit-surrogate: a pit-inclusion classifier trained on the EXACT solver labels, benchmarked against the exact solver as ground truth (AUC). Both train offline (torch → ONNX) and run live (onnxruntime-web). The exact optimiser is the headline; these are fast approximations measured against their baseline. In this build both SHIP TRAINED (the .onnx files are committed; held-out metrics in Benchmark); if a model fails to load, the app degrades gracefully and says so in the tab.'}
             </Callout>
           ),
         },
@@ -54,7 +54,7 @@ pytest                                  # 9 passed
 python -m pflab.pipeline all            # 9 cases → traces + manifests
 python scripts/check_artifacts.py       # CONTRACT 2 OK
 # byte-identical re-run → deterministic
-cd frontend && npm test                 # engine 5 + contract 4 = 9 passed
+cd frontend && npm test                 # 34 passed (engine · contracts · MineLib · infill)
 npm run build                           # tsc + vite green`}</pre>
             </div>
           ),

@@ -6,8 +6,8 @@ export default function Introduction() {
     <article className="page-body prose">
       <h1>{es ? 'Introducción' : 'Introduction'}</h1>
       <p className="lede">{es
-        ? 'PitForge resuelve el problema clásico del diseño de rajo abierto: dado un modelo de bloques con valor económico por bloque, ¿qué bloques conviene extraer para maximizar el valor total respetando los ángulos de talud? La respuesta exacta es el pit último (ultimate pit limit), y su familia de pits anidados por factor de ingreso da las fases (pushbacks).'
-        : 'PitForge solves the classic open-pit design problem: given a block model with a per-block economic value, which blocks should be extracted to maximise total value subject to slope constraints? The exact answer is the ultimate pit limit, and its family of nested pits by revenue factor gives the phases (pushbacks).'}</p>
+        ? 'PitForge resuelve el problema clásico del diseño de rajo abierto: dado un modelo de bloques con valor económico por bloque, ¿qué bloques conviene extraer para maximizar el valor total respetando los ángulos de talud? La respuesta exacta es el pit último (ultimate pit limit), y su familia de pits anidados por factor de ingreso guía las fases (pushbacks).'
+        : 'PitForge solves the classic open-pit design problem: given a block model with a per-block economic value, which blocks should be extracted to maximise total value subject to slope constraints? The exact answer is the ultimate pit limit, and its family of nested pits by revenue factor guides the phases (pushbacks).'}</p>
 
       <Callout variant="strong" title={es ? 'El optimizador exacto corre EN VIVO en tu browser' : 'The exact optimiser runs LIVE in your browser'}>
         {es
@@ -45,8 +45,8 @@ export default function Introduction() {
           content: (
             <Callout variant="honest" title={es ? 'Qué es real y qué es sintético' : 'What is real and what is synthetic'}>
               {es
-                ? 'Los yacimientos son SINTÉTICOS (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija) — no hay sondajes reales. El OPTIMIZADOR sí es exacto: el corte mínimo es el mismo que calcula el pseudoflow. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos se comparan SIEMPRE contra su baseline clásico (kriging/IDW; el solver exacto), nunca se presentan superándolo.'
-                : 'The deposits are SYNTHETIC (grade fields with a geological trend + spatially-correlated noise, fixed seed) — there are no real drillholes. The OPTIMISER is exact: the min-cut is the same one pseudoflow computes. The CTRL control has a hand-verifiable closed-form answer. The 2 learned models are ALWAYS compared against their classical baseline (kriging/IDW; the exact solver), never presented as beating it.'}
+                ? 'La lane sintética usa yacimientos GENERADOS (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija) — ahí no hay sondajes reales. La lane real usa 3 instancias PUBLICADAS de MineLib (newman1, zuck_small, kd), descargadas en runtime (ningún byte de instancia va commiteado), y el solver reproduce su óptimo UPIT publicado. El OPTIMIZADOR es exacto: el corte mínimo es el mismo que calcula el pseudoflow. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos (entrenados en depósitos sintéticos) se comparan SIEMPRE contra su baseline clásico (kriging/IDW; el solver exacto), nunca se presentan superándolo.'
+                : 'The synthetic lane uses GENERATED deposits (grade fields with a geological trend + spatially-correlated noise, fixed seed) — no real drillholes there. The real lane uses 3 PUBLISHED MineLib instances (newman1, zuck_small, kd), fetched at runtime (no instance bytes are committed), and the solver reproduces their published UPIT optimum. The OPTIMISER is exact: the min-cut is the same one pseudoflow computes. The CTRL control has a hand-verifiable closed-form answer. The 2 learned models (trained on synthetic deposits) are ALWAYS compared against their classical baseline (kriging/IDW; the exact solver), never presented as beating it.'}
             </Callout>
           ),
         },
