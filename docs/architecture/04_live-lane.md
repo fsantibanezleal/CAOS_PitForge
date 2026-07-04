@@ -26,6 +26,7 @@ binary is pinned to the same version as the npm package (a skew is the classic l
 ## Live re-solve in the App
 
 The App holds `(case, RF, price×, slope°)` in state. On every change it re-runs `solveUltimatePit(model, econ)` (one
-fast max-flow) to drive the 3-D pit / section / KPIs, and recomputes `nestedPitShells` (the Whittle curve + pushbacks)
-when the case/price/slope change. The `pit-surrogate` ONNX runs live over the current section in the Learned-models
-tab. This is the "interactive value-readout viz that reacts to the controls" — the exact pit, re-solved, not a replay.
+fast max-flow) to drive the 3-D pit / section / KPIs, and recomputes `nestedPitShells` (the Whittle curve + shells)
+when the case/price/slope change. The `pit-surrogate` ONNX runs live over the current section in the
+**Surrogate · preview** tab (the grade-NN in **Infill · what-if**). This is the "interactive value-readout viz that
+reacts to the controls" — the exact pit, re-solved, not a replay.
