@@ -4,6 +4,19 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.08.002], 2026-07-07
+
+### Added
+- Footer provenance + disclaimer (ADR-0016 §2): the real lane cites the MineLib source
+  (Espinoza, Goycoolea, Moreno & Newman 2013, doi:10.1007/s10479-012-1258-3) and its academic-only
+  license, names the exact min-cut engine, and states the honest scope (min-cut is the authority;
+  the ONNX models are triage; not for production planning). Bilingual EN/ES.
+
+### Fixed
+- Corrected double-encoded (mojibake) characters in the Spanish nav labels (Introduccion,
+  Metodologia, Implementacion now render with correct accents) and in the pflab package docstring.
+- In-app version string synced to the release (footer read 0.08.000, one patch behind the tag).
+
 ## [0.08.001], 2026-07-04
 
 ### Changed
