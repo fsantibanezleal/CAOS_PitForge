@@ -31,9 +31,48 @@ export interface MinelibBenchFile {
   excluded: { id: string; nBlocks: number; publishedOptimum: number | null; reason: string }[];
 }
 
+export interface CpitPeriod {
+  period: number;
+  minedTonnes: number;
+  npvIncrement: number;
+  cumulativeNpv: number;
+}
+
+export interface CpitCase {
+  source: string;
+  nBlocks: number;
+  nPrecs: number;
+  uplValue: number;
+  uplBlocks: number;
+  uplTonnage: number;
+  periods: number;
+  discountRatePerPeriod: number;
+  capacityTonnesPerPeriod: number;
+  /** certified upper bound on the discounted NPV (LP relaxation, Bienstock-Zuckerberg / Chicoisne). */
+  certifiedBoundNpv: number;
+  /** feasible integer schedule NPV (greedy rounding). */
+  roundedScheduleNpv: number;
+  integralityGapPct: number;
+  minedBlocks: number;
+  controls: { dualityMatch: boolean; dualityBoundVsUpl: number; boundGeqFeasible: boolean };
+  perPeriod: CpitPeriod[];
+  /** committed only for the license-free synthetic twin (per-block period index, -1 = never mined). */
+  periodOfBlock?: number[];
+}
+
+export interface CpitScheduleFile {
+  schema: string;
+  generatedAt: string;
+  engine: string;
+  honesty: string;
+  parameters: { periods: number; discountRatePerPeriod: number; capacitySlack: number };
+  cases: Record<string, CpitCase>;
+}
+
 export const loadCaseResults = () => getJSON<CaseResultsFile>('case-results.json');
 export const loadLearned = () => getJSON<LearnedFile>('pit-learned.json');
 export const loadMinelibBench = () => getJSON<MinelibBenchFile>('minelib-results.json');
+export const loadCpitSchedule = () => getJSON<CpitScheduleFile>('cpit-schedule.json');
 export const loadIndex = () => getJSON<CaseIndex>('data/manifests/index.json');
 export const loadManifest = (caseId: string) => getJSON<CaseManifest>(`data/manifests/${caseId}.json`);
 export const loadTrace = (caseId: string) => getJSON<CaseTrace>(`data/${caseId}/trace.json`);

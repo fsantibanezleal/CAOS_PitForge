@@ -116,8 +116,8 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta; el corte mínimo siempre manda.'
-              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but NOT the exact answer; the min-cut is always the authority.'}
+              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta. Su rol correcto es preprocesamiento EXACTO acelerado por aprendizaje: ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras y el min-cut certifica la instancia reducida, así que el óptimo nunca cambia (valor = escala). El corte mínimo siempre manda.'
+              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but NOT the exact answer. Its correct role is learning-accelerated EXACT preprocessing: it orders provably-safe fix-in/fix-out reductions and the min-cut certifies the reduced instance, so the optimum never changes (value = scale). The min-cut is always the authority.'}
           </Callout>
         </>
       ) : (
