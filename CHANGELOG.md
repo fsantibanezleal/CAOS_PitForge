@@ -4,6 +4,43 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.09.000], 2026-07-07
+
+### Added, certified CPIT scheduling slice (beyond the ultimate pit)
+- Offline CPIT LP relaxation (`data-pipeline/pflab/science/cpit.py`): a certified upper bound on the
+  discounted NPV of the precedence-constrained production schedule (Bienstock and Zuckerberg 2010,
+  doi:10.1007/978-3-642-13036-6_1; Chicoisne et al. 2012, doi:10.1287/opre.1120.1050), solved with
+  scipy HiGHS, plus a greedy capacity-constrained integer pushback schedule and its integrality gap.
+  The static ultimate pit is the undiscounted, uncapacitated degenerate case, reproduced exactly.
+- Committed artifact `data/derived/cpit-schedule.json` (generator `scripts/gen_cpit.py`). Results:
+  twin-porphyry-s certified bound 104.6 M vs feasible NPV 92.8 M (gap 11.3 %); newman1 (MineLib,
+  aggregate facts only) bound 20.5 M vs 18.4 M (gap 10.5 %). Both reproduce the exact UPL value
+  (26,086,899 and 126,908,454) at rate 0 + infinite capacity.
+- The two MANDATORY negative controls as hard tests (`tests/test_cpit.py`): DUALITY (rate 0 +
+  infinite capacity mines exactly the ultimate pit, block-for-block, bound equals the UPL value) and
+  BOUND validity (the certified bound dominates any feasible integer NPV). Plus the EXACTNESS control
+  for the learned reduction (below).
+- New App "Scheduling" tab: a paused-by-default bench-sequence animation (greedy pushback on the
+  current deposit) + the NPV-vs-period certified-bound curve with the integrality gap shown honestly.
+- Live scheduling engine `frontend/src/opt/schedule.ts` with a TypeScript duality control in the
+  frontend suite (rate 0 + infinite capacity mines exactly the `solveUltimatePit` set).
+
+### Changed
+- Reframed the learned pit-surrogate from "fast triage" to "learning-accelerated EXACT preprocessing":
+  the learned scores only ORDER provably-safe fix-in / fix-out reductions; the exact min-cut still
+  certifies the reduced instance, so the optimum can never change (value is scale, not a new optimum).
+  The EXACTNESS control asserts every fixing agrees with the exact pit. Updated the in-app panel + docs.
+- Deepened the SOTA citations (`frontend/src/data/citations.ts`): added Lerchs-Grossmann LP-duality
+  context, Gallo-Grigoriadis-Tarjan 1989 (parametric max-flow), Deutsch 2022 (MineFlow), Chicoisne
+  2012, Bienstock-Zuckerberg 2010, Munoz 2018, Lambert-Newman 2014, Bengio-Lodi-Prouvost 2021,
+  Cappart 2023.
+
+### Docs
+- New `docs/frameworks/04_scheduling.md` (CPIT/PCPSP formulation, the BZ LP relaxation, the duality to
+  the ultimate pit, capacity constraints, verified DOIs). Deepened `docs/frameworks/01_optimiser.md`
+  with the max-closure/min-cut LP-duality derivation and the parametric-pseudoflow honesty note.
+- Methodology "Scheduling frontier" subtab; Experiments certified-gap table + the two control rows.
+
 ## [0.08.002], 2026-07-07
 
 ### Added

@@ -4,3 +4,6 @@
 numpy==2.4.6
 torch==2.6.0
 onnx==1.17.0
+# CPIT LP relaxation (scripts/gen_cpit.py -> data/derived/cpit-schedule.json). Precompute-only; the deploy
+# build serves the committed artifact and never runs this. Pinned to the verified install (2026-07-07).
+scipy==1.18.0

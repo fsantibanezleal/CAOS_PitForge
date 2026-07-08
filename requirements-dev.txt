@@ -1,3 +1,7 @@
 # DEV lane, lint + test. Pinned to the verified install (Python 3.12, 2026-06-20).
 pytest==9.1.1
 ruff==0.15.18
+# scipy powers the CPIT LP relaxation (data-pipeline/pflab/science/cpit.py); the two mandatory scheduling
+# controls (tests/test_cpit.py) exercise it, so it is needed to run the test suite. NOT a runtime dependency
+# of the numpy-light default pipeline (which never imports it). Pinned to the verified install (2026-07-07).
+scipy==1.18.0
