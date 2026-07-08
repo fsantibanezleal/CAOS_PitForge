@@ -5,12 +5,14 @@ import { runPitSurrogateBatch } from '../lib/ort.ts';
 import { SectionView, type SectionCell } from './SectionView.tsx';
 import { viridisCss } from './colormap.ts';
 
-/** Surrogate FAST-PREVIEW tool: the ONNX inclusion classifier runs over the current section on
- * every knob change (one batched onnxruntime-web call), rendered as P(block ∈ pit) against the
- * EXACT pit outline + the live agreement %. Framing is operational: at this teaching scale the
- * exact min-cut is already instant, so the surrogate's value is TRIAGE, at 10⁶–10⁷ blocks it
- * screens candidates before the exact solve. It never replaces the min-cut; held-out metrics
- * live in Benchmark. */
+/** Learning-accelerated EXACT preprocessing: the ONNX inclusion classifier runs over the current
+ * section on every knob change (one batched onnxruntime-web call), rendered as P(block ∈ pit) against
+ * the EXACT pit outline + the live agreement %. Rigorous framing (dossier 2026-07-07): the learned
+ * scores only ORDER which blocks to test against provably-safe fix-in / fix-out reduction rules; the
+ * rules (not the net) guarantee exactness, and the final pit is still CERTIFIED by one exact min-cut
+ * pass over the reduced instance. So the learned model can never change the optimum: its value is
+ * SCALE and speed (fewer blocks for the exact solve), never a different answer. Held-out metrics live
+ * in Benchmark. */
 export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {
   const [prob, setProb] = useState<Float32Array | null>(null);
   const [agree, setAgree] = useState<number | null>(null);
@@ -105,8 +107,8 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
           : (pending ? (es ? 'inferencia en curso…' : 'inference running…') : (es ? 'modelo no disponible' : 'model unavailable'))}
       </div>
       <p className="pf-cap">{es
-        ? 'Herramienta de TRIAGE: a esta escala didáctica el min-cut exacto ya es instantáneo; a 10⁶–10⁷ bloques el surrogate filtra candidatos antes del solve exacto. Nunca reemplaza al exacto. Entrenado en depósitos sintéticos; métricas held-out en Benchmark.'
-        : 'A TRIAGE tool: at this teaching scale the exact min-cut is already instant; at 10⁶–10⁷ blocks the surrogate screens candidates before the exact solve. It never replaces the exact result. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
+        ? 'Preprocesamiento EXACTO acelerado por aprendizaje: los puntajes aprendidos solo ORDENAN que bloques probar contra reglas de fijacion demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no-negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el optimo: el valor es ESCALA y velocidad. Entrenado en depositos sinteticos; metricas held-out en Benchmark.'
+        : 'Learning-accelerated EXACT preprocessing: the learned scores only ORDER which blocks to test against provably-safe fixing rules (fix-out when the block\'s best-case cone value is <= 0; fix-in when its entire supporting cone is non-negative). The rules guarantee exactness; the exact min-cut certifies the reduced instance. It never changes the optimum: the value is SCALE and speed. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
     </div>
   );
 }

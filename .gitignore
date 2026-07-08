@@ -29,6 +29,7 @@ frontend/public/pyodide/
 # root-level build-time overlay (copy-data.mjs) — canonical copies live in data/derived/
 frontend/public/case-results.json
 frontend/public/pit-learned.json
+frontend/public/cpit-schedule.json
 frontend/public/*.onnx
 *.tsbuildinfo
 
