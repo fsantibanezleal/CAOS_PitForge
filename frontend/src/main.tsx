@@ -27,7 +27,7 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
-  version: '0.08.002',
+  version: '0.09.000',
   architecture,
   // ADR-0016 §2: honest footer provenance + disclaimer.
   footer: {
@@ -36,8 +36,8 @@ const config: ShellConfig = {
       es: 'Carril real: instancias de rajo abierto publicadas de MineLib (Espinoza, Goycoolea, Moreno & Newman 2013, doi:10.1007/s10479-012-1258-3), descargadas en tiempo de ejecución bajo su licencia académica y nunca empaquetadas. Motor: pit final de Lerchs-Grossmann por max-flow/min-cut exacto (Picard). Carril sintético: depósitos sembrados + gemelos generados con oreblocks y óptimo estampado por el generador.',
     },
     disclaimer: {
-      en: 'A static, in-browser mine-design workbench: no backend. The exact min-cut is the authority and reproduces the published MineLib optima live; the ONNX learned models are fast triage, never a replacement. Not for production mine planning.',
-      es: 'Un taller de diseño minero estático en el navegador: sin backend. El min-cut exacto es la autoridad y reproduce en vivo los óptimos publicados de MineLib; los modelos ONNX aprendidos son triaje rápido, nunca un reemplazo. No apto para planificación minera de producción.',
+      en: 'A static, in-browser mine-design workbench: no backend. The exact min-cut is the authority and reproduces the published MineLib optima live; the ONNX learned models are learning-accelerated exact preprocessing (they order provably-safe reductions; the min-cut still certifies the result), never a replacement. The CPIT scheduling lane adds a certified NPV bound. Not for production mine planning.',
+      es: 'Un taller de diseño minero estático en el navegador: sin backend. El min-cut exacto es la autoridad y reproduce en vivo los óptimos publicados de MineLib; los modelos ONNX aprendidos son preprocesamiento exacto acelerado por aprendizaje (ordenan reducciones demostrablemente seguras; el min-cut certifica el resultado), nunca un reemplazo. El carril de scheduling CPIT agrega una cota certificada de NPV. No apto para planificación minera de producción.',
     },
   },
 };

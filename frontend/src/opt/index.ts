@@ -13,4 +13,5 @@ export { MaxFlow } from './maxflow.ts';
 export { forEachPrecedenceArc, slopeTemplate, type PrecedenceTemplate } from './precedence.ts';
 export { solveUltimatePit } from './ultimatepit.ts';
 export { defaultRevenueFactors, nestedPitShells } from './whittle.ts';
+export { greedySchedule, type ScheduleOpts, type ScheduleResult } from './schedule.ts';
 export { type Archetype, type DepositSpec, makeDeposit } from './blockmodel.ts';

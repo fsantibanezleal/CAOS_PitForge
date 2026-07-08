@@ -13,6 +13,7 @@ import { BarMini } from '../viz/BarMini.tsx';
 import { UploadPanel } from '../viz/UploadPanel.tsx';
 import { InfillPanel } from '../viz/InfillPanel.tsx';
 import { LearnedPanel } from '../viz/LearnedPanel.tsx';
+import { SchedulePanel } from '../viz/SchedulePanel.tsx';
 import type { UserModel } from '../lib/contractLive.ts';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
@@ -236,6 +237,10 @@ export default function Tool() {
                    unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`} />
         </div>
       ),
+    },
+    {
+      id: 'schedule', label: es ? 'Programa · CPIT' : 'Schedule · CPIT',
+      content: <SchedulePanel model={model} econ={econNoRF} iy={iy} es={es} />,
     },
     {
       id: 'infill', label: es ? 'Infill · what-if' : 'Infill · what-if',
