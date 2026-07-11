@@ -4,6 +4,17 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.09.001], 2026-07-11
+
+### Fixed
+- Reference integrity (ADR-0017 §4): the 5 link-less citations now carry a link or an explicit marker.
+  Cappart et al. 2023 -> JMLR url; Hustrulid et al. 2013 -> doi 10.1201/b15068. Lerchs & Grossmann 1965,
+  Dinic 1970 and Whittle 1988 are genuinely pre-DOI print/conference sources with no open landing page and are
+  now explicitly marked as such (never a fabricated link).
+
+### Added
+- Per-panel error boundary (viz/PanelBoundary.tsx, mirroring RotorVitals) so one view crash cannot blank the App.
+
 ## [0.09.000], 2026-07-07
 
 ### Added, certified CPIT scheduling slice (beyond the ultimate pit)
