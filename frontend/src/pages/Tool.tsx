@@ -15,6 +15,7 @@ import { InfillPanel } from '../viz/InfillPanel.tsx';
 import { LearnedPanel } from '../viz/LearnedPanel.tsx';
 import { SchedulePanel } from '../viz/SchedulePanel.tsx';
 import type { UserModel } from '../lib/contractLive.ts';
+import { PanelBoundary } from '../viz/PanelBoundary.tsx';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
 const RFS = defaultRevenueFactors(12);
@@ -368,7 +369,7 @@ export default function Tool() {
       <main className="pf-main">
         {real
           ? <RealCasePanel rc={realCase} es={es} />
-          : <Tabs tabs={tabs} ariaLabel={es ? 'vistas del pit' : 'pit views'} />}
+          : <Tabs tabs={tabs.map((t) => ({ ...t, content: <PanelBoundary key={`${caseId}-${t.id}`} lang={es ? 'es' : 'en'}>{t.content}</PanelBoundary> }))} ariaLabel={es ? 'vistas del pit' : 'pit views'} />}
       </main>
     </div>
   );
