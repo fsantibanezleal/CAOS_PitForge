@@ -5,7 +5,7 @@ export const CITATIONS: Citation[] = [
   {
     id: 'lerchs1965',
     label: 'Lerchs & Grossmann 1965',
-    citation: 'Lerchs, H. & Grossmann, I. F. (1965). Optimum design of open-pit mines. CIM Bulletin, 58, 47–54.',
+    citation: 'Lerchs, H. & Grossmann, I. F. (1965). Optimum design of open-pit mines. CIM Bulletin, 58, 47–54 (pre-DOI print; no open landing page).',
   },
   {
     id: 'picard1976',
@@ -22,17 +22,18 @@ export const CITATIONS: Citation[] = [
   {
     id: 'dinic1970',
     label: 'Dinic 1970',
-    citation: 'Dinic, E. A. (1970). Algorithm for solution of a problem of maximum flow in networks with power estimation. Soviet Mathematics Doklady, 11, 1277–1280.',
+    citation: 'Dinic, E. A. (1970). Algorithm for solution of a problem of maximum flow in networks with power estimation. Soviet Mathematics Doklady, 11, 1277–1280 (pre-DOI translation; no open landing page).',
   },
   {
     id: 'whittle1988',
     label: 'Whittle 1988',
-    citation: 'Whittle, J. (1988). Beyond optimization in open pit design. In Proc. Canadian Conf. on Computer Applications in the Mineral Industry, 331–337.',
+    citation: 'Whittle, J. (1988). Beyond optimization in open pit design. In Proc. Canadian Conf. on Computer Applications in the Mineral Industry, 331–337 (pre-DOI conference proceedings; no open landing page).',
   },
   {
     id: 'hustrulid2013',
     label: 'Hustrulid et al. 2013',
     citation: 'Hustrulid, W., Kuchta, M. & Martin, R. (2013). Open Pit Mine Planning and Design (3rd ed.). CRC Press.',
+    doi: '10.1201/b15068',
   },
   {
     id: 'espinoza2013',
@@ -92,5 +93,6 @@ export const CITATIONS: Citation[] = [
     id: 'cappart2023',
     label: 'Cappart et al. 2023',
     citation: 'Cappart, Q., Chetelat, D., Khalil, E. B., Lodi, A., Morris, C. & Velickovic, P. (2023). Combinatorial optimization and reasoning with graph neural networks. Journal of Machine Learning Research, 24(130), 1–61.',
+    url: 'https://jmlr.org/papers/v24/21-0449.html',
   },
 ];
