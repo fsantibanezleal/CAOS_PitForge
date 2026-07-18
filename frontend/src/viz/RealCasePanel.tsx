@@ -140,7 +140,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-th">
-            <div className="pf-plot-t">{es ? 'Pit último EXACTO sobre la instancia publicada; orbita para rotar' : 'EXACT ultimate pit on the published instance; orbit to rotate'}</div>
+            <div className="pf-plot-t">{es ? 'Pit último exacto sobre la instancia publicada; orbita para rotar' : 'EXACT ultimate pit on the published instance; orbit to rotate'}</div>
             <div className="pf-seg">
               <button className={`chip ${mode3d === 'pit' ? 'on' : ''}`} onClick={() => setMode3d('pit')}>{es ? 'solo pit' : 'pit only'}</button>
               {gradeAvailable && (

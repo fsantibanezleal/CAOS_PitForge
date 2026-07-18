@@ -97,7 +97,7 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
     <div className="pf-vizstack">
       <div className="pf-plot-th">
         <div className="pf-plot-t">{es
-          ? '¿Y si hubieras perforado MENOS?, infill de leyes (grade-nn vs IDW) → pit EXACTO re-resuelto'
+          ? '¿Y si hubieras perforado MENOS?, infill de leyes (grade-nn vs IDW) → pit exacto re-resuelto'
           : 'What if you had drilled LESS?, grade infill (grade-nn vs IDW) → EXACT pit re-solved'}</div>
         <div className="pf-seg">
           {FRACTIONS.map((f) => (
@@ -133,7 +133,7 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
           : 'grade-nn.onnx unavailable in this build, showing the IDW baseline only. Train with `--retrain` for the full what-if.'}</p>
       )}
       <p className="pf-cap">{es
-        ? 'Máscara de perforación determinista (semilla fija). grade-nn corre en el navegador (onnxruntime-web) sobre el stencil 3×3×3 con el que fue entrenado; IDW es el baseline exacto del benchmark. El pit siempre lo decide el min-cut EXACTO sobre cada depósito estimado, la herramienta mide cuánto conocimiento geológico compra la perforación. Modelos entrenados en depósitos sintéticos.'
+        ? 'Máscara de perforación determinista (semilla fija). grade-nn corre en el navegador (onnxruntime-web) sobre el stencil 3×3×3 con el que fue entrenado; IDW es el baseline exacto del benchmark. El pit siempre lo decide el min-cut exacto sobre cada depósito estimado, la herramienta mide cuánto conocimiento geológico compra la perforación. Modelos entrenados en depósitos sintéticos.'
         : 'Deterministic drill mask (fixed seed). grade-nn runs in-browser (onnxruntime-web) on the 3×3×3 stencil it was trained on; IDW is the exact benchmark baseline. The pit is always decided by the EXACT min-cut on each estimated deposit, the tool measures how much geological knowledge drilling buys. Models trained on synthetic deposits.'}</p>
     </div>
   );
