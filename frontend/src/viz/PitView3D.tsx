@@ -6,8 +6,8 @@ import type { BlockModel } from '../opt/types.ts';
 import { idx } from '../opt/types.ts';
 
 /** Genuinely-3D ultimate-pit viewer. The orebody is drawn as voxels coloured by grade (viridis); the blocks the
- * optimiser EXTRACTS (the pit) are shown solid, the rest faded, so you watch the pit grow/shrink as you drag the
- * revenue factor / price / slope. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
+ * optimiser extracts (the pit) are shown solid, the rest faded, so the pit grows/shrinks as the revenue factor /
+ * price / slope change. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
  * InstancedMesh so the whole ~7 000-block model renders in one draw call. */
 export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present }: {
   model: BlockModel;
@@ -103,9 +103,9 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     controls.dampingFactor = 0.1; // settles in ~120 frames, inside the interaction budget below
     controls.target.set(0, 0, 0);
 
-    // ON-DEMAND rendering (portfolio standard, no compute bomb): render only while the user
+    // On-demand rendering (portfolio standard, no compute bomb): render only while the user
     // interacts (+ a bounded damping tail), halt entirely on hidden tabs, repaint on restore.
-    // The damping itself fires 'change' every frame, so those self-inflicted changes must NOT
+    // The damping itself fires 'change' every frame, so those self-inflicted changes must not
     // refill the budget, only external input does, or the loop never terminates.
     let raf = 0;
     let deadline = 0; // wall-clock budget: robust to any frame rate

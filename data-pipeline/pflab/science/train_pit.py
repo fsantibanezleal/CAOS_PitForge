@@ -75,7 +75,7 @@ def train_grade() -> dict:
     with torch.no_grad():
         nn_pred = net(torch.from_numpy(X[te])).squeeze(1).numpy()
 
-    # classical baselines on the SAME held-out stencils ----------------------------------------------------------
+    # classical baselines on the same held-out stencils ----------------------------------------------------------
     # the 26 neighbour offsets (excluding the centre at flat index 13) + their distances.
     offs = [(dx, dy, dz) for dz in (-1, 0, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)]
     dist = np.array([np.sqrt(dx * dx + dy * dy + dz * dz) for (dx, dy, dz) in offs], dtype=np.float64)

@@ -55,12 +55,12 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
       {state.status === 'solving' && <p className="pf-note">{es ? 'resolviendo (min-cut exacto)…' : 'solving (exact min-cut)…'}</p>}
       {state.status === 'no-source' && (
         <p className="pf-note">{es
-          ? 'Sin espejo runtime verificado para esta instancia todavía: corre en el carril offline del Benchmark (resultados resumidos vs el óptimo publicado), no en vivo.'
+          ? 'Sin espejo verificado en tiempo de ejecución para esta instancia todavía: se ejecuta en el carril offline del Benchmark (resultados resumidos vs el óptimo publicado), no en vivo.'
           : 'No verified runtime mirror for this instance yet: it runs in the offline Benchmark lane (summary results vs the published optimum), not live.'}</p>
       )}
       {state.status === 'error' && <p className="pf-note">⚠ {state.message}</p>}
       <p className="pf-cap">{es
-        ? 'Los archivos MineLib se descargan en runtime a memoria del navegador y nunca se redistribuyen con la app (la licencia sólo permite descarga con fines académicos).'
+        ? 'Los archivos MineLib se descargan en tiempo de ejecución a memoria del navegador y nunca se redistribuyen con la app (la licencia sólo permite descarga con fines académicos).'
         : 'MineLib files are fetched at runtime into browser memory and never redistributed with the app (the license only grants download for academic purposes).'}</p>
     </div>
   );
@@ -140,7 +140,7 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-th">
-            <div className="pf-plot-t">{es ? 'Pit último exacto sobre la instancia publicada; orbita para rotar' : 'EXACT ultimate pit on the published instance; orbit to rotate'}</div>
+            <div className="pf-plot-t">{es ? 'Pit último exacto sobre la instancia publicada; orbitar para rotar' : 'Exact ultimate pit on the published instance; orbit to rotate'}</div>
             <div className="pf-seg">
               <button className={`chip ${mode3d === 'pit' ? 'on' : ''}`} onClick={() => setMode3d('pit')}>{es ? 'solo pit' : 'pit only'}</button>
               {gradeAvailable && (
@@ -189,8 +189,8 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
           </div>
           <p className="pf-note">{matchChip}.</p>
           <p className="pf-note">{es
-            ? 'Instancia publicada: valores netos (.upit) + precedencia explícita (.prec) resueltos por el MISMO motor min-cut exacto del modo sintético (solveUpitExplicit). Whittle/pushbacks requieren el barrido de RF, que exige descomponer la economía por instancia, fuera del modo real v1, documentado.'
-            : 'Published instance: net values (.upit) + explicit precedence (.prec) solved by the SAME exact min-cut engine as the synthetic mode (solveUpitExplicit). Whittle/pushbacks need the RF sweep, which needs a per-instance econ decomposition, out of real-mode v1, documented.'}</p>
+            ? 'Instancia publicada: valores netos (.upit) + precedencia explícita (.prec) resueltos por el mismo motor min-cut exacto del modo sintético (solveUpitExplicit). Whittle/pushbacks requieren el barrido de RF, que exige descomponer la economía por instancia, fuera del modo real v1, documentado.'
+            : 'Published instance: net values (.upit) + explicit precedence (.prec) solved by the same exact min-cut engine as the synthetic mode (solveUpitExplicit). Whittle/pushbacks need the RF sweep, which needs a per-instance econ decomposition, out of real-mode v1, documented.'}</p>
         </div>
       ),
     },

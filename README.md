@@ -10,7 +10,7 @@
 PitForge solves the classic open-pit mine-design problem: given a block model with a per-block economic value, find
 the set of blocks to extract that **maximises total value subject to slope constraints**, the **ultimate pit limit
 (UPL)**, and its family of **nested pit shells** by revenue factor (the Whittle parameterisation, used for phase /
-pushback design). The exact optimiser runs **live in your browser**; drag the revenue factor, price or slope and the
+pushback design). The exact optimiser runs **live in the browser**; drag the revenue factor, price or slope and the
 pit re-solves exactly, instantly.
 
 This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype** ([ADR-0057](docs/architecture/01_overview.md)).
@@ -30,7 +30,7 @@ This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype
 - **Two honest learned models**, a NN grade estimator (vs Ordinary Kriging / IDW) and a pit-inclusion surrogate
   (vs the exact solver), trained offline (torch → ONNX) and run **live** (onnxruntime-web). The exact optimiser is
   always the authority; these are fast approximations, measured against their classical baselines.
-- **Bring your own block model**, CONTRACT 1 validates a real block table `{ix,iy,iz,tonnage,density,grade}` +
+- **Bring your own block model**, Contract 1 validates a real block table `{ix,iy,iz,tonnage,density,grade}` +
   economics, with an explicit outlier policy, in-app (drag & drop a CSV onto the App's *Bring your own* tab; every
   tab then re-solves on your model) or via the Python lane.
 
@@ -39,7 +39,7 @@ This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype
 The synthetic lane uses **generated** deposits (seeded grade fields with a geological trend + spatially-correlated
 noise), no real drillholes there. The real lane uses **published data**: 3 MineLib instances fetched at runtime and
 solved exactly, reproducing their published UPIT optima. The **optimiser is exact**. `CTRL` is a closed-form analytic
-control (a single deep ore block → the exact 9-block inverted pyramid, value 2). Every learned-model number is
+control (a single deep ore block gives the exact 9-block inverted pyramid, value 2). Every learned-model number is
 held-out and reported next to its classical baseline, no fabricated wins (the learned models are trained on the
 synthetic lane).
 
@@ -49,7 +49,7 @@ synthetic lane).
 # light lane (numpy only), rebuild the replay artifacts + run the checks
 python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt -e .
 .venv-pipeline/Scripts/python -m pflab.pipeline all      # 9 cases → traces + manifests
-.venv-pipeline/Scripts/python scripts/check_artifacts.py # CONTRACT 2 OK
+.venv-pipeline/Scripts/python scripts/check_artifacts.py # Contract 2 OK
 
 # the SPA (the exact optimiser runs live in the browser)
 cd frontend && npm ci && npm run dev                     # http://localhost:5173

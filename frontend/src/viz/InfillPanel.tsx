@@ -21,9 +21,9 @@ interface Result {
   idw: { value: number; rmse: number; model: BlockModel; inPit: Uint8Array };
 }
 
-/** Grade-infill WHAT-IF, the learned model as a working tool. Pick a drilling density; the
+/** Grade-infill what-if, the learned model as a working tool. Pick a drilling density; the
  *  undrilled grades are re-estimated by grade-nn (ONNX, in-browser) and by the IDW baseline it
- *  was benchmarked against; the EXACT pit is re-solved on each estimated deposit. The readout is
+ *  was benchmarked against; the exact pit is re-solved on each estimated deposit. The readout is
  *  operational: how much pit value does drilling density buy, and does the learned infill beat
  *  the classical one? One batched inference per knob change, no loops. */
 export function InfillPanel({ model, econ, rf, iy, present, es }: {
@@ -97,8 +97,8 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
     <div className="pf-vizstack">
       <div className="pf-plot-th">
         <div className="pf-plot-t">{es
-          ? '¿Y si hubieras perforado MENOS?, infill de leyes (grade-nn vs IDW) → pit exacto re-resuelto'
-          : 'What if you had drilled LESS?, grade infill (grade-nn vs IDW) → EXACT pit re-solved'}</div>
+          ? 'Efecto de perforar menos: infill de leyes (grade-nn vs IDW), pit exacto re-resuelto'
+          : 'Effect of drilling less: grade infill (grade-nn vs IDW), exact pit re-solved'}</div>
         <div className="pf-seg">
           {FRACTIONS.map((f) => (
             <button key={f} className={`chip ${fraction === f ? 'on' : ''}`} onClick={() => setFraction(f)}>{Math.round(f * 100)}%</button>
@@ -117,7 +117,7 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
       )}
 
       <div className="pf-plot-th">
-        <div className="pf-plot-t">{es ? `Sección Y=${iy}, campo de leyes estimado · contorno = SU pit exacto` : `Section Y=${iy}, estimated grade field · outline = ITS exact pit`}</div>
+        <div className="pf-plot-t">{es ? `Sección Y=${iy}, campo de leyes estimado · contorno = su pit exacto` : `Section Y=${iy}, estimated grade field · outline = its exact pit`}</div>
         <div className="pf-seg">
           {res?.nn && <button className={`chip ${view === 'nn' ? 'on' : ''}`} onClick={() => setView('nn')}>grade-nn</button>}
           <button className={`chip ${view === 'idw' ? 'on' : ''}`} onClick={() => setView('idw')}>IDW</button>
@@ -129,12 +129,12 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
       {busy && <p className="pf-cap">{es ? 'estimando + re-resolviendo…' : 'estimating + re-solving…'}</p>}
       {res && !res.nn && !busy && (
         <p className="pf-note">{es
-          ? 'grade-nn.onnx no disponible en este build, se muestra solo el baseline IDW. Entrena con `--retrain` para el what-if completo.'
+          ? 'grade-nn.onnx no disponible en este build, se muestra solo el baseline IDW. Entrenar con `--retrain` para el what-if completo.'
           : 'grade-nn.onnx unavailable in this build, showing the IDW baseline only. Train with `--retrain` for the full what-if.'}</p>
       )}
       <p className="pf-cap">{es
-        ? 'Máscara de perforación determinista (semilla fija). grade-nn corre en el navegador (onnxruntime-web) sobre el stencil 3×3×3 con el que fue entrenado; IDW es el baseline exacto del benchmark. El pit siempre lo decide el min-cut exacto sobre cada depósito estimado, la herramienta mide cuánto conocimiento geológico compra la perforación. Modelos entrenados en depósitos sintéticos.'
-        : 'Deterministic drill mask (fixed seed). grade-nn runs in-browser (onnxruntime-web) on the 3×3×3 stencil it was trained on; IDW is the exact benchmark baseline. The pit is always decided by the EXACT min-cut on each estimated deposit, the tool measures how much geological knowledge drilling buys. Models trained on synthetic deposits.'}</p>
+        ? 'Máscara de perforación determinista (semilla fija). grade-nn se ejecuta en el navegador (onnxruntime-web) sobre el stencil 3×3×3 con el que fue entrenado; IDW es el baseline exacto del benchmark. El pit siempre lo decide el min-cut exacto sobre cada depósito estimado, la herramienta mide cuánto conocimiento geológico compra la perforación. Modelos entrenados en depósitos sintéticos.'
+        : 'Deterministic drill mask (fixed seed). grade-nn runs in-browser (onnxruntime-web) on the 3×3×3 stencil it was trained on; IDW is the exact benchmark baseline. The pit is always decided by the exact min-cut on each estimated deposit, the tool measures how much geological knowledge drilling buys. Models trained on synthetic deposits.'}</p>
     </div>
   );
 }

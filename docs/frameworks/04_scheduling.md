@@ -70,8 +70,8 @@ Set the discount rate to `r = 0` and the capacity to infinity. Then every discou
 collapses to `sum_b v_b x_{b,T}`, and the only remaining constraints are precedence and `x in [0,1]`. That is
 exactly the **max-closure LP**, whose optimum is integral and equals the ultimate pit. Therefore:
 
-> At rate 0 and infinite capacity the CPIT mined set MUST equal the exact ultimate pit **block-for-block**,
-> and the LP bound MUST equal the exact UPL value. If it does not, it is a bug, not a result.
+> At rate 0 and infinite capacity the CPIT mined set must equal the exact ultimate pit **block-for-block**,
+> and the LP bound must equal the exact UPL value. If it does not, it is a bug, not a result.
 
 This is the mandatory duality negative control (verified in `tests/test_cpit.py` and, on the live TypeScript
 schedule, in `frontend/test/schedule.test.ts`). On `newman1` and the porphyry twin the LP bound reproduces the

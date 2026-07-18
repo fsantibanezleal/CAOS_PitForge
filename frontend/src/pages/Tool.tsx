@@ -22,7 +22,7 @@ const RFS = defaultRevenueFactors(12);
 const fM = (v: number) => `${(v / 1e6).toFixed(1)}`;
 const fMt = (v: number) => `${(v / 1e6).toFixed(2)}`;
 
-// Case categories as sidebar TABS (one group visible at a time, the stacked chip rows read as
+// Case categories as sidebar tabs (one group visible at a time, the stacked chip rows read as
 // clutter). Short bilingual labels; the full category phrase stays as the tooltip.
 const CAT_TABS = [
   { cat: 'deposit archetype (the orebody shape)', en: 'archetype', es: 'arquetipo' },
@@ -34,8 +34,8 @@ const CAT_TABS = [
 export default function Tool() {
   const lang = useShellLang();
   const es = lang === 'es';
-  // FIRST-LEVEL source decision (Faena pattern): synthetic seeded deposits vs a real published
-  // block model. In real mode you only pick WHICH instance; the scenario knobs are locked because
+  // First-level source decision (Faena pattern): synthetic seeded deposits vs a real published
+  // block model. In real mode only the instance is selected; the scenario knobs are locked because
   // the instance publishes explicit precedence + net values (re-deriving them would break
   // comparability with the published optimum).
   const [source, setSource] = useState<'synthetic' | 'real'>('synthetic');
@@ -49,7 +49,7 @@ export default function Tool() {
   const [catTab, setCatTab] = useState(0); // which case-category tab is open in the sidebar
   const real = source === 'real';
   const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
-  // CONTRACT-1 upload: when set, the WHOLE App re-solves on the user's model (Controls econ applies).
+  // Contract-1 upload: when set, the whole App re-solves on the user's model (Controls econ applies).
   const [userModel, setUserModel] = useState<UserModel | null>(null);
 
   const theCase = useMemo<PitCase>(() => CASES.find((c) => c.id === caseId) ?? CASES[0], [caseId]);
@@ -72,7 +72,7 @@ export default function Tool() {
 
   useEffect(() => { setBench(null); setRf(1); }, [caseId]);
   useEffect(() => { setBench(null); setRf(1); setPriceMul(1); setSlope(null); setUserModel(null); }, [source]);
-  // keep the open category tab in sync with the ACTIVE case (case switches, source resets)
+  // keep the open category tab in sync with the active case (case switches, source resets)
   useEffect(() => {
     const k = CAT_TABS.findIndex((t) => t.cat === theCase.category);
     if (k >= 0) setCatTab(k);
@@ -143,7 +143,7 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-th">
-            <div className="pf-plot-t">{es ? 'Pit último, voxels extraídos; orbita para rotar' : 'Ultimate pit, extracted voxels; orbit to rotate'}</div>
+            <div className="pf-plot-t">{es ? 'Pit último, voxels extraídos; orbitar para rotar' : 'Ultimate pit, extracted voxels; orbit to rotate'}</div>
             <div className="pf-seg">
               {(['pit', 'grade', 'shells'] as const).map((m) => (
                 <button key={m} className={`chip ${mode3d === m ? 'on' : ''}`} onClick={() => setMode3d(m)}>
@@ -252,12 +252,12 @@ export default function Tool() {
       content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
     },
     {
-      id: 'byo', label: es ? 'Tu modelo' : 'Bring your own',
+      id: 'byo', label: es ? 'Modelo propio' : 'Bring your own',
       content: <UploadPanel es={es} active={!!userModel} onUse={setUserModel} onClear={() => setUserModel(null)} />,
     },
   ];
 
-  // in real mode the scenario/econ knobs are LOCKED: the instance publishes explicit precedence
+  // in real mode the scenario/econ knobs are locked: the instance publishes explicit precedence
   // (.prec) + net block values (.upit); regenerating either breaks published-optimum comparability.
   const lockTip = es
     ? 'deshabilitado en modo real: la instancia publica valores netos y precedencia explícita; recalcular rompería la comparabilidad con el óptimo publicado'
@@ -277,7 +277,7 @@ export default function Tool() {
             </button>
           </div>
           <div className="pf-cap pf-muted">{real
-            ? (es ? 'block models publicados; sólo eliges la instancia' : 'published block models; you only pick the instance')
+            ? (es ? 'block models publicados; sólo se elige la instancia' : 'published block models; only the instance is picked')
             : (es ? 'depósitos generados con semilla + oráculo CTRL' : 'seeded generated deposits + the CTRL oracle')}</div>
         </div>
 
@@ -330,8 +330,8 @@ export default function Tool() {
               </div>
               {userModel ? (
                 <>
-                  <div className="pf-cap"><b>{es ? 'tu modelo' : 'your model'}</b> · {model.meta.name} · {userModel.dims.nx}×{userModel.dims.ny}×{userModel.dims.nz} · {userModel.nRows} {es ? 'bloques' : 'blocks'}</div>
-                  <div className="pf-cap pf-muted">{es ? 'todos los tabs resuelven sobre él (economía de Controles); elige un caso para volver' : 'every tab solves on it (Controls econ); pick a case to go back'}</div>
+                  <div className="pf-cap"><b>{es ? 'modelo propio' : 'your model'}</b> · {model.meta.name} · {userModel.dims.nx}×{userModel.dims.ny}×{userModel.dims.nz} · {userModel.nRows} {es ? 'bloques' : 'blocks'}</div>
+                  <div className="pf-cap pf-muted">{es ? 'todos los tabs resuelven sobre él (economía de Controles); seleccionar un caso para volver' : 'every tab solves on it (Controls econ); pick a case to go back'}</div>
                 </>
               ) : (
                 <>

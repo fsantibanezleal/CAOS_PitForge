@@ -1,6 +1,6 @@
 # The two data contracts
 
-## CONTRACT 1, ingestion (`io/contract.py`)
+## Contract 1, ingestion (`io/contract.py`)
 
 The *bring-your-own-orebody* gate. Two entry points, one policy: a record is **accepted** iff it passes; ill-formed
 records are **rejected** with a reason (never silently coerced); plausible-but-extreme records are **flagged**
@@ -27,15 +27,15 @@ records are **rejected** with a reason (never silently coerced); plausible-but-e
 
 Committed samples that must pass: `data/examples/{scenarios.csv, blockmodel.csv}` (a CI test asserts it).
 
-## CONTRACT 2, artifact (`core/{trace,manifest}.py`)
+## Contract 2, artifact (`core/{trace,manifest}.py`)
 
-The pipeline → web contract. The web loads ONLY manifests + traces + the shared artifacts.
+The pipeline-to-web contract. The web loads only manifests + traces + the shared artifacts.
 
 - **`pitforge.trace/v1`** (per case): the case spec (archetype, dims, block size, econ), the ultimate-pit summary,
   the Whittle curve (per RF: value / ore / waste / strip / nBlocks), a vertical cross-section (shell index per block),
   the grade stats, and the learned-model metrics (`status: trained | pending-training`).
 - **`pitforge.manifest/v2`** (per case): category, seed, engine + version, the **shared artifacts** (the two ONNX +
-  `pit-learned.json` + `case-results.json`), the trace pointer + byte size, the lane/gate verdict, the CONTRACT-1
+  `pit-learned.json` + `case-results.json`), the trace pointer + byte size, the lane/gate verdict, the Contract-1
   flags, the metrics, and an honesty note.
 - **`pitforge.index/v1`**: the flat inventory of all 9 cases.
 

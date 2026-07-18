@@ -75,7 +75,7 @@ reduced precedence (efficient; keeps the live solve fast).
 
 ## Nested pit shells (Whittle)
 
-Solving the UPL for an ascending RF schedule yields **nested** pits (each contains the previous) → the value /
+Solving the UPL for an ascending RF schedule yields **nested** pits (each contains the previous), giving the value /
 tonnage / strip-ratio curves, a guide for the pushback order. Nesting is guaranteed analytically (lowering RF only lowers
 values); we additionally union each shell with the previous to absorb any float-tie flicker.
 

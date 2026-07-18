@@ -1,7 +1,7 @@
-// CONTRACT 1 (ingestion), LIVE browser port of data-pipeline/pflab/io/contract.py::validate_blocks.
+// Contract 1 (ingestion), live browser port of data-pipeline/pflab/io/contract.py::validate_blocks.
 // The rule set is mirrored 1:1 and guarded against drift by test/contract-live.test.ts (same
-// fixtures as the Python suite): a row is ACCEPTED iff it passes; ill-formed rows are REJECTED
-// with a reason (never silently coerced); plausible-but-extreme rows are FLAGGED (accepted, the
+// fixtures as the Python suite): a row is accepted iff it passes; ill-formed rows are rejected
+// with a reason (never silently coerced); plausible-but-extreme rows are flagged (accepted, the
 // flag travels with the report). Schema: ix,iy,iz,tonnage,density,grade, data/README.md.
 
 import { type BlockModel, type GridDims, idx } from '../opt/types.ts';
