@@ -1,9 +1,9 @@
 # Guide, bring your own block model
 
-PitForge is built to open **your** block model, not just the baked synthetic cases. The gate is CONTRACT 1
+PitForge is built to open **your** block model, not just the baked synthetic cases. The gate is Contract 1
 (`pflab/io/contract.py`); the schema + outlier policy are documented in [data-contracts](../architecture/08_data-contracts.md)
 and `data/README.md`. The App also accepts the same CSV directly: drag & drop it onto the **Bring your own** tab
-(CONTRACT-1 validation mirrored in the browser; every tab then re-solves on your model). This guide covers the
+(Contract-1 validation mirrored in the browser; every tab then re-solves on your model). This guide covers the
 Python lane.
 
 ## The block-model schema

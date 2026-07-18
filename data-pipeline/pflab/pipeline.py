@@ -1,6 +1,6 @@
-"""The offline pipeline orchestrator + CLI (ADR-0057). Per case it applies CONTRACT 1, builds the compact per-case
+"""The offline pipeline orchestrator + CLI (ADR-0057). Per case it applies Contract 1, builds the compact per-case
 trace from the committed solver outputs (case-results.json) + the learned-model metrics (pit-learned.json, when
-present), runs the lane gate, and writes the manifest + a flat index (CONTRACT 2). The committed case-results.json IS
+present), runs the lane gate, and writes the manifest + a flat index (Contract 2). The committed case-results.json is
 the exact optimiser's real output (baked by the SAME TS solver the browser runs), so the DEFAULT path is light
 (numpy/stdlib, no torch/node) and deterministic. `--retrain` regenerates the artifacts (bake case-results via the TS
 solver; train the learned models torch → ONNX), see pflab/science/.
@@ -63,7 +63,7 @@ def _node(*args: str) -> None:
 
 
 def retrain(seed: int = 42) -> None:
-    """HEAVY lane (two-language): re-bake the exact solver outputs (the SAME TS optimiser) and train the learned models
+    """Heavy lane (two-language): re-bake the exact solver outputs (the same TS optimiser) and train the learned models
     (torch → ONNX). The science is preserved verbatim in pflab/science/."""
     print("[retrain] bake case-results (TS exact ultimate-pit + Whittle shells over the cases) ...", flush=True)
     _node(str(SCIENCE / "bake_cases.mjs"))

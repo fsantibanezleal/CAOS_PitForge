@@ -5,10 +5,10 @@ import { SectionView, type SectionCell } from './SectionView.tsx';
 import { viridisCss } from './colormap.ts';
 import { type CpitCase, type CpitScheduleFile, loadCpitSchedule } from '../lib/artifacts.ts';
 
-// The CPIT scheduling tab: the ultimate pit the App already solves exactly is the UNDISCOUNTED, UNCAPACITATED
+// The CPIT scheduling tab: the ultimate pit the App already solves exactly is the undiscounted, uncapacitated
 // limit of a schedule. Here we add the scheduling dimension (time, per-period capacity, discounting -> NPV).
-// LEFT/TOP: a paused-by-default bench-sequence animation of a live greedy pushback on the CURRENT deposit.
-// BOTTOM: the CERTIFIED NPV-vs-period curve, from the offline LP relaxation (data/derived/cpit-schedule.json),
+// Left/top: a paused-by-default bench-sequence animation of a live greedy pushback on the current deposit.
+// Bottom: the certified NPV-vs-period curve, from the offline LP relaxation (data/derived/cpit-schedule.json),
 // with the integrality gap shown honestly. The browser cannot solve the LP, so the certified bound is offline;
 // the live schedule is a feasible glass-box heuristic. Honesty: the LP relaxation is a bound, not a schedule.
 
@@ -17,7 +17,7 @@ import { UPlotChart, themeColors } from './UPlotChart.tsx';
 
 const fM = (v: number) => `$${(v / 1e6).toFixed(1)} M`;
 
-/** NPV-vs-period chart, INTERACTIVE (uPlot Tier-A, issue #51): cumulative-NPV bars with crosshair + live money
+/** NPV-vs-period chart, interactive (uPlot Tier-A, issue #51): cumulative-NPV bars with crosshair + live money
  *  readout, the certified LP bound and the undiscounted-UPL reference as dashed flat series, drag-zoom,
  *  theme-aware. Replaces the static SVG. */
 function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number; upl?: number; es: boolean }) {
@@ -48,7 +48,7 @@ function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number;
           value: (_u: uPlot, v: number | null) => fmt(v) },
         { label: es ? 'cota certificada (LP)' : 'certified bound (LP)', stroke: c.warn, width: 1.5, dash: [6, 4],
           points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
-        { label: es ? 'pit ultimo (sin descuento)' : 'ultimate pit (undiscounted)', stroke: c.faint, width: 1,
+        { label: es ? 'pit último (sin descuento)' : 'ultimate pit (undiscounted)', stroke: c.faint, width: 1,
           dash: [2, 3], points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
       ],
       cursor: { drag: { x: true, y: false } },
@@ -116,12 +116,12 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? `Secuencia de bancos (pushback) sobre el deposito actual, seccion Y=${iy}, coloreada por periodo de extraccion. La animacion parte pausada y corre UNA vez.`
-        : `Bench (pushback) sequence on the current deposit, section Y=${iy}, coloured by extraction period. The animation starts paused and runs ONCE.`}</div>
+        ? `Secuencia de bancos (pushback) sobre el depósito actual, sección Y=${iy}, coloreada por periodo de extracción. La animación parte pausada y se reproduce una vez.`
+        : `Bench (pushback) sequence on the current deposit, section Y=${iy}, coloured by extraction period. The animation starts paused and runs once.`}</div>
 
       <div className="pf-plot-th">
         <div className="pf-seg">
-          <button className="chip" onClick={play} disabled={playing}>{playing ? (es ? 'corriendo...' : 'running...') : (es ? '▶ reproducir secuencia' : '▶ play sequence')}</button>
+          <button className="chip" onClick={play} disabled={playing}>{playing ? (es ? 'reproduciendo...' : 'running...') : (es ? '▶ reproducir secuencia' : '▶ play sequence')}</button>
           <button className="chip" onClick={() => { stop(); setCursor(periods); }}>{es ? 'ver completo' : 'show full'}</button>
         </div>
         <div className="pf-cap pf-muted">{es ? `periodo ${Math.min(cursor + 1, periods)} / ${periods}` : `period ${Math.min(cursor + 1, periods)} / ${periods}`}</div>
@@ -135,14 +135,14 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
       </div>
 
       <div className="pf-kpis">
-        <Kpi label={es ? 'pit ultimo (sin descuento)' : 'ultimate pit (undiscounted)'} value={fM(sched.uplValue)} />
+        <Kpi label={es ? 'pit último (sin descuento)' : 'ultimate pit (undiscounted)'} value={fM(sched.uplValue)} />
         <Kpi label={es ? 'NPV del plan (vivo)' : 'schedule NPV (live)'} value={fM(sched.npv)} />
-        <Kpi label={es ? 'perdida por descuento' : 'discounting loss'} value={`${((1 - sched.npv / (sched.uplValue || 1)) * 100).toFixed(1)}%`} />
+        <Kpi label={es ? 'pérdida por descuento' : 'discounting loss'} value={`${((1 - sched.npv / (sched.uplValue || 1)) * 100).toFixed(1)}%`} />
         <Kpi label={es ? 'bloques minados' : 'blocks mined'} value={`${sched.minedBlocks}`} />
       </div>
 
       <div className="pf-card">
-        <div className="pf-card-t">{es ? 'Controles del plan (recalculo en vivo)' : 'Schedule controls (live re-solve)'}</div>
+        <div className="pf-card-t">{es ? 'Controles del plan (recálculo en vivo)' : 'Schedule controls (live re-solve)'}</div>
         <label className="pf-ctl">{es ? 'periodos' : 'periods'}: {periods}
           <input className="range" type="range" min={2} max={12} step={1} value={periods} onChange={(e) => setPeriods(+e.target.value)} />
         </label>
@@ -153,7 +153,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
           <input className="range" type="range" min={1} max={2.5} step={0.05} value={capFrac} onChange={(e) => setCapFrac(+e.target.value)} />
         </label>
         <p className="pf-cap pf-muted">{es
-          ? 'A tasa 0 y capacidad alta el plan mina exactamente el pit ultimo (control de dualidad). Subir la tasa o apretar la capacidad reduce el NPV: eso es la perdida por diferir.'
+          ? 'A tasa 0 y capacidad alta el plan mina exactamente el pit último (control de dualidad). Subir la tasa o apretar la capacidad reduce el NPV: eso es la pérdida por diferir.'
           : 'At rate 0 and ample capacity the schedule mines exactly the ultimate pit (the duality control). Raising the rate or tightening capacity lowers the NPV: that is the cost of deferral.'}</p>
       </div>
 
@@ -161,7 +161,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
         <div className="pf-card-t">{es ? 'Cota certificada (LP offline) + brecha de integralidad' : 'Certified bound (offline LP) + integrality gap'}</div>
         {certErr || !cert ? (
           <p className="pf-note">{es
-            ? 'Artefacto cpit-schedule.json ausente. Corre `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'
+            ? 'Artefacto cpit-schedule.json ausente. Ejecutar `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'
             : 'cpit-schedule.json artifact absent. Run `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'}</p>
         ) : !certCase ? (
           <p className="pf-note">{es ? 'caso no encontrado' : 'case not found'}</p>
@@ -181,10 +181,10 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
               <Kpi label={es ? 'control dualidad' : 'duality control'} value={certCase.controls.dualityMatch ? (es ? 'PASA' : 'PASS') : 'FAIL'} />
             </div>
             <p className="pf-cap">{es
-              ? `Fuente: ${certCase.source}. Motor: relajacion LP de CPIT (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periodos, tasa ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. La relajacion LP es una COTA superior certificada del NPV, no un plan; el plan redondeado es una heuristica factible y la brecha se reporta arriba.`
-              : `Source: ${certCase.source}. Engine: CPIT LP relaxation (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periods, rate ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. The LP relaxation is a CERTIFIED upper bound on the NPV, not a schedule; the rounded schedule is a feasible heuristic and the gap is reported above.`}</p>
+              ? `Fuente: ${certCase.source}. Motor: relajación LP de CPIT (Bienstock-Zuckerberg 2010 / Chicoisne 2012) vía scipy HiGHS; ${certCase.periods} periodos, tasa ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. La relajación LP es una cota superior certificada del NPV, no un plan; el plan redondeado es una heurística factible y la brecha se reporta arriba.`
+              : `Source: ${certCase.source}. Engine: CPIT LP relaxation (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periods, rate ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. The LP relaxation is a certified upper bound on the NPV, not a schedule; the rounded schedule is a feasible heuristic and the gap is reported above.`}</p>
             <p className="pf-cap pf-muted">{es
-              ? `Control de dualidad: a tasa 0 y capacidad infinita la cota LP iguala el pit ultimo exacto (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} bloques) bloque por bloque, y la cota domina al NPV factible.`
+              ? `Control de dualidad: a tasa 0 y capacidad infinita la cota LP iguala el pit último exacto (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} bloques) bloque por bloque, y la cota domina al NPV factible.`
               : `Duality control: at rate 0 and infinite capacity the LP bound equals the exact ultimate pit (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} blocks) block-for-block, and the bound dominates the feasible NPV.`}</p>
           </>
         )}

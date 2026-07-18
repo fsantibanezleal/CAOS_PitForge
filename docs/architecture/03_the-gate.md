@@ -19,7 +19,7 @@ A case is **live** iff:
 4. its replay trace stays small (`TRACE_BYTES_GATE = 256 KB`).
 
 At teaching scale (≈7 000 blocks) a full ultimate-pit + nested-shell solve is tens of milliseconds and the trace is a
-few KB, so **every case is LIVE**. A much larger block model (hundreds of thousands of blocks) would blow the runtime
+few KB, so **every case is live**. A much larger block model (hundreds of thousands of blocks) would blow the runtime
 budget, the gate would mark it **precompute** and the App would replay the baked pit instead of re-solving.
 
 The verdict + the (deterministic) budgets go into the manifest; the raw wall-clock is used for the decision but never
