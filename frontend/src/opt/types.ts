@@ -40,6 +40,9 @@ export interface EconParams {
   processingCost: number;
   /** overall slope angle measured from horizontal, degrees. */
   slopeAngleDeg: number;
+  /** optional VARIABLE slope (KDF 2000): per-principal-direction wall angles; when set, the
+   *  azimuth-dependent elliptic cone replaces the single isotropic angle. */
+  slopeAngles?: { north: number; east: number; south: number; west: number };
   /** Whittle revenue factor RF ∈ (0,1]; scales revenue only. Default 1. */
   revenueFactor?: number;
 }

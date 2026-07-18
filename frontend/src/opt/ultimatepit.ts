@@ -10,7 +10,7 @@
 
 import { blockValue, isOre, recoverableRevenue } from './econ.ts';
 import { MaxFlow } from './maxflow.ts';
-import { forEachPrecedenceArc, slopeTemplate } from './precedence.ts';
+import { forEachPrecedenceArc, slopeTemplate, slopeTemplateVariable } from './precedence.ts';
 import { type BlockModel, type EconParams, nBlocks, type PitResult } from './types.ts';
 
 export function solveUltimatePit(model: BlockModel, econ: EconParams): PitResult {
@@ -33,7 +33,8 @@ export function solveUltimatePit(model: BlockModel, econ: EconParams): PitResult
     if (value[i] > 0) mf.addEdge(S, i, value[i]);
     else if (value[i] < 0) mf.addEdge(i, T, -value[i]);
   }
-  forEachPrecedenceArc(model, slopeTemplate(model, econ.slopeAngleDeg), (i, j) => mf.addEdge(i, j, INF));
+  const tmpl = econ.slopeAngles ? slopeTemplateVariable(model, econ.slopeAngles) : slopeTemplate(model, econ.slopeAngleDeg);
+  forEachPrecedenceArc(model, tmpl, (i, j) => mf.addEdge(i, j, INF));
 
   const maxflow = mf.maxflow(S, T);
   const reachable = mf.minCutReachable(S);

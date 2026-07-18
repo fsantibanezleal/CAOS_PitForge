@@ -4,6 +4,21 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.10.000], 2026-07-11
+
+### Added (issue #50, feature 1 of 3: variable geomechanical slope)
+- Variable slope per KhaloKakaie, Dowd & Fowell (2000, doi:10.1179/mnt.2000.109.2.77): `slopeTemplateVariable`
+  builds an azimuth-dependent one-bench cone from per-principal-direction wall angles (N/E/S/W) with the KDF
+  elliptic interpolation between them (block-unit radii, rounded per direction, same convention as the isotropic
+  template); `EconParams.slopeAngles` switches the ultimate-pit solve to it; `forEachPrecedenceArcVariable` adds
+  the per-rock-domain hook (a per-block template selector, the future BancoEstable allowable-angle coupling).
+- Honest discretization note in code + tests: at equal 45 deg on cubic blocks the elliptic cone is the classic
+  5-point PLUS (circular) pattern, not the 9-point box (whose diagonals are effectively ~35 deg); the isotropic
+  box template is unchanged. Arcs still point one bench up only, so the relation composes to a valid CLOSURE and
+  the min-cut stays exact; tested (0 closure violations on the solved anisotropic pit, equal-angles reproduces
+  the isotropic optimum on the 2D slice, a shallower west wall widens only the west reach and cannot increase the
+  pit value). 45/45 tests pass.
+
 ## [0.09.002], 2026-07-11
 
 ### Changed
