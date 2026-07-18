@@ -85,3 +85,42 @@ test('deposit generation is deterministic for a fixed seed', () => {
   const b = makeDeposit({ archetype: 'vein', dims: { nx: 10, ny: 10, nz: 5 }, seed: 42 });
   assert.deepEqual(Array.from(a.grade), Array.from(b.grade));
 });
+
+// ---- variable slope (KDF 2000), issue #50 feature 1 ----
+import { slopeTemplateVariable, forEachPrecedenceArc as fepa, slopeTemplate as st } from '../src/opt/precedence.ts';
+
+test('variable slope with four equal 45-deg angles yields the classic 5-point circular cone (symmetric, axis reach 1)', () => {
+  // NOT the 9-point box: the elliptic cone excludes the corners (whose effective wall would be ~35 deg).
+  const model = slice(2, 2, 1);
+  const varTmpl = slopeTemplateVariable(model, { north: 45, east: 45, south: 45, west: 45 });
+  const key = (o: [number, number][]) => o.map(([a, b]) => `${a},${b}`).sort().join(';');
+  assert.equal(key(varTmpl.offsets as [number, number][]), key([[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]));
+  const iso = st(model, 45);
+  assert.equal(iso.offsets.length, 9);   // the box template stays the 9-point square (unchanged behavior)
+});
+
+test('a shallower west wall widens ONLY the west reach (elliptic anisotropy)', () => {
+  const model = slice(2, 2, 1);
+  const tmpl = slopeTemplateVariable(model, { north: 45, east: 45, south: 45, west: 30 });
+  const westReach = Math.max(...tmpl.offsets.filter(([, dj]) => dj === 0).map(([di]) => -di));
+  const eastReach = Math.max(...tmpl.offsets.filter(([, dj]) => dj === 0).map(([di]) => di));
+  assert.ok(westReach > eastReach, `west ${westReach} > east ${eastReach}`);
+  const northReach = Math.max(...tmpl.offsets.filter(([di]) => di === 0).map(([, dj]) => dj));
+  assert.equal(northReach, Math.max(...tmpl.offsets.filter(([di]) => di === 0).map(([, dj]) => -dj)));
+});
+
+test('variable-slope solve: equal angles reproduce the isotropic optimum exactly; anisotropy changes the pit and stays a valid closure', () => {
+  const model = slice(2, 2, 1);
+  const econ = ECON(11);
+  const iso = solveUltimatePit(model, econ);
+  const eq = solveUltimatePit(model, { ...econ, slopeAngles: { north: econ.slopeAngleDeg, east: econ.slopeAngleDeg, south: econ.slopeAngleDeg, west: econ.slopeAngleDeg } });
+  assert.equal(eq.pitValue, iso.pitValue);                       // oracle preserved
+  const an = solveUltimatePit(model, { ...econ, slopeAngles: { north: econ.slopeAngleDeg, east: econ.slopeAngleDeg, south: econ.slopeAngleDeg, west: 30 } });
+  // a shallower west wall strips more waste: the pit cannot be MORE valuable than the steeper isotropic pit
+  assert.ok(an.pitValue <= iso.pitValue + 1e-9, `${an.pitValue} <= ${iso.pitValue}`);
+  // CLOSURE validity: every mined block's one-bench template blocks are also mined
+  const tmpl = slopeTemplateVariable(model, { north: econ.slopeAngleDeg, east: econ.slopeAngleDeg, south: econ.slopeAngleDeg, west: 30 });
+  let violations = 0;
+  fepa(model, tmpl, (i, j) => { if (an.inPit[i] && !an.inPit[j]) violations++; });
+  assert.equal(violations, 0);
+});
