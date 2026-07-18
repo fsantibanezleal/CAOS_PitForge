@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { greedySchedule } from '../opt/index.ts';
 import { idx, type BlockModel, type EconParams } from '../opt/types.ts';
 import { SectionView, type SectionCell } from './SectionView.tsx';
@@ -12,55 +12,50 @@ import { type CpitCase, type CpitScheduleFile, loadCpitSchedule } from '../lib/a
 // with the integrality gap shown honestly. The browser cannot solve the LP, so the certified bound is offline;
 // the live schedule is a feasible glass-box heuristic. Honesty: the LP relaxation is a bound, not a schedule.
 
+import uPlot from 'uplot';
+import { UPlotChart, themeColors } from './UPlotChart.tsx';
+
 const fM = (v: number) => `$${(v / 1e6).toFixed(1)} M`;
 
-/** Inline theme-aware NPV-vs-period chart: cumulative NPV bars + a dashed certified-bound (and optional UPL) line. */
+/** NPV-vs-period chart, INTERACTIVE (uPlot Tier-A, issue #51): cumulative-NPV bars with crosshair + live money
+ *  readout, the certified LP bound and the undiscounted-UPL reference as dashed flat series, drag-zoom,
+ *  theme-aware. Replaces the static SVG. */
 function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number; upl?: number; es: boolean }) {
-  const W = 560;
-  const H = 220;
-  const padL = 46;
-  const padB = 26;
-  const padT = 14;
-  const top = Math.max(bound, upl ?? 0, ...cum) * 1.08 || 1;
   const n = cum.length;
-  const bw = (W - padL - 10) / n;
-  const yOf = (v: number) => padT + (H - padT - padB) * (1 - v / top);
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img"
-         aria-label={es ? 'NPV acumulado por periodo con la cota certificada' : 'cumulative NPV by period with the certified bound'}>
-      {/* axes */}
-      <line x1={padL} y1={padT} x2={padL} y2={H - padB} stroke="var(--color-border)" />
-      <line x1={padL} y1={H - padB} x2={W - 6} y2={H - padB} stroke="var(--color-border)" />
-      {/* cumulative NPV bars */}
-      {cum.map((v, i) => (
-        <rect key={i} x={padL + i * bw + bw * 0.15} y={yOf(v)} width={bw * 0.7} height={Math.max(0, H - padB - yOf(v))}
-              fill="var(--color-accent)" opacity={0.85} rx={2}>
-          <title>{`${es ? 'periodo' : 'period'} ${i + 1}: ${fM(v)}`}</title>
-        </rect>
-      ))}
-      {/* period labels */}
-      {cum.map((_, i) => (
-        <text key={i} x={padL + i * bw + bw / 2} y={H - padB + 16} textAnchor="middle"
-              fontSize="10" fill="var(--color-fg-faint)">{i + 1}</text>
-      ))}
-      {/* certified-bound line */}
-      <line x1={padL} y1={yOf(bound)} x2={W - 6} y2={yOf(bound)} stroke="var(--color-warn, #d29922)"
-            strokeWidth={1.5} strokeDasharray="6 4" />
-      <text x={W - 8} y={yOf(bound) - 4} textAnchor="end" fontSize="10" fill="var(--color-warn, #d29922)">
-        {(es ? 'cota certificada ' : 'certified bound ') + fM(bound)}
-      </text>
-      {/* UPL reference line (undiscounted, uncapacitated degenerate limit) */}
-      {upl !== undefined && (
-        <>
-          <line x1={padL} y1={yOf(upl)} x2={W - 6} y2={yOf(upl)} stroke="var(--color-fg-faint)"
-                strokeWidth={1} strokeDasharray="2 3" />
-          <text x={padL + 4} y={yOf(upl) - 4} fontSize="10" fill="var(--color-fg-faint)">
-            {(es ? 'pit ultimo (sin descuento) ' : 'ultimate pit (undiscounted) ') + fM(upl)}
-          </text>
-        </>
-      )}
-    </svg>
-  );
+  const data = useMemo(() => {
+    const xs = cum.map((_, i) => i + 1);
+    const boundS = xs.map(() => bound);
+    const uplS = xs.map(() => (upl !== undefined ? upl : null));
+    return [xs, cum, boundS, uplS] as uPlot.AlignedData;
+  }, [cum, bound, upl]);
+  const build = useCallback((width: number, height: number): uPlot.Options => {
+    const c = themeColors();
+    const fmt = (v: number | null) => (v == null ? '--' : fM(v));
+    return {
+      width, height,
+      scales: { x: { time: false, range: [0.4, n + 0.6] } },
+      axes: [
+        { stroke: c.subtle, grid: { show: false }, ticks: { stroke: c.border },
+          values: (_u, vs) => vs.map((v) => (v == null || v % 1 !== 0 ? '' : String(v))),
+          label: es ? 'periodo' : 'period', labelSize: 12 },
+        { stroke: c.subtle, grid: { stroke: c.border }, ticks: { stroke: c.border },
+          values: (_u, vs) => vs.map((v) => (v == null ? '' : `$${(v / 1e6).toFixed(0)}M`)) },
+      ],
+      series: [
+        { label: es ? 'periodo' : 'period', value: (_u, v) => (v == null ? '--' : String(v)) },
+        { label: es ? 'NPV acumulado' : 'cumulative NPV', stroke: c.accent, fill: c.accent + '55', width: 1,
+          paths: uPlot.paths!.bars!({ size: [0.7, 100] }), points: { show: false },
+          value: (_u: uPlot, v: number | null) => fmt(v) },
+        { label: es ? 'cota certificada (LP)' : 'certified bound (LP)', stroke: c.warn, width: 1.5, dash: [6, 4],
+          points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
+        { label: es ? 'pit ultimo (sin descuento)' : 'ultimate pit (undiscounted)', stroke: c.faint, width: 1,
+          dash: [2, 3], points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
+      ],
+      cursor: { drag: { x: true, y: false } },
+      legend: { live: true },
+    };
+  }, [n, es]);
+  return <UPlotChart data={data} build={build} height={230} />;
 }
 
 export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {

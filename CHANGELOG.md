@@ -4,6 +4,14 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.09.002], 2026-07-11
+
+### Changed
+- Interactive-viz rubric (issue #51): the NPV-vs-period chart in the Scheduling panel is now an INTERACTIVE uPlot
+  chart, cumulative-NPV bars with crosshair + live money readout, the certified LP bound and the undiscounted-UPL
+  reference as dashed flat series, drag-zoom + double-click reset, theme-aware. Replaces the static SVG; closes
+  the last static-chart-debt item of the hub audit's viz wave.
+
 ## [0.09.001], 2026-07-11
 
 ### Fixed
