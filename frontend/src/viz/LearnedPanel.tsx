@@ -98,7 +98,7 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy}, a RF=1 (semántica de entrenamiento), color = P(en pit), contorno = pit EXACTO a RF=1. Mueve precio/talud y compara; el slider RF no afecta este tab.`
+        ? `Preview instantáneo del pit (surrogate ONNX) en la sección Y=${iy}, a RF=1 (semántica de entrenamiento), color = P(en pit), contorno = pit exacto a RF=1. Mueve precio/talud y compara; el slider RF no afecta este tab.`
         : `Instant pit preview (ONNX surrogate) on section Y=${iy}, at RF=1 (training semantics), colour = P(in pit), outline = the EXACT RF=1 pit. Drag price/slope and compare; the RF slider does not affect this tab.`}</div>
       <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cell} />
       <div className="pf-cap">
@@ -107,7 +107,7 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
           : (pending ? (es ? 'inferencia en curso…' : 'inference running…') : (es ? 'modelo no disponible' : 'model unavailable'))}
       </div>
       <p className="pf-cap">{es
-        ? 'Preprocesamiento EXACTO acelerado por aprendizaje: los puntajes aprendidos solo ORDENAN que bloques probar contra reglas de fijacion demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no-negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el optimo: el valor es ESCALA y velocidad. Entrenado en depositos sinteticos; metricas held-out en Benchmark.'
+        ? 'Preprocesamiento exacto acelerado por aprendizaje: los puntajes aprendidos solo ORDENAN que bloques probar contra reglas de fijacion demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no-negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el optimo: el valor es ESCALA y velocidad. Entrenado en depositos sinteticos; metricas held-out en Benchmark.'
         : 'Learning-accelerated EXACT preprocessing: the learned scores only ORDER which blocks to test against provably-safe fixing rules (fix-out when the block\'s best-case cone value is <= 0; fix-in when its entire supporting cone is non-negative). The rules guarantee exactness; the exact min-cut certifies the reduced instance. It never changes the optimum: the value is SCALE and speed. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
     </div>
   );

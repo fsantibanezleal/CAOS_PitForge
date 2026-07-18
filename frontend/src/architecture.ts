@@ -28,7 +28,7 @@ export const architecture: ArchitectureConfig = {
         'precedence and net block values, and the solve must reproduce the published optimum.',
       body_es:
         'PitForge es un producto de planificación de rajo abierto: desde un modelo de bloques, la economía ' +
-        '(precio/costo/recuperación) y una restricción de talud, computa el pit final EXACTO (Lerchs–Grossmann) y las ' +
+        '(precio/costo/recuperación) y una restricción de talud, computa el pit final exacto (Lerchs–Grossmann) y las ' +
         'cáscaras anidadas de Whittle, respondiendo "¿cuál es el pit más valioso que puedes excavar, respetando el ' +
         'ángulo de talud?". Arrastras el precio, el costo o el talud y el pit óptimo + la curva valor-vs-tonelaje ' +
         'recalculan en vivo.\n\n' +
@@ -52,7 +52,7 @@ export const architecture: ArchitectureConfig = {
       body_en:
         'Three lanes, and the split is the point. WEB (live, in the browser): the TypeScript ultimate-pit optimiser ' +
         '(frontend/src/opt/) re-runs on every control and onnxruntime-web runs grade-nn.onnx + pit-surrogate.onnx, no ' +
-        'server. OFFLINE / COMPUTE (your machine, isolated .venv): the Python pipeline bakes the canonical case ' +
+        'server. offline / COMPUTE (your machine, isolated .venv): the Python pipeline bakes the canonical case ' +
         'artifacts (the pits + shells per scenario) and the heavy lane (--retrain, .venv-precompute, torch) trains the ' +
         'grade-NN + the pit-surrogate and exports them to ONNX. REPLAY: the small, committed artifacts in data/derived ' +
         'are overlaid into the SPA by copy-data.mjs and loaded live; the typed mirror (contract.types.ts) fails the ' +
@@ -60,7 +60,7 @@ export const architecture: ArchitectureConfig = {
       body_es:
         'Tres carriles, y la división es lo central. WEB (en vivo, en el navegador): el optimizador de pit final en ' +
         'TypeScript (frontend/src/opt/) re-corre con cada control y onnxruntime-web ejecuta grade-nn.onnx + ' +
-        'pit-surrogate.onnx, sin servidor. OFFLINE / CÓMPUTO (tu máquina, .venv aislado): el pipeline Python hornea los ' +
+        'pit-surrogate.onnx, sin servidor. offline / CÓMPUTO (tu máquina, .venv aislado): el pipeline Python hornea los ' +
         'artefactos canónicos por caso (los pits + cáscaras por escenario) y el carril pesado (--retrain, ' +
         '.venv-precompute, torch) entrena la grade-NN + el pit-surrogate y los exporta a ONNX. REPLAY: los artefactos ' +
         'pequeños y versionados en data/derived se superponen al SPA con copy-data.mjs y se cargan en vivo; el espejo ' +
@@ -140,7 +140,7 @@ export const architecture: ArchitectureConfig = {
         'índice de modelos), espejada exactamente por contract.types.ts. Entre ambos, el pipeline por etapas y ' +
         'determinista corre el lane gate (numpy-light por defecto, --retrain para el carril pesado de torch) y escribe ' +
         'un manifest de procedencia, de modo que cada resultado es reproducible y la web nunca diverge en silencio.\n\n' +
-        'Honestidad, en el registro: cada caso horneado lleva un manifest de procedencia (veredicto de carril, ' +
+        'Honestidad, en el registro: cada caso precalculado lleva un manifest de procedencia (veredicto de carril, ' +
         'runtimes, bytes del artefacto y una declaración explícita de honestidad, todos los depósitos son sintéticos ' +
         'y con semilla; nada se presenta como datos de terreno). Los manifests están versionados en data/derived y los ' +
         'exige el gate de deriva en CI; la App muestra las vistas de dominio y esta meta-capa vive aquí y en Benchmark.',

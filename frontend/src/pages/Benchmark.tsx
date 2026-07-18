@@ -19,7 +19,7 @@ export default function Benchmark() {
     <article className="page-body prose">
       <h1>Benchmark</h1>
       <p className="lede">{es
-        ? 'Comparaciones cruzadas entre casos, las que NO dependen de un solo caso van aquí (no en la App). Todas salen del horneado exacto del solver.'
+        ? 'Comparaciones cruzadas entre casos, las que NO dependen de un solo caso van aquí (no en la App). Todas salen del precálculo exacto del solver.'
         : 'Cross-case comparisons, the ones that do NOT depend on a single case live here (not in the App). All come from the exact solver bake.'}</p>
 
       {!data ? <p className="pf-note">{es ? 'cargando…' : 'loading…'}</p> : (
@@ -79,7 +79,7 @@ export default function Benchmark() {
               {minelib.excluded.map((x) => (
                 <tr key={x.id} className="pf-muted">
                   <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>, </td>
-                  <td>{es ? 'no horneado' : 'not baked'}</td>
+                  <td>{es ? 'no precalculado' : 'not baked'}</td>
                   <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : ', '}</td>
                   <td colSpan={2}>{x.reason}</td>
                 </tr>
@@ -88,7 +88,7 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? `El MISMO motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). Las instancias se descargan bajo la licencia académica de MineLib y NUNCA se redistribuyen; aquí sólo se publican resúmenes. Horneado ${minelib.bakedAt.slice(0, 10)}.`
+              ? `El MISMO motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). Las instancias se descargan bajo la licencia académica de MineLib y nunca se redistribuyen; aquí sólo se publican resúmenes. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
               : `The SAME exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). Instances are downloaded under MineLib's academic grant and NEVER redistributed; only summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
           </Callout>
         </>
@@ -116,7 +116,7 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta. Su rol correcto es preprocesamiento EXACTO acelerado por aprendizaje: ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras y el min-cut certifica la instancia reducida, así que el óptimo nunca cambia (valor = escala). El corte mínimo siempre manda.'
+              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero NO la respuesta exacta. Su rol correcto es preprocesamiento exacto acelerado por aprendizaje: ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras y el min-cut certifica la instancia reducida, así que el óptimo nunca cambia (valor = escala). El corte mínimo siempre manda.'
               : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but NOT the exact answer. Its correct role is learning-accelerated EXACT preprocessing: it orders provably-safe fix-in/fix-out reductions and the min-cut certifies the reduced instance, so the optimum never changes (value = scale). The min-cut is always the authority.'}
           </Callout>
         </>
