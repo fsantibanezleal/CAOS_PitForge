@@ -16,7 +16,7 @@ export default function Experiments() {
     <article className="page-body prose">
       <h1>{es ? 'Experimentos' : 'Experiments'}</h1>
       <p className="lede">{es
-        ? 'Cada caso es un experimento con un ancla de validación: una propiedad que el resultado DEBE cumplir. Todas se chequean en el horneado (frontend/test/contract.test.ts).'
+        ? 'Cada caso es un experimento con un ancla de validación: una propiedad que el resultado DEBE cumplir. Todas se chequean en el precálculo (frontend/test/contract.test.ts).'
         : 'Each case is an experiment with a validation anchor: a property the result MUST satisfy. They are all checked in the bake (frontend/test/contract.test.ts).'}</p>
 
       {!data ? <p className="pf-note">{es ? 'cargando casos…' : 'loading cases…'}</p> : (
@@ -94,7 +94,7 @@ export default function Experiments() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'La relajación LP es una COTA, no un plan; el plan redondeado es una heurística factible y NUNCA es óptimo. Los controles atan la línea nueva al óptimo probado: a tasa 0 y capacidad infinita el CPIT reproduce el pit último EXACTO bloque por bloque (error de la cota vs UPL ~1e-7, ruido de punto flotante), y la cota domina a todo NPV entero factible. La brecha de integralidad (10-11%) es el resultado honesto, ni escondido ni presentado como óptimo. El pit último exacto (min-cut) sigue siendo el ancla y no regresiona.'
+              ? 'La relajación LP es una COTA, no un plan; el plan redondeado es una heurística factible y nunca es óptimo. Los controles atan la línea nueva al óptimo probado: a tasa 0 y capacidad infinita el CPIT reproduce el pit último exacto bloque por bloque (error de la cota vs UPL ~1e-7, ruido de punto flotante), y la cota domina a todo NPV entero factible. La brecha de integralidad (10-11%) es el resultado honesto, ni escondido ni presentado como óptimo. El pit último exacto (min-cut) sigue siendo el ancla y no regresiona.'
               : 'The LP relaxation is a BOUND, not a schedule; the rounded schedule is a feasible heuristic and NEVER optimal. The controls tie the new lane to the proven optimum: at rate 0 and infinite capacity the CPIT reproduces the EXACT ultimate pit block-for-block (bound-vs-UPL error ~1e-7, float noise), and the bound dominates every feasible integer NPV. The integrality gap (10-11%) is the honest result, neither hidden nor presented as optimal. The exact ultimate pit (min-cut) stays the anchor and does not regress.'}
           </Callout>
         </>

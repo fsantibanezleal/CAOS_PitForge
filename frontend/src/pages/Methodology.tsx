@@ -64,8 +64,8 @@ export default function Methodology() {
               <Equation tex="\max \sum_{b,t} \frac{v_b}{(1+r)^{t-1}}\,(x_{b,t}-x_{b,t-1})" caption={es ? 'x_{b,t} in {0,1}: bloque b extraído hasta el periodo t (acumulado, monótono); r tasa de descuento' : 'x_{b,t} in {0,1}: block b extracted by period t (cumulative, monotone); r discount rate'} />
               <Equation tex="x_{b,t-1}\le x_{b,t},\quad x_{b,t}\le x_{a,t}\ \forall a\in \mathrm{pred}(b),\quad \sum_b w_b\,(x_{b,t}-x_{b,t-1})\le C_t" caption={es ? 'monotonía · precedencia en cada periodo · capacidad de tonelaje por periodo' : 'monotonicity · precedence in every period · per-period tonnage capacity'} />
               <p>{es
-                ? 'PitForge resuelve OFFLINE la relajación LP de este problema (Bienstock y Zuckerberg '
-                : 'PitForge solves the LP relaxation of this problem OFFLINE (Bienstock & Zuckerberg '}<Cite id="bienstock2010" paren />{es
+                ? 'PitForge resuelve offline la relajación LP de este problema (Bienstock y Zuckerberg '
+                : 'PitForge solves the LP relaxation of this problem offline (Bienstock & Zuckerberg '}<Cite id="bienstock2010" paren />{es
                 ? '; estudio y aplicaciones, Munoz et al. '
                 : '; study and applications, Munoz et al. '}<Cite id="munoz2018" paren />{es
                 ? '): como es una maximización, la relajación es una COTA SUPERIOR certificada del NPV entero. Redondeamos un plan de pushbacks factible (heurística voraz que respeta precedencia y capacidad) y reportamos la BRECHA DE INTEGRALIDAD explícitamente. Una relajación LP es una cota, no un plan.'
@@ -88,7 +88,7 @@ export default function Methodology() {
           content: (
             <div className="pf-doc-sec">
               <p>{es
-                ? 'El modelo ONNX de inclusión NO reemplaza al min-cut. Se reencuadra como preprocesamiento EXACTO acelerado por aprendizaje: los puntajes aprendidos sólo ORDENAN qué bloques probar contra reglas de fijación demostrablemente seguras. La seguridad viene de la regla, no de la red '
+                ? 'El modelo ONNX de inclusión NO reemplaza al min-cut. Se reencuadra como preprocesamiento exacto acelerado por aprendizaje: los puntajes aprendidos sólo ORDENAN qué bloques probar contra reglas de fijación demostrablemente seguras. La seguridad viene de la regla, no de la red '
                 : 'The ONNX inclusion model does NOT replace the min-cut. It is reframed as learning-accelerated EXACT preprocessing: the learned scores only ORDER which blocks to test against provably-safe fixing rules. Safety comes from the rule, not the net '}<Cite id="bengio2021" paren />{es ? ' ' : ' '}<Cite id="cappart2023" paren />{es ? '.' : '.'}</p>
               <Equation tex="\text{fix-OUT: } \hat v_b^{\,\text{best cone}}\le 0 \qquad \text{fix-IN: entire supporting cone } \ge 0" caption={es ? 'reglas de fijación que preservan el óptimo' : 'optimum-preserving fixing rules'} />
               <p>{es

@@ -11,7 +11,7 @@ export default function Introduction() {
 
       <Callout variant="strong" title={es ? 'El optimizador exacto corre EN VIVO en tu browser' : 'The exact optimiser runs LIVE in your browser'}>
         {es
-          ? 'El pit último se calcula con un solver de flujo máximo / corte mínimo (Lerchs–Grossmann por la reducción de cierre máximo de Picard) escrito en TypeScript, el mismo motor corre en el browser y en el horneado offline. Arrastra el factor de ingreso, el precio o el talud y el pit se recalcula exacto al instante.'
+          ? 'El pit último se calcula con un solver de flujo máximo / corte mínimo (Lerchs–Grossmann por la reducción de cierre máximo de Picard) escrito en TypeScript, el mismo motor corre en el browser y en el precálculo offline. Arrastra el factor de ingreso, el precio o el talud y el pit se recalcula exacto al instante.'
           : 'The ultimate pit is computed with a max-flow / min-cut solver (Lerchs–Grossmann via Picard’s max-closure reduction) written in TypeScript, the same engine runs in the browser and in the offline bake. Drag the revenue factor, price or slope and the pit re-solves exactly, instantly.'}
       </Callout>
 
@@ -45,7 +45,7 @@ export default function Introduction() {
           content: (
             <Callout variant="honest" title={es ? 'Qué es real y qué es sintético' : 'What is real and what is synthetic'}>
               {es
-                ? 'La lane sintética usa yacimientos GENERADOS (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija), ahí no hay sondajes reales. La lane real usa 3 instancias PUBLICADAS de MineLib (newman1, zuck_small, kd), descargadas en runtime (ningún byte de instancia va commiteado), y el solver reproduce su óptimo UPIT publicado. El OPTIMIZADOR es exacto: el corte mínimo es el mismo que calcula el pseudoflow. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos (entrenados en depósitos sintéticos) se comparan SIEMPRE contra su baseline clásico (kriging/IDW; el solver exacto), nunca se presentan superándolo.'
+                ? 'La lane sintética usa yacimientos GENERADOS (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija), ahí no hay sondajes reales. La lane real usa 3 instancias PUBLICADAS de MineLib (newman1, zuck_small, kd), descargadas en runtime (ningún byte de instancia va commiteado), y el solver reproduce su óptimo UPIT publicado. El OPTIMIZADOR es exacto: el corte mínimo es el mismo que calcula el pseudoflow. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos (entrenados en depósitos sintéticos) se comparan siempre contra su baseline clásico (kriging/IDW; el solver exacto), nunca se presentan superándolo.'
                 : 'The synthetic lane uses GENERATED deposits (grade fields with a geological trend + spatially-correlated noise, fixed seed), no real drillholes there. The real lane uses 3 PUBLISHED MineLib instances (newman1, zuck_small, kd), fetched at runtime (no instance bytes are committed), and the solver reproduces their published UPIT optimum. The OPTIMISER is exact: the min-cut is the same one pseudoflow computes. The CTRL control has a hand-verifiable closed-form answer. The 2 learned models (trained on synthetic deposits) are ALWAYS compared against their classical baseline (kriging/IDW; the exact solver), never presented as beating it.'}
             </Callout>
           ),
