@@ -388,7 +388,7 @@ def round_schedule(inst: Instance, upit_set: np.ndarray, periods: int, rate: flo
 
 
 # --------------------------------------------------------------------------------------------------------
-# Learning-accelerated EXACT preprocessing, provably-safe fix-in / fix-out reductions (dossier 2.2 secondary).
+# Learning-accelerated exact preprocessing, provably-safe fix-in / fix-out reductions (dossier 2.2 secondary).
 # The learned scores only ORDER which blocks to test; the RULES below are what guarantee exactness. The
 # exactness control asserts every fixing agrees with the full exact pit (fix-in subset of the pit, fix-out
 # disjoint from it), so the reduction can never change the certified optimum, only the scale/speed.

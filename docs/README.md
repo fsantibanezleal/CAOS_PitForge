@@ -15,7 +15,7 @@ optimiser running live in the browser. Instantiated on the CAOS product-repo arc
 The science is the **TypeScript optimiser** in [`frontend/src/opt/`](../frontend/src/opt/): it builds the
 block-precedence graph, solves the maximum-weight closure as a **minimum cut / maximum flow** (the exact
 Lerchs–Grossmann ultimate pit), and parameterises it by revenue factor into **nested pit shells**. It runs *live in
-the browser* (the App re-solves as you drag the sliders) **and** in the offline Node bake (no Python re-port). The
+the browser* (the App re-solves as the sliders move) **and** in the offline Node bake (no Python re-port). The
 Python package [`pflab`](../data-pipeline/pflab/) is the two data contracts + the staged pipeline + the lane gate; its
 default lane is numpy-light (it reshapes the committed bake into replay traces), and a `--retrain` lane re-bakes the
 cases and trains the two learned models (torch → ONNX).

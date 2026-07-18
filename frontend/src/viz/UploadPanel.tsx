@@ -16,8 +16,8 @@ const EXAMPLE_CSV = `ix,iy,iz,tonnage,density,grade
 2,0,2,2700,2.7,0.003
 `;
 
-/** CONTRACT-1 drag-drop: drop a block-model CSV → validate (reject/flag, never coerce) → build the
- *  dense model → the WHOLE App re-solves on it with the current Controls econ. */
+/** Contract-1 drag-drop: drop a block-model CSV → validate (reject/flag, never coerce) → build the
+ *  dense model → the whole App re-solves on it with the current Controls econ. */
 export function UploadPanel({ es, active, onUse, onClear }: {
   es: boolean;
   /** true while the App is solving the uploaded model. */
@@ -64,8 +64,8 @@ export function UploadPanel({ es, active, onUse, onClear }: {
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? 'Tu modelo de bloques, CONTRATO 1 en vivo: valida, nunca coerciona; el App entero se re-resuelve sobre tu modelo'
-        : 'Your block model, CONTRACT 1 live: validates, never coerces; the whole App re-solves on your model'}</div>
+        ? 'Modelo de bloques propio, Contrato 1 en vivo: valida, nunca coerciona; el App entero se re-resuelve sobre el modelo cargado'
+        : 'Your block model, Contract 1 live: validates, never coerces; the whole App re-solves on the uploaded model'}</div>
 
       <div
         className={`pf-drop ${over ? 'over' : ''}`}
@@ -76,7 +76,7 @@ export function UploadPanel({ es, active, onUse, onClear }: {
         role="button" tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter') inputRef.current?.click(); }}
       >
-        {es ? 'Suelta aquí un CSV {ix,iy,iz,tonnage,density,grade} o haz click para elegirlo'
+        {es ? 'Soltar aquí un CSV {ix,iy,iz,tonnage,density,grade} o hacer clic para elegirlo'
             : 'Drop a {ix,iy,iz,tonnage,density,grade} CSV here or click to pick one'}
         <input ref={inputRef} type="file" accept=".csv,text/csv" style={{ display: 'none' }}
                onChange={(e) => onFile(e.target.files?.[0] ?? undefined)} />
@@ -91,7 +91,7 @@ export function UploadPanel({ es, active, onUse, onClear }: {
 
       {report && (
         <>
-          <div className="pf-cap"><b>{fileName}</b> · {es ? 'reporte CONTRATO 1' : 'CONTRACT 1 report'}</div>
+          <div className="pf-cap"><b>{fileName}</b> · {es ? 'reporte Contrato 1' : 'Contract 1 report'}</div>
           <div className="pf-kpis">
             <Kpi label={es ? 'aceptadas' : 'accepted'} value={`${report.accepted.length}`} />
             <Kpi label={es ? 'rechazadas' : 'rejected'} value={`${report.rejected.length}`} />
@@ -122,8 +122,8 @@ export function UploadPanel({ es, active, onUse, onClear }: {
             </button>
           )}
           {active && <p className="pf-note">{es
-            ? 'El App está resuelto sobre TU modelo con la economía actual de Controles: todos los tabs (3D, sección, Whittle, shells, resumen, ley–tonelaje, valor) leen de él.'
-            : 'The App is solved on YOUR model with the current Controls econ: every tab (3D, section, Whittle, shells, summary, grade–tonnage, value) reads from it.'}</p>}
+            ? 'El App está resuelto sobre el modelo cargado con la economía actual de Controles: todos los tabs (3D, sección, Whittle, shells, resumen, ley–tonelaje, valor) leen de él.'
+            : 'The App is solved on the uploaded model with the current Controls econ: every tab (3D, section, Whittle, shells, summary, grade–tonnage, value) reads from it.'}</p>}
         </>
       )}
 
