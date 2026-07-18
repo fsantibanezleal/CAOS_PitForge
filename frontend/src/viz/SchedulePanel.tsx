@@ -48,7 +48,7 @@ function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number;
           value: (_u: uPlot, v: number | null) => fmt(v) },
         { label: es ? 'cota certificada (LP)' : 'certified bound (LP)', stroke: c.warn, width: 1.5, dash: [6, 4],
           points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
-        { label: es ? 'pit ultimo (sin descuento)' : 'ultimate pit (undiscounted)', stroke: c.faint, width: 1,
+        { label: es ? 'pit último (sin descuento)' : 'ultimate pit (undiscounted)', stroke: c.faint, width: 1,
           dash: [2, 3], points: { show: false }, value: (_u: uPlot, v: number | null) => fmt(v) },
       ],
       cursor: { drag: { x: true, y: false } },
@@ -116,7 +116,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
   return (
     <div className="pf-vizstack">
       <div className="pf-plot-t">{es
-        ? `Secuencia de bancos (pushback) sobre el deposito actual, seccion Y=${iy}, coloreada por periodo de extraccion. La animacion parte pausada y corre UNA vez.`
+        ? `Secuencia de bancos (pushback) sobre el depósito actual, seccion Y=${iy}, coloreada por periodo de extraccion. La animación parte pausada y corre UNA vez.`
         : `Bench (pushback) sequence on the current deposit, section Y=${iy}, coloured by extraction period. The animation starts paused and runs ONCE.`}</div>
 
       <div className="pf-plot-th">
@@ -135,7 +135,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
       </div>
 
       <div className="pf-kpis">
-        <Kpi label={es ? 'pit ultimo (sin descuento)' : 'ultimate pit (undiscounted)'} value={fM(sched.uplValue)} />
+        <Kpi label={es ? 'pit último (sin descuento)' : 'ultimate pit (undiscounted)'} value={fM(sched.uplValue)} />
         <Kpi label={es ? 'NPV del plan (vivo)' : 'schedule NPV (live)'} value={fM(sched.npv)} />
         <Kpi label={es ? 'perdida por descuento' : 'discounting loss'} value={`${((1 - sched.npv / (sched.uplValue || 1)) * 100).toFixed(1)}%`} />
         <Kpi label={es ? 'bloques minados' : 'blocks mined'} value={`${sched.minedBlocks}`} />
@@ -153,7 +153,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
           <input className="range" type="range" min={1} max={2.5} step={0.05} value={capFrac} onChange={(e) => setCapFrac(+e.target.value)} />
         </label>
         <p className="pf-cap pf-muted">{es
-          ? 'A tasa 0 y capacidad alta el plan mina exactamente el pit ultimo (control de dualidad). Subir la tasa o apretar la capacidad reduce el NPV: eso es la perdida por diferir.'
+          ? 'A tasa 0 y capacidad alta el plan mina exactamente el pit último (control de dualidad). Subir la tasa o apretar la capacidad reduce el NPV: eso es la perdida por diferir.'
           : 'At rate 0 and ample capacity the schedule mines exactly the ultimate pit (the duality control). Raising the rate or tightening capacity lowers the NPV: that is the cost of deferral.'}</p>
       </div>
 
@@ -184,7 +184,7 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
               ? `Fuente: ${certCase.source}. Motor: relajacion LP de CPIT (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periodos, tasa ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. La relajacion LP es una COTA superior certificada del NPV, no un plan; el plan redondeado es una heuristica factible y la brecha se reporta arriba.`
               : `Source: ${certCase.source}. Engine: CPIT LP relaxation (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periods, rate ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. The LP relaxation is a CERTIFIED upper bound on the NPV, not a schedule; the rounded schedule is a feasible heuristic and the gap is reported above.`}</p>
             <p className="pf-cap pf-muted">{es
-              ? `Control de dualidad: a tasa 0 y capacidad infinita la cota LP iguala el pit ultimo exacto (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} bloques) bloque por bloque, y la cota domina al NPV factible.`
+              ? `Control de dualidad: a tasa 0 y capacidad infinita la cota LP iguala el pit último exacto (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} bloques) bloque por bloque, y la cota domina al NPV factible.`
               : `Duality control: at rate 0 and infinite capacity the LP bound equals the exact ultimate pit (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} blocks) block-for-block, and the bound dominates the feasible NPV.`}</p>
           </>
         )}

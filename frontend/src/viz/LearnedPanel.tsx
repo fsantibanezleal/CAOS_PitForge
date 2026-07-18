@@ -107,7 +107,7 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
           : (pending ? (es ? 'inferencia en curso…' : 'inference running…') : (es ? 'modelo no disponible' : 'model unavailable'))}
       </div>
       <p className="pf-cap">{es
-        ? 'Preprocesamiento exacto acelerado por aprendizaje: los puntajes aprendidos solo ORDENAN que bloques probar contra reglas de fijacion demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no-negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el optimo: el valor es ESCALA y velocidad. Entrenado en depositos sinteticos; metricas held-out en Benchmark.'
+        ? 'Preprocesamiento exacto acelerado por aprendizaje: los puntajes aprendidos solo ORDENAN que bloques probar contra reglas de fijacion demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no-negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el optimo: el valor es ESCALA y velocidad. Entrenado en depositos sintéticos; metricas held-out en Benchmark.'
         : 'Learning-accelerated EXACT preprocessing: the learned scores only ORDER which blocks to test against provably-safe fixing rules (fix-out when the block\'s best-case cone value is <= 0; fix-in when its entire supporting cone is non-negative). The rules guarantee exactness; the exact min-cut certifies the reduced instance. It never changes the optimum: the value is SCALE and speed. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
     </div>
   );
