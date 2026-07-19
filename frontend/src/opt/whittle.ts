@@ -1,5 +1,5 @@
 // Nested pit shells, the Whittle parameterisation. Solving the UPL for an increasing sequence of revenue factors
-// RF ∈ (0,1] yields a family of NESTED pits (lower RF ⊂ higher RF): the pit-by-pit graph used for pushback / phase
+// RF ∈ (0,1] yields a family of nested pits (lower RF ⊂ higher RF): the pit-by-pit graph used for pushback / phase
 // design and the classic value-vs-RF, tonnage-vs-RF and strip-ratio-vs-RF curves.
 //
 // Nesting is guaranteed analytically (a lower RF only lowers block values, so its optimal pit cannot contain a block

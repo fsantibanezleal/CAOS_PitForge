@@ -14,7 +14,7 @@ export class PanelBoundary extends Component<{ children: ReactNode; lang?: 'en' 
           <strong>{es ? 'Esta vista no aplica a este caso' : 'This view does not apply to this case'}</strong>
           <p style={{ marginTop: '0.4rem', fontSize: '0.85rem' }}>
             {es
-              ? 'No se pudo computar esta vista sobre el dato actual (p. ej. un modelo de bloques sin la geometría que la herramienta requiere). Seleccionar otra pestaña o caso.'
+              ? 'No se pudo calcular esta vista sobre el dato actual (p. ej. un modelo de bloques sin la geometría que la herramienta requiere). Seleccionar otra pestaña o caso.'
               : 'This view could not be computed on the current datum (e.g. a block model lacking the geometry the tool needs). Pick another tab or case.'}
           </p>
           <p style={{ opacity: 0.6, fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem' }}>{this.state.error.message}</p>
