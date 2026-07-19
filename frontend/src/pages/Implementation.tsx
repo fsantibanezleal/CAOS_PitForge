@@ -20,7 +20,7 @@ export default function Implementation() {
                 <li><b>{es ? 'Replay (liviano)' : 'Replay (light)'}</b>, {es ? 'el pipeline Python numpy-only reformatea el precálculo en trazas + manifiestos por caso (Contrato 2). Sin torch ni Node, para CI/verificación rápida.' : 'the numpy-only Python pipeline reshapes the bake into per-case traces + manifests (Contract 2). No torch/Node, for fast CI/verify.'}</li>
               </ul>
               <Callout variant="note" title={es ? 'El gate decide el lane' : 'The gate decides the lane'}>
-                {es ? 'Un caso se ejecuta en la lane live si es client-side, sus runtimes ⊆ {ts-pseudoflow, onnxruntime-web} y el solve + la traza caben en presupuesto. A escala didáctica (~7 000 bloques) todo corre en vivo.' : 'A case runs in the live lane if it is client-side, its runtimes ⊆ {ts-pseudoflow, onnxruntime-web} and the solve + trace fit budget. At teaching scale (~7 000 blocks) everything runs live.'}
+                {es ? 'Un caso se ejecuta en la lane live si es client-side, sus runtimes ⊆ {ts-pseudoflow, onnxruntime-web} y el solve + la traza caben en presupuesto. A escala didáctica (~7 000 bloques) todo se ejecuta en vivo.' : 'A case runs in the live lane if it is client-side, its runtimes ⊆ {ts-pseudoflow, onnxruntime-web} and the solve + trace fit budget. At teaching scale (~7 000 blocks) everything runs live.'}
               </Callout>
             </div>
           ),

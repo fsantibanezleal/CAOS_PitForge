@@ -28,7 +28,7 @@ export const architecture: ArchitectureConfig = {
         'precedence and net block values, and the solve must reproduce the published optimum.',
       body_es:
         'PitForge es un producto de planificación de rajo abierto: desde un modelo de bloques, la economía ' +
-        '(precio/costo/recuperación) y una restricción de talud, computa el pit final exacto (Lerchs–Grossmann) y las ' +
+        '(precio/costo/recuperación) y una restricción de talud, calcula el pit final exacto (Lerchs–Grossmann) y las ' +
         'cáscaras anidadas de Whittle, respondiendo "¿cuál es el pit más valioso que se puede excavar, respetando el ' +
         'ángulo de talud?". Al arrastrar el precio, el costo o el talud, el pit óptimo y la curva valor-vs-tonelaje ' +
         'recalculan en vivo.\n\n' +
@@ -112,7 +112,7 @@ export const architecture: ArchitectureConfig = {
         'pit(λ₂)), la curva valor-vs-tonelaje. Salidas: el pit, toneladas, ley, VAN.\n\n' +
         'El optimizador exacto de corte mínimo está siempre activo y es transparente, el pit óptimo, la referencia ' +
         'contra la que se mide toda predicción aprendida. El carril aprendido: una grade-NN (un stencil IDW de 27-vec → ' +
-        'ley de bloque, vs IDW/kriging) y un pit-surrogate (4 features de bloque → P(bloque ∈ pit)); ambos corren en el ' +
+        'ley de bloque, vs IDW/kriging) y un pit-surrogate (4 features de bloque → P(bloque ∈ pit)); ambos se ejecutan en el ' +
         'cliente como ONNX, reportados junto al pit exacto (% de acuerdo), nunca como caja negra.',
     },
     {
