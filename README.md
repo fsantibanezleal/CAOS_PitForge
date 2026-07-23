@@ -3,6 +3,13 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/fsantibanezleal/CAOS_PitForge/ci.yml?branch=main&label=CI)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
 [![License](https://img.shields.io/github/license/fsantibanezleal/CAOS_PitForge)](LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-live-2ea44f)](https://pitforge.fasl-work.com)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21519687-blue)](https://doi.org/10.5281/zenodo.21519687)
+
+Technical report (CC-BY-4.0): *"PitForge: Exact Ultimate-Pit Optimization Reproducing the Published MineLib
+Optima, with Whittle Nested Shells and Scheduling"*, concept DOI
+[10.5281/zenodo.21519687](https://doi.org/10.5281/zenodo.21519687) (source in
+[`manuscripts/ultimate-pit/`](manuscripts/ultimate-pit/)). Reproduces the 3 published MineLib optima to rel error
+~1e-10 in 5-259ms in-browser; adds Whittle nested shells + a scheduling optimality gap reported honestly (11.3%).
 
 [![CI](https://github.com/fsantibanezleal/CAOS_PitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
 **Live:** https://pitforge.fasl-work.com

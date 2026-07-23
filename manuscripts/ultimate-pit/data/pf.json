@@ -1,0 +1,133 @@
+{
+ "minelib": [
+  {
+   "id": "newman1",
+   "nBlocks": 1060,
+   "published": 26086899,
+   "ours": 26086899.026,
+   "relError": 9.95515035759146e-10,
+   "solveMs": 5.2
+  },
+  {
+   "id": "zuck_small",
+   "nBlocks": 9400,
+   "published": 1422726898,
+   "ours": 1422726897.735,
+   "relError": 1.8629025682866078e-10,
+   "solveMs": 237.3
+  },
+  {
+   "id": "kd",
+   "nBlocks": 14153,
+   "published": 652195037,
+   "ours": 652195036.915,
+   "relError": 1.304997057408205e-10,
+   "solveMs": 259.3
+  }
+ ],
+ "shell_case": "Porphyry copper (disseminated shell)",
+ "curve": [
+  {
+   "rf": 0.083,
+   "pitValue": 0,
+   "oreTonnes": 0,
+   "wasteTonnes": 0,
+   "stripRatio": 0,
+   "nBlocks": 0
+  },
+  {
+   "rf": 0.167,
+   "pitValue": 31607648,
+   "oreTonnes": 4546800,
+   "wasteTonnes": 4549500,
+   "stripRatio": 1.001,
+   "nBlocks": 3369
+  },
+  {
+   "rf": 0.25,
+   "pitValue": 82656773,
+   "oreTonnes": 5740200,
+   "wasteTonnes": 4706100,
+   "stripRatio": 0.82,
+   "nBlocks": 3869
+  },
+  {
+   "rf": 0.333,
+   "pitValue": 137848168,
+   "oreTonnes": 6555600,
+   "wasteTonnes": 4681800,
+   "stripRatio": 0.714,
+   "nBlocks": 4162
+  },
+  {
+   "rf": 0.417,
+   "pitValue": 195199680,
+   "oreTonnes": 7068600,
+   "wasteTonnes": 4673700,
+   "stripRatio": 0.661,
+   "nBlocks": 4349
+  },
+  {
+   "rf": 0.5,
+   "pitValue": 252864404,
+   "oreTonnes": 7319700,
+   "wasteTonnes": 4687200,
+   "stripRatio": 0.64,
+   "nBlocks": 4447
+  },
+  {
+   "rf": 0.583,
+   "pitValue": 310945745,
+   "oreTonnes": 7541100,
+   "wasteTonnes": 4679100,
+   "stripRatio": 0.62,
+   "nBlocks": 4526
+  },
+  {
+   "rf": 0.667,
+   "pitValue": 370028941,
+   "oreTonnes": 7708500,
+   "wasteTonnes": 4635900,
+   "stripRatio": 0.601,
+   "nBlocks": 4572
+  },
+  {
+   "rf": 0.75,
+   "pitValue": 428618354,
+   "oreTonnes": 7846200,
+   "wasteTonnes": 4527900,
+   "stripRatio": 0.577,
+   "nBlocks": 4583
+  },
+  {
+   "rf": 0.833,
+   "pitValue": 487452506,
+   "oreTonnes": 8235000,
+   "wasteTonnes": 4179600,
+   "stripRatio": 0.508,
+   "nBlocks": 4598
+  },
+  {
+   "rf": 0.917,
+   "pitValue": 547465743,
+   "oreTonnes": 8834400,
+   "wasteTonnes": 3685500,
+   "stripRatio": 0.417,
+   "nBlocks": 4637
+  },
+  {
+   "rf": 1,
+   "pitValue": 607311065,
+   "oreTonnes": 9482400,
+   "wasteTonnes": 3148200,
+   "stripRatio": 0.332,
+   "nBlocks": 4678
+  }
+ ],
+ "cpit": {
+  "uplValue": 126908453.7397613,
+  "boundNpv": 104612788.49868713,
+  "schedNpv": 92806606.17904061,
+  "periods": 8
+ }
+}
