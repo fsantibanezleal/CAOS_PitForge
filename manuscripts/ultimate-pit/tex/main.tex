@@ -1,0 +1,218 @@
+\documentclass[journal]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{orcidlink}
+\usepackage{balance}
+
+\graphicspath{{../figures/}}
+
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.80}
+
+\begin{document}
+
+\title{PitForge: Exact Ultimate-Pit Optimization\\ Reproducing the Published MineLib Optima,\\ with Whittle Nested Shells and Scheduling}
+
+\author{Felipe~Santiba\~nez-Leal~\orcidlink{0000-0002-0150-3246}%
+\thanks{F. Santiba\~nez-Leal is with the CAOS open-research programme, Santiago, Chile
+(e-mail: fsantibanez@gmail.com; ORCID 0000-0002-0150-3246).}%
+\thanks{Technical report, 2026. Interactive tool and reproducible pipeline (MIT) at
+\url{https://github.com/fsantibanezleal/CAOS_PitForge}; live at \url{https://pitforge.fasl-work.com}.}}
+
+\markboth{Technical Report, 2026}%
+{Santiba\~nez-Leal: Exact ultimate-pit optimization with nested shells and scheduling}
+
+\maketitle
+
+\begin{abstract}
+The first optimization of open-pit mine design is the ultimate pit limit: given a block model in which each block
+carries a net economic value and a set of slope-precedence constraints, find the set of blocks to extract that
+maximises total value while respecting the slopes. The problem has an exact polynomial solution as the
+maximum-weight closure of the precedence graph, computed as a minimum cut, and PitForge implements it to run
+\emph{live in the browser}: drag the price, revenue factor or slope and the exact pit re-solves instantly.
+This report validates the solver against ground truth and extends it to the two decisions that follow. The
+validation is the strongest kind available: on the three public MineLib instances (newman1, zuck\_small and kd,
+$1000$ to $14000$ blocks), the solver reproduces the \emph{published} optimum to a relative error near
+$10^{-10}$, an exact match, and solves the largest in about a quarter of a second in a browser tab. Beyond the
+single pit, the tool computes the Whittle nested pit shells, the family of optimal pits over an ascending
+revenue-factor schedule, with their value, tonnage and strip-ratio curves that guide phase and pushback design,
+and it solves a constrained production schedule over time, reporting both a certified upper-bound net present
+value and the achievable rounded schedule, and honestly, the $11\%$ optimality gap between them. Every pit value
+is self-checked ($\text{pit value} = \sum\text{positive value} - \text{max flow}$ is asserted on every solve),
+the MineLib instances are fetched per their academic-download terms with only summary numbers committed, and every
+figure regenerates from the committed artifacts.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Open-pit mining, ultimate pit limit, maximum closure, minimum cut, nested pit shells, Whittle, production
+scheduling, MineLib, reproducibility.
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+\IEEEPARstart{T}{he} ultimate pit limit (UPL) is the foundational optimization of open-pit mine design: given a
+three-dimensional block model in which each block has a net value (recoverable metal less mining and processing
+cost) and slope-precedence constraints (a block can be mined only after those above it in the pit wall), which set
+of blocks maximises total value? The problem has an exact, polynomial-time solution, established by Lerchs and
+Grossmann~\cite{lg} and understood through Picard's theorem~\cite{picard} as the maximum-weight closure of the
+precedence graph, which is the source side of a minimum $s$--$t$ cut and hence solvable by any maximum-flow
+algorithm~\cite{fordfulkerson,hochbaum}. This is textbook operations research~\cite{newman}, but three things
+turn the textbook solve into a useful tool: it must be validated against known answers, it must extend to the
+family of nested pits used for phase design, and it must connect to the production schedule.
+
+PitForge does all three, exactly and in the browser. It solves the UPL as a minimum cut, self-checking the value
+identity on every solve, and it re-solves instantly as a user drags the economic parameters. This report
+validates it against the published MineLib benchmark optima~\cite{minelib}, the gold standard for a pit
+optimiser, and reports the two extensions: the Whittle nested pit shells~\cite{whittle}, the optimal pits across an
+ascending revenue factor that give the value-tonnage-strip curves phase design rests on, and a constrained
+production schedule~\cite{chicoisne} with its honest optimality gap. The contribution is not a new algorithm; it
+is an exact, validated, transparent implementation that reproduces the literature and exposes the honest gaps
+where they remain.
+
+\section{The Exact Pit, Validated on MineLib}\label{sec:minelib}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.99\columnwidth]{fig-minelib.pdf}
+\caption{Validation on the public MineLib instances. \textbf{(a)} The solver reproduces the \emph{published}
+optimum of newman1, zuck\_small and kd to a relative error near $10^{-10}$, far below any exact-match threshold.
+\textbf{(b)} The exact solve is fast enough to run interactively in a browser: about $5$~ms for the
+$1060$-block newman1, and about a quarter of a second for the $14153$-block kd.}
+\label{fig:minelib}
+\end{figure}
+
+The ultimate pit is the maximum-weight closed set of the precedence graph, and PitForge computes it by Picard's
+reduction to a minimum cut: a source arc to every positive-value block, a sink arc from every negative block, and
+an infinite-capacity arc for each precedence relation, after which a Dinic maximum flow gives the pit as the
+source-reachable set, with the value identity $\text{pit value} = \sum_{v_b>0} v_b - \text{maxflow}$ asserted on
+every solve so a wrong answer cannot be returned silently. The validation is against the strongest available
+reference (Fig.~\ref{fig:minelib}, Table~\ref{tab:minelib}): the three public MineLib instances, whose optima are
+published. On all three, PitForge's value matches the published optimum to a relative error near $10^{-10}$,
+$9.96\times10^{-10}$ on newman1, $1.86\times10^{-10}$ on zuck\_small, $1.30\times10^{-10}$ on kd, an exact match
+to floating-point precision. And it is fast: the $1060$-block newman1 solves in about $5$~milliseconds, and the
+$14153$-block kd in about $259$~milliseconds, both inside a browser tab, so the exact pit re-solves interactively
+as a user changes the economics. Reproducing the published optima exactly, in the browser, is the validation a pit
+optimiser needs, and it is the foundation the rest of the tool builds on.
+
+\begin{table}[!t]
+\centering
+\caption{PitForge versus the published MineLib optima. The solver matches all three to relative error near
+$10^{-10}$, in milliseconds to a fraction of a second (in-browser, TypeScript Dinic min-cut).}
+\label{tab:minelib}
+\footnotesize
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+Instance & blocks & published optimum & rel. error & solve (ms) \\
+\midrule
+newman1    & $1060$  & $2.6087\times10^{7}$ & $1.0\times10^{-9}$  & $5$ \\
+zuck\_small & $9400$  & $1.4227\times10^{9}$ & $1.9\times10^{-10}$ & $237$ \\
+kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ & $259$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Nested Shells and Scheduling}\label{sec:whittle}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.99\columnwidth]{fig-whittle.pdf}
+\caption{Beyond the single pit. \textbf{(a)} The Whittle nested pit shells: solving the ultimate pit over an
+ascending revenue factor gives a family of nested pits whose value rises and whose strip ratio falls as the pit
+grows, the value-tonnage-strip curves that phase and pushback design read. \textbf{(b)} A constrained production
+schedule over eight discounted periods: the certified upper-bound net present value ($105$M) and the achievable
+rounded schedule ($93$M), whose $11.3\%$ gap is the honest cost of a feasible integer schedule against the
+relaxation bound.}
+\label{fig:whittle}
+\end{figure}
+
+A mine is not designed as one pit but as a sequence, and PitForge computes the two objects that sequence rests on
+(Fig.~\ref{fig:whittle}). The first is the Whittle nested pit shells~\cite{whittle}: solving the ultimate pit over
+an ascending schedule of revenue factors (multiplying the metal price) yields a family of nested optimal pits,
+from a small high-grade core at a low revenue factor to the full pit at a factor of one, and their value, tonnage
+and strip-ratio curves (Fig.~\ref{fig:whittle}a) are exactly what a planner uses to choose phases and pushbacks.
+Because each shell is an exact ultimate-pit solve, the whole family is exact. The second is the production
+schedule: assigning the pit's blocks to time periods under a capacity constraint to maximise discounted value is
+the constrained pit scheduling problem~\cite{chicoisne}, harder than the UPL, and PitForge reports it honestly
+(Fig.~\ref{fig:whittle}b), a certified upper-bound net present value of $105$~million from the relaxation, and an
+achievable rounded schedule of $93$~million, with the $11.3\%$ gap between them stated rather than hidden. That
+gap is the real difficulty of scheduling: the ultimate pit is solved exactly, but turning it into a feasible,
+capacity-limited, time-phased plan leaves an optimality gap that an honest tool reports.
+
+\section{Discussion and Scope}\label{sec:discuss}
+
+PitForge's value is an exact, validated, transparent pit optimiser that does the whole first stage of open-pit
+design in the browser and is honest about where exactness ends. The ultimate pit and the nested shells are solved
+\emph{exactly}, and the MineLib reproduction to relative error $10^{-10}$ is the proof; the schedule is solved to a
+certified bound with the optimality gap reported, because the scheduling problem, unlike the UPL, does not admit a
+cheap exact solve at these sizes. The self-checking value identity means a returned pit value is guaranteed
+consistent, not merely plausible. The scope is stated plainly. The MineLib instances are fetched at runtime under
+their academic-download grant and are not re-hosted; only the summary numbers (the optima and timings) are
+committed. The synthetic cases used for the nested shells and the schedule are physically reasonable block models,
+not a specific deposit, so their numbers illustrate the method rather than predict a mine. And the tool computes
+the pit and the schedule; it does not replace the geological, geotechnical and financial judgement that turns them
+into a mine plan. None of this is hidden; the interface asserts the value identity and states the scheduling gap
+on every solve.
+
+\section{Conclusion}
+
+PitForge solves the open-pit ultimate-pit limit exactly, as a maximum-closure minimum cut, live in the browser,
+and reproduces the three published MineLib optima to relative error near $10^{-10}$, in milliseconds to a quarter
+of a second. It extends the exact solve to the Whittle nested pit shells that guide phase design, and to a
+constrained production schedule whose $11\%$ optimality gap it reports rather than conceals. Reproducing the
+benchmark optima exactly, self-checking every solve, and stating the scheduling gap honestly are the report's
+discipline, and the transparent, reproducible optimiser that does it is its contribution.
+
+\appendices
+\section{Reproduction}\label{app:repro}
+
+The committed artifacts under \texttt{data/derived/} carry the MineLib benchmark (\texttt{minelib-results.json}:
+per-instance published optimum, solved value, relative error and timing), the nested-shell curves per case
+(\texttt{case-results.json}: revenue factor, pit value, tonnage and strip ratio), and the constrained schedule
+(\texttt{cpit-schedule.json}: the certified bound and rounded-schedule net present values). The figure scripts
+under \texttt{manuscripts/ultimate-pit/figures/} read those artifacts; the exact solver is deterministic, so
+re-running reproduces Table~\ref{tab:minelib} and Figs.~\ref{fig:minelib}--\ref{fig:whittle}. The MineLib
+instances themselves are fetched from public mirrors under their academic-download terms and are not committed.
+
+\balance
+
+\begin{thebibliography}{00}
+
+\bibitem{lg} H.~Lerchs and I.~F. Grossmann, ``Optimum design of open-pit mines,'' \emph{Transactions of the
+Canadian Institute of Mining and Metallurgy}, vol.~68, pp.~17--24, 1965.
+
+\bibitem{picard} J.-C. Picard, ``Maximal closure of a graph and applications to combinatorial problems,''
+\emph{Management Science}, vol.~22, no.~11, pp.~1268--1272, 1976. doi:10.1287/mnsc.22.11.1268.
+
+\bibitem{fordfulkerson} L.~R. Ford and D.~R. Fulkerson, ``Maximal flow through a network,'' \emph{Canadian
+Journal of Mathematics}, vol.~8, pp.~399--404, 1956. doi:10.4153/CJM-1956-045-5.
+
+\bibitem{hochbaum} D.~S. Hochbaum, ``The pseudoflow algorithm: A new algorithm for the maximum-flow problem,''
+\emph{Operations Research}, vol.~56, no.~4, pp.~992--1009, 2008. doi:10.1287/opre.1080.0524.
+
+\bibitem{whittle} J.~Whittle, ``Beyond optimization in open pit design,'' in \emph{Proc. Canadian Conf. on
+Computer Applications in the Mineral Industry}, Rotterdam: Balkema, 1988, pp.~331--337.
+
+\bibitem{minelib} D.~Espinoza, M.~Goycoolea, E.~Moreno, and A.~Newman, ``MineLib: A library of open pit mining
+problems,'' \emph{Annals of Operations Research}, vol.~206, no.~1, pp.~93--114, 2013.
+doi:10.1007/s10479-012-1258-3.
+
+\bibitem{chicoisne} R.~Chicoisne, D.~Espinoza, M.~Goycoolea, E.~Moreno, and E.~Rubio, ``A new algorithm for the
+open-pit mine production scheduling problem,'' \emph{Operations Research}, vol.~60, no.~3, pp.~517--528, 2012.
+doi:10.1287/opre.1120.1050.
+
+\bibitem{newman} A.~M. Newman, E.~Rubio, R.~Caro, A.~Weintraub, and K.~Eurek, ``A review of operations research
+in mine planning,'' \emph{Interfaces}, vol.~40, no.~3, pp.~222--245, 2010. doi:10.1287/inte.1090.0492.
+
+\end{thebibliography}
+
+\end{document}
