@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see `pflab.__version__` and
+All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see `pipeline.__version__` and
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
@@ -88,7 +88,7 @@ presence-and-share check passed. The gate now measures the canvas box and sample
 ## [0.09.000], 2026-07-07
 
 ### Added, certified CPIT scheduling slice (beyond the ultimate pit)
-- Offline CPIT LP relaxation (`data-pipeline/pflab/science/cpit.py`): a certified upper bound on the
+- Offline CPIT LP relaxation (`data-pipeline/pipeline/science/cpit.py`): a certified upper bound on the
   discounted NPV of the precedence-constrained production schedule (Bienstock and Zuckerberg 2010,
   doi:10.1007/978-3-642-13036-6_1; Chicoisne et al. 2012, doi:10.1287/opre.1120.1050), solved with
   scipy HiGHS, plus a greedy capacity-constrained integer pushback schedule and its integrality gap.
@@ -132,7 +132,7 @@ presence-and-share check passed. The gate now measures the canvas box and sample
 
 ### Fixed
 - Corrected double-encoded (mojibake) characters in the Spanish nav labels (Introduccion,
-  Metodologia, Implementacion now render with correct accents) and in the pflab package docstring.
+  Metodologia, Implementacion now render with correct accents) and in the pipeline package docstring.
 - In-app version string synced to the release (footer read 0.08.000, one patch behind the tag).
 
 ## [0.08.001], 2026-07-04
@@ -225,7 +225,7 @@ First complete build of PitForge on the CAOS product-repo archetype (ADR-0057).
   TS mirror (`frontend/src/lib/contract.types.ts`) that fails `tsc` on drift.
 - **9 cases by category** (`cases/pit_cases.py`): 4 deposit archetypes, 2 economic scenarios, 2 slope scenarios,
   and the `CTRL` closed-form oracle, mirroring `frontend/src/opt/cases.ts`.
-- **numpy-light pipeline** (`pflab.pipeline`) that reshapes the committed `case-results.json` (baked by the TS solver)
+- **numpy-light pipeline** (`pipeline.pipeline`) that reshapes the committed `case-results.json` (baked by the TS solver)
   into per-case replay traces + manifests; a two-language `--retrain` lane (Node bake → torch train → ONNX).
 - **The frontend SPA**, the 6 standard pages (App · Introduction · Methodology · Implementation · Experiments ·
   Benchmark) on the shared `@fasl-work/caos-app-shell`. The App re-solves the exact pit live as you drag RF / price /
@@ -238,5 +238,5 @@ First complete build of PitForge on the CAOS product-repo archetype (ADR-0057).
   the two-venv split, and the root `README` / `STRUCTURE` / `LICENSES` / `ATTRIBUTION`.
 
 ### Verified running
-ruff clean · pytest 9/9 · `pflab.pipeline all` (9 cases) · CONTRACT 2 OK · byte-identical re-run · npm test 9/9
+ruff clean · pytest 9/9 · `pipeline.pipeline all` (9 cases) · CONTRACT 2 OK · byte-identical re-run · npm test 9/9
 (engine 5 + contract 4) · `npm run build` green.

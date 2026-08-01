@@ -13,8 +13,8 @@ is TypeScript that runs in the browser, so the App re-solves the pit exactly as 
 | Lane | Where | Deps | Notes |
 |---|---|---|---|
 | **Live (client-side)** | `frontend/src/opt/` (the exact min-cut/Whittle solver) + onnxruntime-web | web npm | the interactive core; re-solves on every slider move |
-| **Offline (precompute)** | `pflab/science/`, Node bake of the same TS engine + torch training | `data-pipeline/requirements-precompute.txt` | bakes `case-results.json` + the ONNX |
-| **Replay (light)** | `pflab.pipeline` (numpy) | `data-pipeline/requirements.txt` | reshapes the committed bake → per-case traces + manifests |
+| **Offline (precompute)** | `pipeline/science/`, Node bake of the same TS engine + torch training | `data-pipeline/requirements-precompute.txt` | bakes `case-results.json` + the ONNX |
+| **Replay (light)** | `pipeline.pipeline` (numpy) | `data-pipeline/requirements.txt` | reshapes the committed bake → per-case traces + manifests |
 | **API (backend)** | `app/` (FastAPI) | `requirements-api.txt` | DORMANT; activate only on an ADR-0002 trigger |
 
 A measured **[gate](03_the-gate.md)** records the live-vs-replay verdict per case (at teaching scale every case is

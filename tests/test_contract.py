@@ -2,8 +2,8 @@
 unusual slopes / rich grades are flagged; the committed examples pass."""
 from pathlib import Path
 
-from pflab.io.contract import validate_blocks, validate_records
-from pflab.io.formats import read_csv_rows
+from pipeline.io.contract import validate_blocks, validate_records
+from pipeline.io.formats import read_csv_rows
 
 
 def test_good_scenario_accepted():

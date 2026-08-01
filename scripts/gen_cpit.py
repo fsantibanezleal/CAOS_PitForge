@@ -33,7 +33,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "data-pipeline"))
 
-from pflab.science import cpit  # noqa: E402
+from pipeline.science import cpit  # noqa: E402
 
 # Didactic schedule parameters (a small, honestly reported problem, not a production plan).
 PERIODS = 8

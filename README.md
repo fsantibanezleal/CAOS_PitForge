@@ -54,8 +54,8 @@ synthetic lane).
 
 ```bash
 # light lane (numpy only), rebuild the replay artifacts + run the checks
-python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt -e .
-.venv-pipeline/Scripts/python -m pflab.pipeline all      # 9 cases → traces + manifests
+python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
+.venv-pipeline/Scripts/python data-pipeline/run.py all      # 9 cases → traces + manifests
 .venv-pipeline/Scripts/python scripts/check_artifacts.py # Contract 2 OK
 
 # the SPA (the exact optimiser runs live in the browser)
@@ -64,14 +64,14 @@ npm test                                                 # 34 tests: engine · c
 
 # heavy lane (local only), re-bake + retrain the learned models (torch → ONNX)
 python -m venv .venv-precompute && .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt
-.venv-pipeline/Scripts/python -m pflab.pipeline all --retrain
+.venv-pipeline/Scripts/python data-pipeline/run.py all --retrain
 ```
 
 ## Layout
 
 See [STRUCTURE.md](STRUCTURE.md) and the navigable wiki in [docs/](docs/README.md). The science engine is the
 TypeScript optimiser in [`frontend/src/opt/`](frontend/src/opt/) (it runs in the browser **and** in the offline Node
-bake, no Python re-port); `data-pipeline/pflab/` is the two contracts + the staged pipeline + the lane gate.
+bake, no Python re-port); `data-pipeline/pipeline/` is the two contracts + the staged pipeline + the lane gate.
 
 ## License
 

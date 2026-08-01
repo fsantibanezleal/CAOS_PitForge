@@ -56,7 +56,7 @@ The blocks reachable from `s` in the residual graph (the source side) are precis
 maximum, i.e. the optimal pit. Complementary slackness is what guarantees the reachable set is a valid closure:
 an unsaturated precedence arc cannot cross the cut, so no mined block is missing an overlying block. PitForge
 asserts the value identity `pitValue = Σ positive − maxflow` on **every** solve, in both the browser and the
-offline Python control (Dinic in `data-pipeline/pflab/science/cpit.py`).
+offline Python control (Dinic in `data-pipeline/pipeline/science/cpit.py`).
 
 ### The nested-shell sweep is free (why we claim no learned speedup)
 

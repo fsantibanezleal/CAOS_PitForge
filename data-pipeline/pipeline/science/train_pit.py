@@ -1,7 +1,7 @@
 """HEAVY lane (local-only), train PitForge's two HONEST learned models and export them to ONNX + a metrics JSON.
 Run inside the .venv-precompute (torch) after gen_train.mjs has written data/raw/{pit-train,grade-train}.json:
 
-    python data-pipeline/pflab/science/train_pit.py
+    python data-pipeline/pipeline/science/train_pit.py
 
 1. grade-nn     , a small MLP grade estimator (masked 3×3×3 stencil → centre grade), benchmarked vs IDW and Ordinary
                    Kriging (cross-validated R² on a held-out spatial split). Honest claim: competitive with geostatistics.
