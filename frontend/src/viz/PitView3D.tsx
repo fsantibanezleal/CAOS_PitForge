@@ -27,7 +27,10 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     if (!el) return;
     const { nx, ny, nz } = model.dims;
     const W = el.clientWidth || 640;
-    const H = height;
+    // height = 0 means FILL THE PARENT (the ADR-0070 focus stage). Passing 0 straight through gave the
+    // renderer a zero-height viewport: the canvas existed, the scene was built, and nothing was ever
+    // visible. Every predicate-style check still passed, which is why this is measured by pixels now.
+    const H = height > 0 ? height : Math.max(1, ref.current?.clientHeight ?? 0);
     const cs = getComputedStyle(document.documentElement);
     const bg = cs.getPropertyValue('--color-bg').trim() || '#0d1117';
 
@@ -130,16 +133,22 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     renderer.domElement.addEventListener('webglcontextrestored', onRestored);
     kick(200); // first paint
 
+    // Track the parent's HEIGHT as well as its width. With height = 0 (the ADR-0070 focus stage) the
+    // parent lays out after mount, so a canvas sized on the first frame keeps a height of 0 forever:
+    // the scene builds, the canvas exists, and nothing is ever visible.
     const ro = new ResizeObserver(() => {
       const w = el.clientWidth || W;
-      renderer.setSize(w, H);
-      camera.aspect = w / H;
+      const h = height > 0 ? H : Math.max(1, el.clientHeight || H);
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
       kick(100);
     });
     ro.observe(el);
 
+
     return () => {
+      ro.disconnect();
       cancelAnimationFrame(raf);
       document.removeEventListener('visibilitychange', onVis);
       renderer.domElement.removeEventListener('webglcontextrestored', onRestored);
@@ -152,5 +161,8 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     };
   }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present]);
 
-  return <div className="pf-3d" ref={ref} style={{ width: '100%', height, borderRadius: 10, overflow: 'hidden' }} />;
+  return <div className="pf-3d" ref={ref}
+    style={height > 0
+      ? { width: '100%', height, borderRadius: 10, overflow: 'hidden' }
+      : { width: '100%', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }} />;
 }
