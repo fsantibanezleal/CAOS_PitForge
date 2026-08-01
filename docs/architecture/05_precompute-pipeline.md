@@ -4,7 +4,7 @@ PitForge’s offline lane is **two-language** (like ChancaDEM / DispatchLab): th
 engine the browser runs, driven from Node via `tsx`; Python only orchestrates + reshapes. This avoids ever
 re-implementing the optimiser in Python.
 
-## The named stages (`pflab/stages/`)
+## The named stages (`pipeline/stages/`)
 
 | Stage | What (heavy lane) |
 |---|---|
@@ -15,11 +15,11 @@ re-implementing the optimiser in Python.
 | `evaluate` | the held-out learned-model metrics vs their classical baselines |
 | `export` | build the compact per-case trace + manifest (Contract 2), the light, numpy-only step |
 
-## The two lanes of `pflab.pipeline`
+## The two lanes of `pipeline.pipeline`
 
 ```bash
-python -m pflab.pipeline all              # light (numpy): reshape the committed case-results.json → traces + manifests
-python -m pflab.pipeline all --retrain    # heavy: bake → gen_train → train_pit, then reshape
+python data-pipeline/run.py all              # light (numpy): reshape the committed case-results.json → traces + manifests
+python data-pipeline/run.py all --retrain    # heavy: bake → gen_train → train_pit, then reshape
 ```
 
 The **default is light**: the committed `data/derived/case-results.json` + `pit-learned.json` + the two `.onnx` are

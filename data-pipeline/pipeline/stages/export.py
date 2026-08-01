@@ -2,7 +2,7 @@
 (case-results.json, baked by the SAME TS optimiser the browser runs) + the learned-model metrics (pit-learned.json,
 when trained), run the lane gate, and write the manifest. No torch/node, so the contract + replay regenerate
 deterministically anywhere, and CI stays fast. The HEAVY export (baking case-results.json + training the ONNX) is done
-by the preserved science (pflab/science/bake_cases.mjs + train_pit.py), invoked by pipeline.retrain."""
+by the preserved science (pipeline/science/bake_cases.mjs + train_pit.py), invoked by pipeline.retrain."""
 from __future__ import annotations
 
 from pathlib import Path

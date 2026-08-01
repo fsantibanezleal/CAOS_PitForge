@@ -51,7 +51,7 @@ export default function Implementation() {
               <pre className="codeblock">{`# light .venv-pipeline (numpy only)
 ruff check data-pipeline tests          # clean
 pytest                                  # 9 passed
-python -m pflab.pipeline all            # 9 cases → traces + manifests
+python -m pipeline.pipeline all            # 9 cases → traces + manifests
 python scripts/check_artifacts.py       # Contract 2 OK
 # byte-identical re-run → deterministic
 cd frontend && npm test                 # 34 passed (engine · contracts · MineLib · infill)

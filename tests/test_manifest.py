@@ -2,7 +2,7 @@
 consistent with the gate, and the schema is the PitForge one. Uses the committed case-results.json (no torch/node)."""
 import json
 
-from pflab import pipeline
+from pipeline import pipeline
 
 
 def test_manifest_matches_artifact_and_gate():

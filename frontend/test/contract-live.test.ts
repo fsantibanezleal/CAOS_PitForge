@@ -1,5 +1,5 @@
 // Drift guard for the LIVE CONTRACT-1 port (lib/contractLive.ts) against the Python rule set
-// (data-pipeline/pflab/io/contract.py::validate_blocks + tests/test_contract.py). Same fixtures,
+// (data-pipeline/pipeline/io/contract.py::validate_blocks + tests/test_contract.py). Same fixtures,
 // same expected accept/reject/flag outcomes, plus the committed example file itself.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

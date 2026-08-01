@@ -1,5 +1,5 @@
 // Didactic CPIT pushback schedule, the LIVE in-browser scheduling lane (the certified LP bound is computed
-// offline, see data-pipeline/pflab/science/cpit.py + data/derived/cpit-schedule.json).
+// offline, see data-pipeline/pipeline/science/cpit.py + data/derived/cpit-schedule.json).
 //
 // The static ultimate pit the browser solves exactly is the UNDISCOUNTED, UNCAPACITATED limit of a schedule.
 // This adds the scheduling dimension: a time index, a per-period tonnage capacity, and discounting -> a
