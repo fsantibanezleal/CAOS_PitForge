@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { Tabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useShellLang } from '@fasl-work/caos-app-shell';
 import { CASES, caseModel, type PitCase } from '../opt/cases.ts';
 import { blockValue, defaultRevenueFactors, isOre, nestedPitShells, solveUltimatePit } from '../opt/index.ts';
 import { idx, type EconParams } from '../opt/types.ts';
@@ -31,6 +32,21 @@ const CAT_TABS = [
   { cat: 'oracle control (closed-form check)', en: 'oracle', es: 'oráculo' },
 ];
 
+
+/** ADR-0071 rules 4+5. Eleven flat sibling tabs is a list, not an architecture. Measured on the deployed
+ *  app at 1280x800 the row needed 1329px of a 918px container: 'Surrogate' and 'Bring your own' sat
+ *  entirely beyond the window and a real pointer click could not land on them, while `.app-shell`'s
+ *  `overflow: hidden` meant no gesture brought them back. Grouped by the question being asked; the
+ *  sub-views are revealed from the same tab. */
+const TAB_GROUPS: { id: string; en: string; es: string; members: string[] }[] = [
+  { id: 'pit',      en: 'Pit',        es: 'Rajo',      members: ['pit3d', 'section', 'summary'] },
+  { id: 'shells',   en: 'Shells',     es: 'Shells',    members: ['whittle', 'pushback'] },
+  { id: 'deposit',  en: 'Deposit',    es: 'Yacimiento',members: ['gt', 'hist'] },
+  { id: 'schedule', en: 'Schedule',   es: 'Programa',  members: ['schedule'] },
+  { id: 'learned',  en: 'Learned',    es: 'Aprendido', members: ['infill', 'surrogate'] },
+  { id: 'byo',      en: 'Your model', es: 'Modelo propio', members: ['byo'] },
+];
+
 export default function Tool() {
   const lang = useShellLang();
   const es = lang === 'es';
@@ -39,6 +55,9 @@ export default function Tool() {
   // the instance publishes explicit precedence + net values (re-deriving them would break
   // comparability with the published optimum).
   const [source, setSource] = useState<'synthetic' | 'real'>('synthetic');
+  const [activeTab, setActiveTab] = useState('pit3d');
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [caseId, setCaseId] = useState('A01');
   const [realId, setRealId] = useState(REAL_CASES[0].id);
   const [priceMul, setPriceMul] = useState(1);
@@ -266,6 +285,14 @@ export default function Tool() {
   return (
     <div className="page-body pf-layout">
       <aside className="pf-side">
+        {/* ADR-0070 entry: without a visible control the focus route is an orphan that passes route
+            tests and no user ever reaches. It carries the SELECTED deposit. */}
+        <Link className="pf-focus-enter" to={`/focus/${caseId}`}>
+          <span className="pf-focus-enter-t">{es ? 'Modo enfoque' : 'Focus mode'}</span>
+          <span className="pf-focus-enter-d">
+            {es ? 'Abrir este yacimiento a pantalla completa' : 'Open this deposit full screen'}
+          </span>
+        </Link>
         <div className="pf-card">
           <div className="pf-card-t">{es ? 'Fuente' : 'Source'}</div>
           <div className="pf-chips">
@@ -369,7 +396,50 @@ export default function Tool() {
       <main className="pf-main">
         {real
           ? <RealCasePanel rc={realCase} es={es} />
-          : <Tabs tabs={tabs.map((t) => ({ ...t, content: <PanelBoundary key={`${caseId}-${t.id}`} lang={es ? 'es' : 'en'}>{t.content}</PanelBoundary> }))} ariaLabel={es ? 'vistas del pit' : 'pit views'} />}
+          : (
+            <div className="pf-tabs">
+              <div className="pf-tabrow" role="tablist" aria-label={es ? 'vistas del pit' : 'pit views'}>
+                {TAB_GROUPS.filter((g) => tabs.some((x) => g.members.includes(x.id))).map((g) => {
+                  const mine = tabs.filter((x) => g.members.includes(x.id));
+                  const activeHere = mine.some((x) => x.id === activeTab);
+                  const shown = activeHere ? mine.find((x) => x.id === activeTab)! : mine[0];
+                  const multi = mine.length > 1;
+                  return (
+                    <div key={g.id} className="pf-tabwrap"
+                         onPointerEnter={() => { if (multi) { if (closeTimer.current) clearTimeout(closeTimer.current); setOpenMenu(g.id); } }}
+                         onPointerLeave={() => {
+                           if (closeTimer.current) clearTimeout(closeTimer.current);
+                           closeTimer.current = setTimeout(() => setOpenMenu((m) => (m === g.id ? null : m)), 240);
+                         }}>
+                      <button role="tab" aria-selected={activeHere}
+                              className={`pf-tab ${activeHere ? 'on' : ''}`}
+                              onClick={() => {
+                                if (!multi) { setActiveTab(mine[0].id); setOpenMenu(null); return; }
+                                setOpenMenu(openMenu === g.id ? null : g.id);
+                                if (!activeHere) setActiveTab(shown.id);
+                              }}>
+                        {activeHere ? shown.label : (es ? g.es : g.en)}{multi ? <span className="pf-caret">v</span> : null}
+                      </button>
+                      {multi && openMenu === g.id && (
+                        <div className="pf-tabmenu" role="menu">
+                          {mine.map((x) => (
+                            <button key={x.id} role="menuitem" className={x.id === activeTab ? 'on' : ''}
+                                    onClick={() => { setActiveTab(x.id); setOpenMenu(null); }}>{x.label}</button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="pf-tabpanel">
+                {(() => {
+                  const cur = tabs.find((x) => x.id === activeTab) ?? tabs[0];
+                  return cur ? <PanelBoundary key={`${caseId}-${cur.id}`} lang={es ? 'es' : 'en'}>{cur.content}</PanelBoundary> : null;
+                })()}
+              </div>
+            </div>
+          )}
       </main>
     </div>
   );

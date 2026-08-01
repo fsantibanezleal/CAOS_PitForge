@@ -4,6 +4,36 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## [0.12.000] · 2026-07-31
+
+### Fixed - three routes hid more than half a page with no way to reach it
+
+The ADR-0071 floor put `height: 100dvh; overflow: hidden` on the WHOLE shell while the only inner scroll it
+provided was `.pf-tabpanel`, a class no TSX used. Measured on production at 1600x900: `/experiments` hid
+1055px of 1955px (54% of the page), `/benchmark` hid 749px including the MineLib reproduction table that is
+this product's headline evidence, `/methodology` hid 328px. Mouse wheel and the End key both left `scrollY`
+at 0. Fixed at source in `tools/ui-floor/apply_ui_floor.py` (now v2) and back-ported to every product the
+v1 floor had touched.
+
+### Fixed - two of eleven tabs could not be clicked
+
+At 1280x800 the tab row needed 1329px of a 918px container. `Surrogate · preview` and `Bring your own` sat
+entirely beyond the window, and with `overflow: hidden` on the shell no gesture brought them back; a real
+pointer click could reach tabs 0-8 and not 9-10. The eleven views are now SIX groups on one 45px row
+(Pit, Shells, Deposit, Schedule, Learned, Your model), sub-views revealed on hover from the same tab.
+
+### Added - ADR-0070 focus mode
+
+A full-viewport view of the SELECTED deposit, re-solving the pit EXACTLY on every control change with the
+same Lerchs-Grossmann min-cut the App runs, not a cheaper approximation. Stage at 80% of the viewport, the
+economic state named in one plain sentence (bands over `PitResult.stripRatio`, described as descriptive and
+not as a published cut-off), KPIs as a HUD, price / revenue-factor / slope in the rail, visible return, and
+an entry control in the App rail carrying the selected case.
+
+`PitView3D` now fills its parent when asked to. Passing `height={0}` straight through gave the renderer a
+zero-height viewport: the scene built, the canvas existed and nothing was ever visible, while every
+presence-and-share check passed. The gate now measures the canvas box and samples its pixels.
+
 ## [0.11.000] · 2026-07-30
 
 ### Fixed
