@@ -1,7 +1,7 @@
 // Generate the learned-model training tables by running the SAME TypeScript engine the browser runs, so the learned
 // models are trained on EXACTLY the deposits + the EXACT-solver labels the App shows. Writes to data/raw/ (git-ignored,
 // regenerable). Invoked by pipeline.retrain before train_pit.py. Run:
-//   node --import tsx data-pipeline/pflab/science/gen_train.mjs
+//   node --import tsx data-pipeline/pipeline/science/gen_train.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
