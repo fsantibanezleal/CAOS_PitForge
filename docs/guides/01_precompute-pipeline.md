@@ -7,8 +7,8 @@ lane. You run the **heavy** lane when you change the engine, the cases, or want 
 
 ```bash
 python -m venv .venv-pipeline
-.venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt -e .
-.venv-pipeline/Scripts/python -m pflab.pipeline all        # reshape case-results.json → traces + manifests
+.venv-pipeline/Scripts/pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
+.venv-pipeline/Scripts/python data-pipeline/run.py all        # reshape case-results.json → traces + manifests
 .venv-pipeline/Scripts/python scripts/check_artifacts.py   # Contract 2 OK
 ```
 
@@ -20,7 +20,7 @@ This is what CI and `deploy-pages` run, it is fast and deterministic (a re-run i
 python -m venv .venv-precompute
 .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt   # numpy + torch + onnx
 # Node + tsx must be available (cd frontend && npm ci) for the bake/gen_train steps
-.venv-pipeline/Scripts/python -m pflab.pipeline all --retrain
+.venv-pipeline/Scripts/python data-pipeline/run.py all --retrain
 ```
 
 `--retrain` runs, in order: `bake_cases.mjs` (the exact UPL + Whittle shells over every case → `case-results.json`),

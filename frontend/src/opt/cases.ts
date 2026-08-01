@@ -1,4 +1,4 @@
-// The canonical case set, shared by the offline bake (data-pipeline/pflab/science/bake_cases.mjs) and the SPA. Cases
+// The canonical case set, shared by the offline bake (data-pipeline/pipeline/science/bake_cases.mjs) and the SPA. Cases
 // are grouped by CATEGORY (deposit archetype / economic scenario / slope-geotech / oracle control). The App shows ONE
 // selected case; Experiments/Benchmark show cross-case summaries. All deposits are SYNTHETIC (seeded), stated openly;
 // CTRL is the closed-form ORACLE (a single deep ore block under a 45° slope → the exact 9-block inverted pyramid).

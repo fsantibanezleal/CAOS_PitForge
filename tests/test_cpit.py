@@ -17,7 +17,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from pflab.science import cpit
+from pipeline.science import cpit
 
 
 # --------------------------------------------------------------------------------------------------------

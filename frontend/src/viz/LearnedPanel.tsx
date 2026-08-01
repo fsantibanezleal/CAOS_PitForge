@@ -90,7 +90,7 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
     return (
       <div className="pf-pending">
         <strong>{es ? 'Surrogate: pendiente de entrenamiento' : 'Surrogate: pending training'}</strong>
-        <p>{es ? 'Ejecutar `python -m pflab.pipeline all --retrain` para entrenarlo (torch → ONNX).' : 'Run `python -m pflab.pipeline all --retrain` to train it (torch → ONNX).'}</p>
+        <p>{es ? 'Ejecutar `python -m pipeline.pipeline all --retrain` para entrenarlo (torch → ONNX).' : 'Run `python -m pipeline.pipeline all --retrain` to train it (torch → ONNX).'}</p>
       </div>
     );
   }

@@ -11,7 +11,7 @@ CAOS_PitForge/
 ├─ requirements.txt (dormant API) · requirements-dev.txt · data-pipeline/requirements*.txt
 ├─ scripts/            setup · precompute · smoke · dev (.sh + .ps1)
 ├─ data-pipeline/
-│  └─ pflab/                          # the two contracts + the staged pipeline (the optimiser itself is TS, below)
+│  └─ pipeline/                          # the two contracts + the staged pipeline (the optimiser itself is TS, below)
 │     ├─ __init__.py (version) · pipeline.py (orchestrator+CLI, numpy-light + --retrain) · registry.py
 │     ├─ io/     contract.py (CONTRACT 1: scenario + block-model ingestion + outliers) · schema.py · formats.py
 │     ├─ core/   gate.py (live/precompute gate) · trace.py + manifest.py (CONTRACT 2) · rng.py
@@ -41,6 +41,6 @@ CAOS_PitForge/
 | Lane | Where | Deps |
 |---|---|---|
 | **Live (client)** | `frontend/src/opt/` (the exact optimiser) + onnxruntime-web | web npm |
-| **Offline (precompute)** | `pflab/science/` (Node bake of the TS engine + torch training) | `requirements-precompute.txt` |
-| **Replay (light)** | `pflab.pipeline` reshapes the committed bake → traces/manifests | `data-pipeline/requirements.txt` (numpy) |
+| **Offline (precompute)** | `pipeline/science/` (Node bake of the TS engine + torch training) | `requirements-precompute.txt` |
+| **Replay (light)** | `pipeline.pipeline` reshapes the committed bake → traces/manifests | `data-pipeline/requirements.txt` (numpy) |
 | **API** | `app/` | dormant |

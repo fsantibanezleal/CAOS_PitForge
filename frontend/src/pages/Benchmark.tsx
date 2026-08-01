@@ -122,7 +122,7 @@ export default function Benchmark() {
         </>
       ) : (
         <Callout variant="honest" title={es ? 'Modelos no entrenados' : 'Models not trained'}>
-          {es ? 'Ejecutar `python -m pflab.pipeline all --retrain` para entrenarlos.' : 'Run `python -m pflab.pipeline all --retrain` to train them.'}
+          {es ? 'Ejecutar `python -m pipeline.pipeline all --retrain` para entrenarlos.' : 'Run `python -m pipeline.pipeline all --retrain` to train them.'}
         </Callout>
       )}
     </article>

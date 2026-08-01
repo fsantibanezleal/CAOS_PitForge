@@ -1,6 +1,6 @@
 # Cases + categories
 
-Each case (`data-pipeline/pflab/cases/pit_cases.py`, mirrored in `frontend/src/opt/cases.ts`) declares a
+Each case (`data-pipeline/pipeline/cases/pit_cases.py`, mirrored in `frontend/src/opt/cases.ts`) declares a
 **category**, its parameters, an **expected band** (what a domain reader should see), a **validation anchor** (a
 property the result must satisfy, checked in `frontend/test/contract.test.ts`), and a real|synthetic flag. The **App
 shows one selected case**; **Experiments/Benchmark show cross-case summaries** (never mixed into the App).
