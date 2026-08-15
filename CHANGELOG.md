@@ -6,6 +6,17 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ## Unreleased
 
+## [0.13.000] · 2026-08-15
+
+### Added
+
+- Added an independent, closure-specialised implementation of Hochbaum's normalised-tree pseudoflow phase one
+  beside the live Dinic rung. Deterministic DAG controls, three synthetic twins, and three MineLib instances agree
+  on exact value and block membership; MineLib artifacts publish both median timings and pseudoflow work counters.
+- Added paused-by-default nested-shell evolution in the 3-D and section views. Twelve exact pits are computed before
+  playback; play, pause, step, chart-pick, and range controls change only the shell index, and playback stops when
+  the browser tab is hidden.
+
 ### Changed
 
 - Replaced the constructed single-resource `newman1` scheduling example with the published `newman1.cpit`
@@ -28,10 +39,10 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ### Verification
 
-- Added a 13-contract Playwright and axe-core suite covering six workbench viewports including 200% responsive
+- Added a 14-contract Playwright and axe-core suite covering six workbench viewports including 200% responsive
   zoom equivalence, short-phone focus mode, keyboard navigation, both color themes, locale synchronization,
-  content reachability, horizontal overflow, WebGL degradation, artifact failure, and long prose routes. CI
-  installs Chromium and runs the same browser suite.
+  content reachability, horizontal overflow, WebGL degradation, artifact failure, long prose routes, and shell
+  playback that halts when hidden. CI installs Chromium and runs the same browser suite.
 - Documented the binding responsive, accessibility, runtime-asset, degraded-capability, and browser-test contract
   in `docs/architecture/09_production-ui.md`.
 

@@ -40,7 +40,7 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
-  version: '0.12.000',
+  version: '0.13.000',
   architecture,
   // ADR-0016 §2: honest footer provenance + disclaimer.
   footer: {

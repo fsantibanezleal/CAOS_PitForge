@@ -6,4 +6,4 @@ default pipeline is numpy-light: it reshapes the committed case-results.json (ba
 replay traces + manifests. `--retrain` regenerates the learned models (torch to ONNX), see data-pipeline/pipeline/science/.
 """
 
-__version__ = "0.12.000"
+__version__ = "0.13.000"

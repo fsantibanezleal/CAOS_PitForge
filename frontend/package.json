@@ -1,7 +1,7 @@
 {
   "name": "pitforge-frontend",
   "private": true,
-  "version": "0.12.000",
+  "version": "0.13.000",
   "description": "Exact ultimate-pit, nested-shell, and certified CPIT research workbench",
   "homepage": "https://pitforge.fasl-work.com",
   "repository": "github:fsantibanezleal/CAOS_PitForge",
