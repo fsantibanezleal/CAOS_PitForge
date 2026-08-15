@@ -21,5 +21,20 @@ function spaFallback(): Plugin {
 export default defineConfig({
   base: '/',
   plugins: [react(), spaFallback()],
-  build: { target: 'es2022', outDir: 'dist', sourcemap: false },
+  build: {
+    target: 'es2022',
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('/uplot/')) return 'charts';
+          if (id.includes('/katex/') || id.includes('@fasl-work/caos-app-shell')) return 'shell';
+          if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router') || id.includes('/zustand/')) return 'react';
+          return undefined;
+        },
+      },
+    },
+  },
 });

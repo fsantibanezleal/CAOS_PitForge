@@ -1,15 +1,33 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { viridis } from './colormap.ts';
 import type { BlockModel } from '../opt/types.ts';
 import { idx } from '../opt/types.ts';
 
+export function hasWebGLSupport(createCanvas: () => HTMLCanvasElement = () => document.createElement('canvas')): boolean {
+  try {
+    const canvas = createCanvas();
+    const context = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return context !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function pitViewport(width: number, containerHeight: number, requestedHeight: number) {
+  return {
+    width: Math.max(1, width || 640),
+    height: requestedHeight > 0 ? requestedHeight : Math.max(1, containerHeight),
+  };
+}
+
 /** Genuinely-3D ultimate-pit viewer. The orebody is drawn as voxels coloured by grade (viridis); the blocks the
  * optimiser extracts (the pit) are shown solid, the rest faded, so the pit grows/shrinks as the revenue factor /
  * price / slope change. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
  * InstancedMesh so the whole ~7 000-block model renders in one draw call. */
-export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present }: {
+export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present, es = false }: {
   model: BlockModel;
   inPit: Uint8Array;
   gradeMax: number;
@@ -19,25 +37,36 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
   nShells?: number;
   /** sparse published models: 1 where a block exists; absent cells are never drawn. */
   present?: Uint8Array;
+  es?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const supported = useMemo(() => hasWebGLSupport(), [attempt]);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !supported || failure) return;
     const { nx, ny, nz } = model.dims;
-    const W = el.clientWidth || 640;
+    const viewport = pitViewport(el.clientWidth, el.clientHeight, height);
+    const W = viewport.width;
     // height = 0 means FILL THE PARENT (the ADR-0070 focus stage). Passing 0 straight through gave the
     // renderer a zero-height viewport: the canvas existed, the scene was built, and nothing was ever
     // visible. Every predicate-style check still passed, which is why this is measured by pixels now.
-    const H = height > 0 ? height : Math.max(1, ref.current?.clientHeight ?? 0);
+    const H = viewport.height;
     const cs = getComputedStyle(document.documentElement);
     const bg = cs.getPropertyValue('--color-bg').trim() || '#0d1117';
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(bg);
     const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+    } catch (error) {
+      setFailure(error instanceof Error ? error.message : String(error));
+      return;
+    }
     renderer.setPixelRatio(window.devicePixelRatio || 1);
     renderer.setSize(W, H);
     el.appendChild(renderer.domElement);
@@ -130,6 +159,11 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
     const onVis = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else kick(200); };
     document.addEventListener('visibilitychange', onVis);
     const onRestored = () => kick(200);
+    const onLost = (event: Event) => {
+      event.preventDefault();
+      setFailure(es ? 'El contexto WebGL se perdió.' : 'The WebGL context was lost.');
+    };
+    renderer.domElement.addEventListener('webglcontextlost', onLost);
     renderer.domElement.addEventListener('webglcontextrestored', onRestored);
     kick(200); // first paint
 
@@ -151,17 +185,35 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       ro.disconnect();
       cancelAnimationFrame(raf);
       document.removeEventListener('visibilitychange', onVis);
+      renderer.domElement.removeEventListener('webglcontextlost', onLost);
       renderer.domElement.removeEventListener('webglcontextrestored', onRestored);
-      ro.disconnect();
       controls.dispose();
       geo.dispose();
       mesh.material.dispose();
       renderer.dispose();
-      el.removeChild(renderer.domElement);
+      if (renderer.domElement.parentElement === el) el.removeChild(renderer.domElement);
     };
-  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present]);
+  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present, supported, failure, attempt, es]);
 
-  return <div className="pf-3d" ref={ref}
+  if (!supported || failure) {
+    return (
+      <div className="pf-status" data-kind="empty" role="status">
+        <strong>{es ? 'Vista 3D no disponible' : '3D view unavailable'}</strong>
+        <p>{es
+          ? 'El resto del análisis sigue disponible. Use Sección o Resumen, o reintente después de habilitar WebGL/aceleración gráfica.'
+          : 'The rest of the analysis remains available. Use Section or Summary, or retry after enabling WebGL/hardware acceleration.'}</p>
+        {failure && <p className="pf-cap pf-muted">{failure}</p>}
+        <div className="pf-status-actions">
+          <button className="chip" onClick={() => { setFailure(null); setAttempt((value) => value + 1); }}>
+            {es ? 'Reintentar 3D' : 'Retry 3D'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <div key={attempt} className="pf-3d" ref={ref} role="img"
+    aria-label={es ? 'Rajo tridimensional interactivo' : 'Interactive three-dimensional pit'}
     style={height > 0
       ? { width: '100%', height, borderRadius: 10, overflow: 'hidden' }
       : { width: '100%', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }} />;

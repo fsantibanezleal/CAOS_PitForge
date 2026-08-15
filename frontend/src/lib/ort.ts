@@ -1,14 +1,13 @@
 // Live in-browser inference of the two learned models (onnxruntime-web). GRACEFUL: until the models are trained
 // (science/train_pit.py → grade-nn.onnx + pit-surrogate.onnx), the files are absent; loaders resolve to null and the
-// UI shows the honest "pending training" state instead of throwing. The npm package and the CDN wasmPaths are pinned
-// to the SAME version (a skew is the classic load-failure trap). WASM EP, single-threaded (GitHub Pages has no
+// UI shows the honest "pending training" state instead of throwing. The npm package and the same-origin WASM assets
+// are copied from the SAME installed version at build time (a skew is the classic load-failure trap). WASM EP, single-threaded (GitHub Pages has no
 // COOP/COEP for threaded WASM).
-import * as ort from 'onnxruntime-web';
-
-ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/';
-ort.env.wasm.numThreads = 1;
+import * as ort from 'onnxruntime-web/wasm';
 
 const base = () => import.meta.env.BASE_URL || '/';
+ort.env.wasm.wasmPaths = `${base()}ort-runtime/`;
+ort.env.wasm.numThreads = 1;
 const sessions: Record<string, Promise<ort.InferenceSession | null>> = {};
 
 function get(file: string): Promise<ort.InferenceSession | null> {

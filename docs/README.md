@@ -9,6 +9,8 @@ optimiser running live in the browser. Instantiated on the CAOS product-repo arc
   the learned models (torch → ONNX).
 - **[Cases](cases.md)**, the 9 cases by category + their validation anchors.
 - **[Guides](guides.md)**, instantiate, run the precompute/retrain lane, bring your own block model.
+- **[Production UI contract](architecture/09_production-ui.md)**, responsive layout, accessible interaction,
+  degraded-capability behavior, browser validation, and same-origin runtime assets.
 
 ## One-paragraph orientation
 

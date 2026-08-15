@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Tabs } from '@fasl-work/caos-app-shell';
-import { peekRealCase, solveRealCase, type RealCase, type RealSolved, type RealSolveState } from '../opt/realCases.ts';
+import { peekRealCase, realCaseName, solveRealCase, type RealCase, type RealSolved, type RealSolveState } from '../opt/realCases.ts';
 import { idx } from '../opt/types.ts';
 import { SectionView, type SectionCell } from './SectionView.tsx';
 import { BarMini } from './BarMini.tsx';
@@ -20,6 +20,7 @@ const optLabel = (rc: RealCase, es: boolean) =>
 export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
   const [state, setState] = useState<RealSolveState>({ status: 'idle' });
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -32,13 +33,13 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
       .then((s) => { if (alive) setState(s); })
       .catch((e) => { if (alive) setState({ status: 'error', instance: rc.id, message: String(e?.message ?? e) }); });
     return () => { alive = false; };
-  }, [rc, confirmed]);
+  }, [rc, confirmed, retry]);
 
   if (state.status === 'solved') return <SolvedTabs rc={rc} s={state} es={es} />;
 
   return (
     <div className="pf-vizstack">
-      <div className="pf-plot-t">{es ? `Instancia real · ${rc.name}` : `Real instance · ${rc.name}`}</div>
+      <div className="pf-plot-t">{es ? `Instancia real · ${realCaseName(rc, es)}` : `Real instance · ${realCaseName(rc, es)}`}</div>
       <div className="pf-kpis">
         <Kpi label={es ? 'bloques' : 'blocks'} value={fInt(rc.nBlocks)} />
         <Kpi label={es ? 'arcos de precedencia' : 'precedence arcs'} value={fInt(rc.nPrecs)} />
@@ -51,14 +52,21 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
           {es ? `▶ descargar + resolver (${fInt(rc.nBlocks)} bloques, ${fInt(rc.nPrecs)} arcos)` : `▶ fetch + solve (${fInt(rc.nBlocks)} blocks, ${fInt(rc.nPrecs)} arcs)`}
         </button>
       )}
-      {state.status === 'fetching' && <p className="pf-note">{es ? 'descargando + resolviendo (min-cut exacto)…' : 'fetching + solving (exact min-cut)…'}</p>}
-      {state.status === 'solving' && <p className="pf-note">{es ? 'resolviendo (min-cut exacto)…' : 'solving (exact min-cut)…'}</p>}
+      {state.status === 'idle' && <div className="pf-status" role="status">{es ? 'Preparando instancia…' : 'Preparing instance…'}</div>}
+      {state.status === 'fetching' && <div className="pf-status" role="status">{es ? 'Descargando y resolviendo (min-cut exacto)…' : 'Fetching and solving (exact min-cut)…'}</div>}
+      {state.status === 'solving' && <div className="pf-status" role="status">{es ? 'Resolviendo (min-cut exacto)…' : 'Solving (exact min-cut)…'}</div>}
       {state.status === 'no-source' && (
-        <p className="pf-note">{es
+        <div className="pf-status" data-kind="empty"><p>{es
           ? 'Sin espejo verificado en tiempo de ejecución para esta instancia todavía: se ejecuta en el carril offline del Benchmark (resultados resumidos vs el óptimo publicado), no en vivo.'
-          : 'No verified runtime mirror for this instance yet: it runs in the offline Benchmark lane (summary results vs the published optimum), not live.'}</p>
+          : 'No verified runtime mirror for this instance yet: it runs in the offline Benchmark lane (summary results vs the published optimum), not live.'}</p></div>
       )}
-      {state.status === 'error' && <p className="pf-note">⚠ {state.message}</p>}
+      {state.status === 'error' && (
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'No se pudo cargar la instancia' : 'The instance could not be loaded'}</strong>
+          <p>{state.message}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={() => setRetry((value) => value + 1)}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
+      )}
       <p className="pf-cap">{es
         ? 'Los archivos MineLib se descargan en tiempo de ejecución a memoria del navegador y nunca se redistribuyen con la app (la licencia sólo permite descarga con fines académicos).'
         : 'MineLib files are fetched at runtime into browser memory and never redistributed with the app (the license only grants download for academic purposes).'}</p>
@@ -142,14 +150,14 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
           <div className="pf-plot-th">
             <div className="pf-plot-t">{es ? 'Pit último exacto sobre la instancia publicada; orbitar para rotar' : 'Exact ultimate pit on the published instance; orbit to rotate'}</div>
             <div className="pf-seg">
-              <button className={`chip ${mode3d === 'pit' ? 'on' : ''}`} onClick={() => setMode3d('pit')}>{es ? 'solo pit' : 'pit only'}</button>
+              <button className={`chip ${mode3d === 'pit' ? 'on' : ''}`} onClick={() => setMode3d('pit')}>{es ? 'sólo rajo' : 'pit only'}</button>
               {gradeAvailable && (
                 <button className={`chip ${mode3d === 'grade' ? 'on' : ''}`} onClick={() => setMode3d('grade')}>{es ? 'orebody (ley)' : 'orebody (grade)'}</button>
               )}
             </div>
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
-            <PitView3D model={model} inPit={s.inPitDense} gradeMax={gradeMax} mode={mode3d} present={present} />
+            <PitView3D model={model} inPit={s.inPitDense} gradeMax={gradeMax} mode={mode3d} present={present} es={es} />
           </Suspense>
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={fInt(s.pitValue)} />
@@ -199,8 +207,12 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? 'Histograma del valor neto publicado por bloque (.upit), negativos = lastre' : 'Published per-block net value histogram (.upit), negatives = waste'}</div>
-          <BarMini values={hist.bins} labels={hist.bins.map(() => '')} unit=""
-                   caption={`${fInt(hist.lo)} … ${fInt(hist.hi)}`} />
+          <BarMini values={hist.bins}
+                   labels={hist.bins.map((_, index) => fInt(hist.lo + ((index + 0.5) / hist.bins.length) * (hist.hi - hist.lo)))}
+                   unit="" caption={`${fInt(hist.lo)} … ${fInt(hist.hi)}`}
+                   ariaLabel={es ? 'Histograma interactivo del valor neto publicado' : 'Interactive published net-value histogram'}
+                   valueLabel={es ? 'cantidad de bloques' : 'block count'}
+                   interactionHint={es ? 'Flechas desplazan, +/− amplían e Inicio restablece.' : 'Arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     },
@@ -211,7 +223,10 @@ function SolvedTabs({ rc, s, es }: { rc: RealCase; s: RealSolved; es: boolean })
           <div className="pf-plot-t">{es
             ? 'Curva ley–tonelaje de las columnas publicadas (unidades de la instancia)'
             : 'Grade–tonnage curve from the published columns (instance units)'}</div>
-          <BarMini values={gt.map((g) => g.tonnes / 1e6)} labels={gt.map((g) => g.cut.toFixed(3))} unit="Mt" />
+          <BarMini values={gt.map((g) => g.tonnes / 1e6)} labels={gt.map((g) => g.cut.toFixed(3))} unit="Mt"
+                   ariaLabel={es ? 'Curva interactiva de ley y tonelaje publicados' : 'Interactive published grade-tonnage curve'}
+                   valueLabel={es ? 'tonelaje sobre corte' : 'tonnage above cutoff'}
+                   interactionHint={es ? 'Flechas desplazan, +/− amplían e Inicio restablece.' : 'Arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     }] : []),

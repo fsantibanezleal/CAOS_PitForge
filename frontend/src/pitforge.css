@@ -1,5 +1,16 @@
 /* PitForge, app-specific styles on top of @fasl-work/caos-app-shell/styles.css (shell design tokens). */
 
+/* The shared shell's faint token is 3.8:1 on its dark surface. PitForge uses faint copy at small
+   sizes in controls, KPIs and provenance, so both theme overrides meet WCAG AA for normal text. */
+html[data-theme="dark"] { --color-fg-faint: #8b96a5; }
+html[data-theme="light"] {
+  --color-fg-faint: #57606a;
+  --color-accent: #0550ae;
+}
+html[data-theme="light"] .site-header { background: var(--color-bg); }
+html[data-theme="light"] .site-header .nav-link.active { color: #033d82; background: #e5f2ff; }
+html[data-theme="light"] .site-header .icon-btn { opacity: 1; }
+
 .pf-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.4rem; align-items: start; }
 @media (max-width: 900px) { .pf-layout { grid-template-columns: 1fr; } }
 .pf-side { display: flex; flex-direction: column; gap: 0.9rem; }
@@ -14,6 +25,9 @@
 .chip { background: var(--color-surface-2, var(--color-surface)); border: 1px solid var(--color-border); color: var(--color-fg-subtle); border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.8rem; cursor: pointer; }
 .chip:hover { color: var(--color-fg); border-color: var(--color-fg-faint); }
 .chip.on { background: var(--color-accent); color: var(--color-accent-fg, #fff); border-color: transparent; font-weight: 600; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 55%, transparent); outline-offset: 2px;
+}
 
 .pf-ctl { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; color: var(--color-fg-subtle); margin-bottom: 0.5rem; }
 .pf-ctl .range { width: 100%; accent-color: var(--color-accent); }
@@ -50,11 +64,8 @@
 .pf-legend span { display: inline-flex; align-items: center; gap: 0.25rem; }
 .pf-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
-/* mini bar charts (grade–tonnage, value histogram) */
+/* interactive grade-tonnage and value-histogram charts */
 .pf-bars { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 0.7rem; }
-.pf-bars-row { display: flex; align-items: flex-end; gap: 2px; height: 180px; }
-.pf-bar { flex: 1; display: flex; align-items: flex-end; height: 100%; }
-.pf-bar i { width: 100%; background: var(--color-accent); border-radius: 2px 2px 0 0; min-height: 1px; }
 
 .pf-section canvas { border: 1px solid var(--color-border); }
 .pf-3d { border: 1px solid var(--color-border); }
@@ -82,6 +93,13 @@
 
 /* uPlot + gauge (shared visual language) */
 .uplot-host { width: 100%; }
+.uplot-host:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 55%, transparent); outline-offset: 3px; border-radius: 6px; }
+.pf-chart-hint { margin: 0.35rem 0 0; font-size: 0.7rem; color: var(--color-fg-faint); }
+.pf-chart-data { margin-top: 0.45rem; font-size: 0.74rem; color: var(--color-fg-subtle); }
+.pf-chart-data summary { cursor: pointer; color: var(--color-accent); }
+.pf-chart-data ul { list-style: none; padding: 0; margin: 0.45rem 0 0; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.25rem 0.65rem; }
+.pf-chart-data li { display: flex; justify-content: space-between; gap: 0.5rem; border-bottom: 1px solid var(--color-border); }
 .gauge-title { font-size: 0.78rem; color: var(--color-fg-faint); margin-bottom: 0.35rem; }
 .gauge-track { position: relative; height: 14px; border-radius: 7px; background: var(--color-surface-2, var(--color-surface)); overflow: hidden; }
 .gauge-zone { position: absolute; top: 0; height: 100%; opacity: 0.6; }
@@ -92,7 +110,7 @@
 .gauge-zones-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 0.25rem; }
 
 /* =============================================================================================
-   ADR-0071 UI FLOOR (applied by tools/ui-floor/apply_ui_floor.py). Measured minimum, not styling.
+   ADR-0071 UI FLOOR v3. Measured reachability and one-scroll-owner contract.
    Every rule is here because its absence was a shipped defect somewhere in this line.
    ============================================================================================= */
 
@@ -102,70 +120,7 @@
 .app-shell { height: 100dvh; min-height: 100dvh; overflow: hidden; }
 .app-shell > .page { flex: 1 1 auto; min-height: 0; display: flex; }
 .page-body.pf-layout { max-width: none; width: 100%; flex: 1 1 auto; min-height: 0;
-  padding: 1rem 1.25rem; align-items: stretch; }
-html, body { overflow-x: hidden; }
-
-/* 2. The prose footer margin (3rem) is dead space in a viewport-filling app: measured as exactly the
-      48px gap users saw between the content and the footer. */
-.app-shell .site-footer { margin-top: 0; }
-
-/* 3. Containment. A flex or grid item defaults to `min-width: auto` and will not shrink below its
-      content, so ONE nowrap row silently sizes the page wider than the screen (measured 1817px on a
-      1600px viewport). Every ancestor of a scrollable row must be allowed to shrink. */
-.page-body.pf-layout > * { min-width: 0; max-width: 100%; }
-.tabs, .tabpanel, .tablist { min-width: 0; max-width: 100%; }
-
-/* 4. Navigation chrome gets ONE row. `flex-wrap: wrap` let 12-to-18 tabs occupy two and three rows,
-      and every extra row is vertical space taken from the instrument on every render, forever.
-      NOTE: the row must NOT carry `overflow-x` if it hosts dropdown menus. In CSS a box cannot keep
-      `overflow-y: visible` when the other axis is anything else, so the declared value computes to
-      `auto` and the row clips its own menu. Group the tabs instead (ADR-0071 rule 5). */
-.tablist { flex-wrap: nowrap !important; }
-.tablist .tab, .tablist button { flex: 0 0 auto; white-space: nowrap; }
-
-/* ADR-0071 rules 4+5: ONE row of tabs; a tab combining several views reveals its list on hover and
-   you choose from the same tab. Two rows of chrome is the thing this replaces. */
-.pf-tabrow { display: flex; flex-wrap: nowrap; gap: 0.3rem; align-items: center; min-width: 0;
-  max-width: 100%; overflow: visible; flex: 0 0 auto;
-  border-bottom: 1px solid var(--color-border); padding-bottom: 0.45rem; margin-bottom: 0.8rem; }
-.pf-tabwrap { position: relative; flex: 0 0 auto; }
-.pf-tab { white-space: nowrap; cursor: pointer; font-size: 0.88rem; font-weight: 600;
-  padding: 0.42rem 0.85rem; border-radius: 8px; border: 1px solid transparent;
-  background: transparent; color: var(--color-fg-subtle); }
-.pf-tab:hover { color: var(--color-accent); }
-.pf-tab.on { color: var(--color-bg); background: var(--color-accent); border-color: var(--color-accent); }
-.pf-caret { margin-left: 0.4rem; font-size: 0.62rem; opacity: 0.75; }
-.pf-tabmenu { position: absolute; top: 100%; left: 0; z-index: 60; min-width: 200px;
-  display: flex; flex-direction: column; gap: 0.15rem; padding: 0.5rem 0.3rem 0.3rem; margin: 0;
-  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0 9px 9px 9px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
-.pf-tabmenu button { text-align: left; white-space: nowrap; cursor: pointer; font-size: 0.82rem;
-  padding: 0.34rem 0.55rem; border-radius: 6px; border: none; background: transparent; color: var(--color-fg-subtle); }
-.pf-tabmenu button:hover { background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-accent); }
-.pf-tabmenu button.on { color: var(--color-accent); font-weight: 700; }
-.pf-tabpanel { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px; }
-
-/* ADR-0070 entry control. Without a visible control in the App the focus route is an orphan: it
-   passes route tests, ships in the CHANGELOG, and no user ever reaches it. */
-.pf-focus-enter { display: block; text-decoration: none; border: 1px solid var(--color-accent);
-  border-radius: 10px; padding: 0.55rem 0.75rem; margin-bottom: 0.9rem;
-  background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
-.pf-focus-enter:hover { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
-.pf-focus-enter-t { display: block; font-size: 0.86rem; font-weight: 700; color: var(--color-accent); }
-.pf-focus-enter-d { display: block; font-size: 0.72rem; color: var(--color-fg-subtle); margin-top: 0.15rem; line-height: 1.4; }
-
-/* =============================================================================================
-   ADR-0071 UI FLOOR v2 (applied by tools/ui-floor/apply_ui_floor.py). Measured minimum, not styling.
-   Every rule is here because its absence was a shipped defect somewhere in this line.
-   ============================================================================================= */
-
-/* 1. The page IS the viewport. The shell caps pages at a 1200px reading measure, correct for prose
-      and wrong for an instrument: it discarded 400px on a 1600px display and over half of a 2560px
-      one, which is why the visualization read as a thumbnail across the whole line. */
-.app-shell { height: 100dvh; min-height: 100dvh; overflow: hidden; }
-.app-shell > .page { flex: 1 1 auto; min-height: 0; display: flex; }
-.page-body.pf-layout { max-width: none; width: 100%; flex: 1 1 auto; min-height: 0;
-  padding: 1rem 1.25rem; align-items: stretch; }
+  padding: 1rem 1.25rem; align-items: start; overflow-y: auto; overscroll-behavior: contain; }
 html, body { overflow-x: hidden; }
 
 /* 1b. THE VIEWPORT LOCK IS FOR THE WORKBENCH ROUTE ONLY.
@@ -201,7 +156,10 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
 /* ADR-0071 rules 4+5: ONE row of tabs; a tab combining several views reveals its list on hover.
    Measured before this: 11 flat tabs needed 1329px of a 918px row at 1280x800, and two of them sat
    entirely outside the window with `overflow: hidden` on the shell, so no gesture reached them. */
-.pf-tabs { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.pf-tabs { min-height: 0; display: flex; flex-direction: column; }
+.pf-tabrow { display: flex; flex-wrap: nowrap; gap: 0.3rem; align-items: center; min-width: 0;
+  max-width: 100%; overflow: visible; flex: 0 0 auto;
+  border-bottom: 1px solid var(--color-border); padding-bottom: 0.45rem; margin-bottom: 0.8rem; }
 .pf-tabwrap { position: relative; flex: 0 0 auto; }
 .pf-tab { white-space: nowrap; cursor: pointer; font-size: 0.88rem; font-weight: 600;
   padding: 0.42rem 0.85rem; border-radius: 8px; border: 1px solid transparent;
@@ -217,6 +175,19 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
   padding: 0.34rem 0.55rem; border-radius: 6px; border: none; background: transparent; color: var(--color-fg-subtle); }
 .pf-tabmenu button:hover { background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-accent); }
 .pf-tabmenu button.on { color: var(--color-accent); font-weight: 700; }
+.pf-tabpanel { min-width: 0; }
+.pf-tabselect { display: none; margin-bottom: 0.8rem; }
+.pf-tabselect label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.76rem; color: var(--color-fg-subtle); }
+.pf-tabselect select { width: 100%; min-height: 44px; border: 1px solid var(--color-border); border-radius: 8px;
+  padding: 0.55rem 0.7rem; background: var(--color-surface); color: var(--color-fg); }
+
+.pf-status { border: 1px solid var(--color-border); border-left: 4px solid var(--color-accent);
+  border-radius: 8px; padding: 0.75rem 0.9rem; background: var(--color-surface); color: var(--color-fg-subtle); }
+.pf-status[data-kind="error"] { border-left-color: var(--color-bad, #f85149); }
+.pf-status[data-kind="empty"] { border-left-color: var(--color-warn, #d29922); }
+.pf-status-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+.pf-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 .pf-focus-enter { display: block; text-decoration: none; border: 1px solid var(--color-accent);
   border-radius: 10px; padding: 0.55rem 0.75rem; margin-bottom: 0.8rem;
@@ -225,10 +196,37 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
 .pf-focus-enter-t { display: block; font-size: 0.86rem; font-weight: 700; color: var(--color-accent); }
 .pf-focus-enter-d { display: block; font-size: 0.72rem; color: var(--color-fg-subtle); margin-top: 0.15rem; line-height: 1.4; }
 
+@media (max-width: 720px) {
+  .page-body.pf-layout { padding: 0.75rem; }
+  .pf-tabrow { display: none; }
+  .pf-tabselect { display: block; }
+  .pf-card, .pf-plot, .pf-bars { border-radius: 8px; }
+  .cmp-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .pf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (pointer: coarse) {
+  .chip, .pf-tab, .pf-tabmenu button { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+  .page-body.pf-layout { padding-block: 0.55rem; }
+  .pf-side { gap: 0.55rem; }
+  .pf-card { padding-block: 0.65rem; }
+}
+
 /* ADR-0070 FOCUS VIEW: stage owns >=80% of the viewport, rail is the only chrome, nothing scrolls the page. */
-.pff { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr 320px;
+.pff { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
   background: var(--color-bg); color: var(--color-fg); overflow: hidden; }
-@media (max-width: 900px) { .pff { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } }
+@media (max-width: 900px) {
+  .pff { grid-template-columns: 1fr; grid-template-rows: minmax(220px, 1fr) minmax(180px, 42dvh); }
+  .pff-rail { border-left: 0; border-top: 1px solid var(--color-border); }
+}
 .pff-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 .pff-stage > div:first-child { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
 .pff-stage > div:first-child > div:first-child { flex: 1 1 auto; min-height: 0; }
@@ -256,7 +254,7 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
 .pff-sub { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.7rem; color: var(--color-fg-subtle); }
 .pff-seg { display: flex; gap: 0.3rem; }
 .pff-seg button { flex: 1 1 0; cursor: pointer; font-size: 0.76rem; font-weight: 600; padding: 0.36rem 0.4rem;
-  border-radius: 8px; border: 1px solid var(--color-border); background: transparent; color: var(--color-fg-subtle); }
+  min-height: 44px; border-radius: 8px; border: 1px solid var(--color-border); background: transparent; color: var(--color-fg-subtle); }
 .pff-seg button.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); }
 .pff-ctl { display: flex; flex-direction: column; gap: 0.2rem; }
 .pff-ctl-l { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--color-fg-subtle); }
@@ -266,5 +264,6 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
   border-top: 1px solid var(--color-border); padding-top: 0.6rem; }
 .pff-cases { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: auto; padding-top: 0.6rem; }
 .pff-cases a { text-decoration: none; font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.68rem;
+  min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
   padding: 0.22rem 0.45rem; border-radius: 6px; border: 1px solid var(--color-border); color: var(--color-fg-subtle); }
 .pff-cases a.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); }

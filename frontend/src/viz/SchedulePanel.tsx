@@ -55,7 +55,11 @@ function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number;
       legend: { live: true },
     };
   }, [n, es]);
-  return <UPlotChart data={data} build={build} height={230} />;
+  const summary = cum.map((value, index) => `${es ? 'periodo' : 'period'} ${index + 1}: ${fM(value)}`).join('; ');
+  return <UPlotChart data={data} build={build} height={230}
+                     ariaLabel={es ? 'NPV acumulado por periodo con cota certificada' : 'Cumulative NPV by period with certified bound'}
+                     summary={`${summary}; ${es ? 'cota' : 'bound'}: ${fM(bound)}`}
+                     interactionHint={es ? 'Flechas desplazan, +/− amplían e Inicio restablece.' : 'Arrows pan, +/− zoom, and Home resets.'} />;
 }
 
 export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {
@@ -66,10 +70,15 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
   const [playing, setPlaying] = useState(false);
   const timer = useRef<number | null>(null);
 
-  const [cert, setCert] = useState<CpitScheduleFile | null>(null);
+  const [cert, setCert] = useState<CpitScheduleFile | null | undefined>(undefined);
   const [certErr, setCertErr] = useState(false);
   const [certId, setCertId] = useState('twin-porphyry-s');
-  useEffect(() => { loadCpitSchedule().then(setCert).catch(() => setCertErr(true)); }, []);
+  const loadCertificate = useCallback(() => {
+    setCert(undefined);
+    setCertErr(false);
+    loadCpitSchedule().then(setCert).catch(() => { setCert(null); setCertErr(true); });
+  }, []);
+  useEffect(loadCertificate, [loadCertificate]);
 
   const econ1 = useMemo(() => ({ ...econ, revenueFactor: 1 }), [econ]);
   const sched = useMemo(
@@ -159,12 +168,16 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
 
       <div className="pf-card">
         <div className="pf-card-t">{es ? 'Cota certificada (LP offline) + brecha de integralidad' : 'Certified bound (offline LP) + integrality gap'}</div>
-        {certErr || !cert ? (
-          <p className="pf-note">{es
-            ? 'Artefacto cpit-schedule.json ausente. Ejecutar `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'
-            : 'cpit-schedule.json artifact absent. Run `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'}</p>
+        {cert === undefined ? (
+          <div className="pf-status" role="status">{es ? 'Cargando cota certificada…' : 'Loading certified bound…'}</div>
+        ) : certErr || !cert ? (
+          <div className="pf-status" data-kind="error" role="alert">
+            <strong>{es ? 'Cota certificada no disponible' : 'Certified bound unavailable'}</strong>
+            <p>{es ? 'No se pudo leer cpit-schedule.json. El plan factible en vivo sigue operativo.' : 'cpit-schedule.json could not be read. The live feasible schedule remains operational.'}</p>
+            <div className="pf-status-actions"><button className="chip" onClick={loadCertificate}>{es ? 'Reintentar' : 'Retry'}</button></div>
+          </div>
         ) : !certCase ? (
-          <p className="pf-note">{es ? 'caso no encontrado' : 'case not found'}</p>
+          <div className="pf-status" data-kind="empty">{es ? 'Caso certificado no encontrado.' : 'Certified case not found.'}</div>
         ) : (
           <>
             <div className="pf-seg" style={{ marginBottom: '0.6rem' }}>

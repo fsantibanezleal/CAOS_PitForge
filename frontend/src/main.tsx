@@ -1,8 +1,8 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Mountain } from 'lucide-react';
-import { AppShell, applyTheme, CitationsProvider, readTheme, type ShellConfig } from '@fasl-work/caos-app-shell';
+import { AppShell, applyTheme, CitationsProvider, readTheme, type ShellConfig, useLangStore } from '@fasl-work/caos-app-shell';
 import '@fasl-work/caos-app-shell/styles.css';
 import './pitforge.css';
 import { CITATIONS } from './data/citations.ts';
@@ -16,6 +16,18 @@ import Focus from './pages/Focus.tsx';
 import Benchmark from './pages/Benchmark.tsx';
 
 applyTheme(readTheme());
+
+/** Keep assistive technology and browser translation aligned with the visible language. */
+function DocumentLocale() {
+  const lang = useLangStore((state) => state.lang);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.title = lang === 'es'
+      ? 'PitForge · rajo último y cáscaras anidadas'
+      : 'PitForge · ultimate pit and nested shells';
+  }, [lang]);
+  return null;
+}
 
 const config: ShellConfig = {
   product: { name: 'PitForge', mark: <Mountain size={18} aria-hidden="true" /> },
@@ -47,6 +59,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <CitationsProvider items={CITATIONS}>
+        <DocumentLocale />
         <Routes>
           {/* ADR-0070: the focus view renders OUTSIDE the shell. The header and footer are exactly the
               chrome a focus view exists to escape, so it cannot be a child of AppShell. */}

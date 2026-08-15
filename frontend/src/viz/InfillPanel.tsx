@@ -129,7 +129,7 @@ export function InfillPanel({ model, econ, rf, iy, present, es }: {
       {busy && <p className="pf-cap">{es ? 'estimando + re-resolviendo…' : 'estimating + re-solving…'}</p>}
       {res && !res.nn && !busy && (
         <p className="pf-note">{es
-          ? 'grade-nn.onnx no disponible en este build, se muestra solo el baseline IDW. Entrenar con `--retrain` para el what-if completo.'
+          ? 'grade-nn.onnx no disponible en este build, se muestra sólo el baseline IDW. Entrenar con `--retrain` para el what-if completo.'
           : 'grade-nn.onnx unavailable in this build, showing the IDW baseline only. Train with `--retrain` for the full what-if.'}</p>
       )}
       <p className="pf-cap">{es

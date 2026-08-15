@@ -9,6 +9,7 @@ import { type BlockModel, type EconParams, idx } from './types.ts';
 export interface PitCase {
   id: string;
   name: string;
+  nameEs: string;
   category: string;
   /** null for the hand-built oracle. */
   archetype: Archetype | null;
@@ -17,8 +18,11 @@ export interface PitCase {
   peakGrade: number;
   econ: EconParams;
   expectedBand: string;
+  expectedBandEs: string;
   validationAnchor: string;
+  validationAnchorEs: string;
   realOrSynthetic: string;
+  realOrSyntheticEs: string;
 }
 
 export const CAT_ARCH = 'deposit archetype (the orebody shape)';
@@ -31,44 +35,76 @@ const BASE: EconParams = { price: 9000, recovery: 0.88, miningCost: 2.5, process
 const DIMS = { nx: 24, ny: 24, nz: 12 };
 
 export const CASES: PitCase[] = [
-  { id: 'A01', name: 'Porphyry copper (disseminated shell)', category: CAT_ARCH, archetype: 'porphyry', dims: DIMS,
+  { id: 'A01', name: 'Porphyry copper (disseminated shell)', nameEs: 'Pórfido cuprífero (halo diseminado)', category: CAT_ARCH, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE },
     expectedBand: 'a broad bowl pit centred on the buried ore shell; moderate strip ratio',
-    validationAnchor: 'value identity (ΣpositiveValue − maxflow) + monotone nested shells', realOrSynthetic: 'synthetic' },
-  { id: 'A02', name: 'Tabular vein (dipping)', category: CAT_ARCH, archetype: 'vein', dims: DIMS,
+    expectedBandEs: 'un rajo amplio, centrado sobre el halo mineralizado enterrado; razón de descapote moderada',
+    validationAnchor: 'value identity (ΣpositiveValue − maxflow) + monotone nested shells',
+    validationAnchorEs: 'identidad de valor (Σ valores positivos − flujo máximo) + cáscaras anidadas monótonas',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'A02', name: 'Tabular vein (dipping)', nameEs: 'Veta tabular (inclinada)', category: CAT_ARCH, archetype: 'vein', dims: DIMS,
     seed: 12, peakGrade: 0.03, econ: { ...BASE },
     expectedBand: 'a narrow, steep-walled pit tracking the inclined vein; high strip',
-    validationAnchor: 'precedence cone honoured (no overhang)', realOrSynthetic: 'synthetic' },
-  { id: 'A03', name: 'Layered stratabound', category: CAT_ARCH, archetype: 'layered', dims: DIMS,
+    expectedBandEs: 'un rajo angosto de paredes empinadas que sigue la veta inclinada; alto descapote',
+    validationAnchor: 'precedence cone honoured (no overhang)', validationAnchorEs: 'cono de precedencia respetado (sin voladizos)',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'A03', name: 'Layered stratabound', nameEs: 'Estratoligado en capas', category: CAT_ARCH, archetype: 'layered', dims: DIMS,
     seed: 13, peakGrade: 0.022, econ: { ...BASE },
-    expectedBand: 'a wide shallow pit stopping at the first uneconomic band', validationAnchor: 'shell nesting',
-    realOrSynthetic: 'synthetic' },
-  { id: 'A04', name: 'High-grade core + low-grade halo', category: CAT_ARCH, archetype: 'coreHalo', dims: DIMS,
+    expectedBand: 'a wide shallow pit stopping at the first uneconomic band',
+    expectedBandEs: 'un rajo ancho y somero que se detiene en la primera banda no económica',
+    validationAnchor: 'shell nesting', validationAnchorEs: 'anidamiento de cáscaras',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'A04', name: 'High-grade core + low-grade halo', nameEs: 'Núcleo de alta ley + halo de baja ley', category: CAT_ARCH, archetype: 'coreHalo', dims: DIMS,
     seed: 14, peakGrade: 0.04, econ: { ...BASE },
     expectedBand: 'a deep central pit; the halo enters only at high revenue factors',
-    validationAnchor: 'RF-driven halo inclusion', realOrSynthetic: 'synthetic' },
-  { id: 'E01', name: 'Low price ($5 500/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
+    expectedBandEs: 'un rajo central profundo; el halo entra sólo con factores de ingreso altos',
+    validationAnchor: 'RF-driven halo inclusion', validationAnchorEs: 'inclusión del halo gobernada por el factor de ingreso',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'E01', name: 'Low price ($5 500/t)', nameEs: 'Precio bajo ($5 500/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, price: 5500 },
-    expectedBand: 'a markedly smaller pit, only the richest core pays', validationAnchor: 'pit ⊂ the base-price pit',
-    realOrSynthetic: 'synthetic' },
-  { id: 'E02', name: 'High price ($14 000/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
+    expectedBand: 'a markedly smaller pit, only the richest core pays',
+    expectedBandEs: 'un rajo marcadamente menor; sólo el núcleo más rico es rentable',
+    validationAnchor: 'pit ⊂ the base-price pit', validationAnchorEs: 'rajo ⊂ rajo con precio base',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'E02', name: 'High price ($14 000/t)', nameEs: 'Precio alto ($14 000/t)', category: CAT_ECON, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, price: 14000 },
-    expectedBand: 'a larger pit, lower-grade material becomes ore', validationAnchor: 'pit ⊃ the base-price pit',
-    realOrSynthetic: 'synthetic' },
-  { id: 'G01', name: 'Shallow walls (30°)', category: CAT_SLOPE, archetype: 'porphyry', dims: DIMS,
+    expectedBand: 'a larger pit, lower-grade material becomes ore',
+    expectedBandEs: 'un rajo mayor; el material de menor ley pasa a ser mineral',
+    validationAnchor: 'pit ⊃ the base-price pit', validationAnchorEs: 'rajo ⊃ rajo con precio base',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'G01', name: 'Shallow walls (30°)', nameEs: 'Paredes tendidas (30°)', category: CAT_SLOPE, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, slopeAngleDeg: 30 },
     expectedBand: 'flatter walls, more waste stripping per tonne of ore, lower value than the 45° base',
-    validationAnchor: 'value ≤ the 45° base pit (more stripping)', realOrSynthetic: 'synthetic' },
-  { id: 'G02', name: 'Very shallow walls (18°)', category: CAT_SLOPE, archetype: 'porphyry', dims: DIMS,
+    expectedBandEs: 'paredes más tendidas, más lastre por tonelada de mineral y menor valor que el caso base de 45°',
+    validationAnchor: 'value ≤ the 45° base pit (more stripping)', validationAnchorEs: 'valor ≤ rajo base de 45° (más descapote)',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'G02', name: 'Very shallow walls (18°)', nameEs: 'Paredes muy tendidas (18°)', category: CAT_SLOPE, archetype: 'porphyry', dims: DIMS,
     seed: 11, peakGrade: 0.025, econ: { ...BASE, slopeAngleDeg: 18 },
     expectedBand: 'the flattest walls, the widest cone and the most stripping, the lowest value',
-    validationAnchor: 'value ≤ the 30° pit (even more stripping)', realOrSynthetic: 'synthetic' },
-  { id: 'CTRL', name: 'Oracle, single deep ore block (45°)', category: CAT_ORACLE, archetype: null,
+    expectedBandEs: 'las paredes más tendidas, el cono más ancho, el mayor descapote y el menor valor',
+    validationAnchor: 'value ≤ the 30° pit (even more stripping)', validationAnchorEs: 'valor ≤ rajo de 30° (aún más descapote)',
+    realOrSynthetic: 'synthetic', realOrSyntheticEs: 'sintético' },
+  { id: 'CTRL', name: 'Oracle, single deep ore block (45°)', nameEs: 'Oráculo, un bloque mineral profundo (45°)', category: CAT_ORACLE, archetype: null,
     dims: { nx: 5, ny: 1, nz: 3 }, seed: 0, peakGrade: 0,
     econ: { price: 11, recovery: 1, miningCost: 1, processingCost: 0, slopeAngleDeg: 45 },
     expectedBand: 'the optimal pit is exactly the 9-block inverted pyramid; value = 10 − 8 = 2',
-    validationAnchor: 'closed-form inverted pyramid (hand-computed)', realOrSynthetic: 'analytic control' },
+    expectedBandEs: 'el rajo óptimo es exactamente la pirámide invertida de 9 bloques; valor = 10 − 8 = 2',
+    validationAnchor: 'closed-form inverted pyramid (hand-computed)',
+    validationAnchorEs: 'pirámide invertida de forma cerrada (calculada a mano)',
+    realOrSynthetic: 'analytic control', realOrSyntheticEs: 'control analítico' },
 ];
+
+export const caseName = (pitCase: PitCase, es: boolean) => es ? pitCase.nameEs : pitCase.name;
+export const caseExpectedBand = (pitCase: PitCase, es: boolean) => es ? pitCase.expectedBandEs : pitCase.expectedBand;
+export const caseValidationAnchor = (pitCase: PitCase, es: boolean) => es ? pitCase.validationAnchorEs : pitCase.validationAnchor;
+export const caseProvenance = (pitCase: PitCase, es: boolean) => es ? pitCase.realOrSyntheticEs : pitCase.realOrSynthetic;
+export const caseCategoryName = (pitCase: PitCase, es: boolean) => {
+  if (!es) return pitCase.category.split(' (')[0];
+  if (pitCase.category === CAT_ARCH) return 'arquetipo de yacimiento';
+  if (pitCase.category === CAT_ECON) return 'escenario económico';
+  if (pitCase.category === CAT_SLOPE) return 'talud y geotecnia';
+  return 'control oráculo';
+};
 
 /** Build the block model for a case (the oracle is hand-built; the rest are seeded deposits). */
 export function caseModel(c: PitCase): BlockModel {

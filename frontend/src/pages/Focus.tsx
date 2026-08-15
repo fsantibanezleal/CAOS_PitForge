@@ -10,13 +10,14 @@
 // a HUD rather than stacked as cards; a visible return that lands back on the App; starts on the case the
 // URL names.
 
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useShellLang } from '@fasl-work/caos-app-shell';
-import { CASES, caseModel } from '../opt/cases.ts';
+import { CASES, caseModel, caseName, caseProvenance } from '../opt/cases.ts';
 import { defaultRevenueFactors, nestedPitShells, solveUltimatePit } from '../opt/index.ts';
 import type { EconParams } from '../opt/types.ts';
-import { PitView3D } from '../viz/PitView3D.tsx';
+
+const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((module) => ({ default: module.PitView3D })));
 
 /** What the strip ratio MEANS, said on the stage.
  *
@@ -28,9 +29,9 @@ import { PitView3D } from '../viz/PitView3D.tsx';
 function pitState(strip: number, value: number, es: boolean): { label: string; text: string } {
   if (value <= 0) {
     return {
-      label: es ? 'Sin rajo economico' : 'No economic pit',
+      label: es ? 'Sin rajo económico' : 'No economic pit',
       text: es
-        ? 'Con esta economia ningun conjunto de bloques cerrado bajo las restricciones de talud tiene valor positivo: el optimo exacto es el rajo vacio.'
+        ? 'Con esta economía ningún conjunto de bloques cerrado bajo las restricciones de talud tiene valor positivo: el óptimo exacto es el rajo vacío.'
         : 'Under this economics no set of blocks closed under the slope constraints has positive value: the exact optimum is the empty pit.',
     };
   }
@@ -38,22 +39,22 @@ function pitState(strip: number, value: number, es: boolean): { label: string; t
     return {
       label: es ? 'Descapote bajo' : 'Low stripping',
       text: es
-        ? 'El rajo mueve menos esteril que mineral. La envolvente sigue el cuerpo mineralizado de cerca y casi todo el movimiento paga.'
+        ? 'El rajo mueve menos estéril que mineral. La envolvente sigue el cuerpo mineralizado de cerca y casi todo el movimiento paga.'
         : 'The pit moves less waste than ore. The shell hugs the orebody closely and nearly all the movement pays for itself.',
     };
   }
   if (strip > 4) {
     return {
-      label: es ? 'Dominado por el esteril' : 'Waste-dominated',
+      label: es ? 'Dominado por el estéril' : 'Waste-dominated',
       text: es
-        ? 'Mas de cuatro toneladas de esteril por tonelada de mineral: el limite lo pone el descapote, y subir el factor de ingreso agrega mas esteril que metal.'
+        ? 'Más de cuatro toneladas de estéril por tonelada de mineral: el límite lo pone el descapote, y subir el factor de ingreso agrega más estéril que metal.'
         : 'More than four tonnes of waste per tonne of ore: stripping is what bounds this pit, and raising the revenue factor buys more waste than metal.',
     };
   }
   return {
     label: es ? 'Descapote normal' : 'Normal stripping',
     text: es
-      ? 'La razon esteril:mineral esta en el rango habitual de un rajo abierto, donde el optimo exacto todavia responde al precio.'
+      ? 'La razón estéril:mineral está en el rango habitual de un rajo abierto, donde el óptimo exacto todavía responde al precio.'
       : 'The waste:ore ratio sits in the usual open-pit range, where the exact optimum still responds to price.',
   };
 }
@@ -102,9 +103,9 @@ export default function Focus() {
 
   const hud = [
     { v: `$${money(r.pitValue)}`, l: es ? 'valor del rajo' : 'pit value', tone: 'accent' },
-    { v: r.stripRatio.toFixed(2), l: es ? 'razon E:M' : 'strip ratio', tone: 'blue' },
+    { v: r.stripRatio.toFixed(2), l: es ? 'razón E:M' : 'strip ratio', tone: 'blue' },
     { v: tonnes(r.oreTonnes), l: es ? 'mineral' : 'ore' },
-    { v: tonnes(r.wasteTonnes), l: es ? 'esteril' : 'waste' },
+    { v: tonnes(r.wasteTonnes), l: es ? 'estéril' : 'waste' },
     { v: tonnes(r.metalTonnes), l: es ? 'metal' : 'metal' },
     { v: `${r.nBlocks}`, l: es ? 'bloques' : 'blocks in pit' },
   ];
@@ -112,9 +113,11 @@ export default function Focus() {
   return (
     <div className="pff">
       <div className="pff-stage">
-        <PitView3D model={model} inPit={r.inPit} gradeMax={gradeMax}
-                   mode={mode} height={0}
-                   shellOf={shells?.shellOf} nShells={shells ? defaultRevenueFactors().length : 12} />
+        <Suspense fallback={<div className="pf-status" role="status">{es ? 'Cargando vista 3D…' : 'Loading 3D view…'}</div>}>
+          <PitView3D model={model} inPit={r.inPit} gradeMax={gradeMax}
+                     mode={mode} height={0}
+                     shellOf={shells?.shellOf} nShells={shells ? defaultRevenueFactors().length : 12} es={es} />
+        </Suspense>
 
         <div className="pff-badge">
           <div className="pff-badge-t">{st.label}</div>
@@ -136,13 +139,13 @@ export default function Focus() {
       <aside className="pff-rail">
         <div className="pff-rail-h">
           <div>
-            <div className="pff-title">{theCase.name}</div>
-            <div className="pff-sub">{theCase.id} · {theCase.realOrSynthetic}</div>
+            <div className="pff-title">{caseName(theCase, es)}</div>
+            <div className="pff-sub">{theCase.id} · {caseProvenance(theCase, es)}</div>
           </div>
         </div>
 
         <div className="pff-seg">
-          <button className={mode === 'pit' ? 'on' : ''} onClick={() => setMode('pit')}>{es ? 'Rajo optimo' : 'Optimal pit'}</button>
+          <button className={mode === 'pit' ? 'on' : ''} onClick={() => setMode('pit')}>{es ? 'Rajo óptimo' : 'Optimal pit'}</button>
           <button className={mode === 'shells' ? 'on' : ''} onClick={() => setMode('shells')}>{es ? 'Shells' : 'Shells'}</button>
         </div>
 
@@ -166,7 +169,7 @@ export default function Focus() {
 
         <div className="pff-note">
           {es
-            ? 'El rajo se resuelve EXACTO en cada cambio: Lerchs-Grossmann como corte minimo (reduccion de Picard, max-flow de Dinic), el mismo motor que corre la App. El factor de ingreso escala el precio para trazar la familia de shells anidados de Whittle; bajarlo produce el nucleo de alto valor que se mina primero.'
+            ? 'El rajo se resuelve EXACTO en cada cambio: Lerchs-Grossmann como corte mínimo (reducción de Picard, max-flow de Dinic), el mismo motor que corre la App. El factor de ingreso escala el precio para trazar la familia de shells anidados de Whittle; bajarlo produce el núcleo de alto valor que se mina primero.'
             : 'The pit is re-solved EXACTLY on every change: Lerchs-Grossmann as a min-cut (Picard reduction, Dinic max-flow), the same engine the App runs. The revenue factor scales price to trace Whittle’s nested-shell family; lowering it yields the high-value core that is mined first.'}
         </div>
 

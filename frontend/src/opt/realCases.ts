@@ -15,6 +15,7 @@ import {
 export interface RealCase {
   id: string;
   name: string;
+  nameEs: string;
   /** block / precedence-arc counts, from the MineLib paper (public facts). */
   nBlocks: number;
   nPrecs: number;
@@ -44,7 +45,7 @@ const TWINS = `${(import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL 
 
 export const REAL_CASES: RealCase[] = [
   {
-    id: 'newman1', name: 'Newman1 (gold–copper test mine)', nBlocks: 1060, nPrecs: 3922,
+    id: 'newman1', name: 'Newman1 (gold–copper test mine)', nameEs: 'Newman1 (mina de prueba de oro y cobre)', nBlocks: 1060, nPrecs: 3922,
     publishedOptimum: 26_086_899, gate: 'live',
     urls: {
       blocks: `${MIRROR}/newman1/newman1.blocks`,
@@ -57,7 +58,7 @@ export const REAL_CASES: RealCase[] = [
     provenance_es: 'MineLib 2013 · la instancia más pequeña · descargada en vivo del espejo AMPL en GitHub.',
   },
   {
-    id: 'zuck_small', name: 'Zuck small (copper, Whittle 4X example)', nBlocks: 9400, nPrecs: 145_640,
+    id: 'zuck_small', name: 'Zuck small (copper, Whittle 4X example)', nameEs: 'Zuck small (cobre, ejemplo Whittle 4X)', nBlocks: 9400, nPrecs: 145_640,
     publishedOptimum: 1_422_726_898, gate: 'size-gated',
     urls: {
       blocks: `${MIRROR2}/zuck_small/zuck_small.blocks`,
@@ -69,7 +70,7 @@ export const REAL_CASES: RealCase[] = [
     provenance_es: 'MineLib 2013 · tamaño medio · descargada del espejo whattle en GitHub; el solve parte tras confirmar (~1.3 MB, 145k arcos).',
   },
   {
-    id: 'kd', name: 'KD (copper, McLaughlin-style deposit)', nBlocks: 14_153, nPrecs: 219_778,
+    id: 'kd', name: 'KD (copper, McLaughlin-style deposit)', nameEs: 'KD (cobre, yacimiento tipo McLaughlin)', nBlocks: 14_153, nPrecs: 219_778,
     publishedOptimum: 652_195_037, gate: 'size-gated',
     urls: {
       blocks: `${MIRROR2}/kd/kd.blocks`,
@@ -88,7 +89,7 @@ export const REAL_CASES: RealCase[] = [
   // to rel ~3e-11. These give realistic mid-size instances with a known-by-construction oracle,
   // with no MineLib license attached (they are OUR data). Free columns: id x y z grade tonnage density.
   {
-    id: 'twin-porphyry-s', name: 'Synthetic twin · porphyry (16×16×8)', nBlocks: 2048, nPrecs: 14_812,
+    id: 'twin-porphyry-s', name: 'Synthetic twin · porphyry (16×16×8)', nameEs: 'Gemelo sintético · pórfido (16×16×8)', nBlocks: 2048, nPrecs: 14_812,
     publishedOptimum: 126_908_453.74, gate: 'live', synthetic: true,
     urls: { blocks: `${TWINS}/twin-porphyry-s.blocks`, prec: `${TWINS}/twin-porphyry-s.prec`, upit: `${TWINS}/twin-porphyry-s.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
@@ -96,7 +97,7 @@ export const REAL_CASES: RealCase[] = [
     provenance_es: 'Gemelo sintético (oreblocks): pórfido con semilla, pit último exacto, formato MineLib, versionado aquí (sin licencia), óptimo estampado por el generador.',
   },
   {
-    id: 'twin-vein-m', name: 'Synthetic twin · vein (20×20×10)', nBlocks: 4000, nPrecs: 30_276,
+    id: 'twin-vein-m', name: 'Synthetic twin · vein (20×20×10)', nameEs: 'Gemelo sintético · veta (20×20×10)', nBlocks: 4000, nPrecs: 30_276,
     publishedOptimum: 213_735_284.68, gate: 'size-gated', synthetic: true,
     urls: { blocks: `${TWINS}/twin-vein-m.blocks`, prec: `${TWINS}/twin-vein-m.prec`, upit: `${TWINS}/twin-vein-m.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
@@ -104,7 +105,7 @@ export const REAL_CASES: RealCase[] = [
     provenance_es: 'Gemelo sintético (oreblocks): veta inclinada con semilla, pit último exacto, formato MineLib, versionado aquí, óptimo estampado por el generador.',
   },
   {
-    id: 'twin-corehalo-m', name: 'Synthetic twin · core+halo (22×22×10)', nBlocks: 4840, nPrecs: 36_864,
+    id: 'twin-corehalo-m', name: 'Synthetic twin · core+halo (22×22×10)', nameEs: 'Gemelo sintético · núcleo+halo (22×22×10)', nBlocks: 4840, nPrecs: 36_864,
     publishedOptimum: 65_696_305.79, gate: 'size-gated', synthetic: true,
     urls: { blocks: `${TWINS}/twin-corehalo-m.blocks`, prec: `${TWINS}/twin-corehalo-m.prec`, upit: `${TWINS}/twin-corehalo-m.upit` },
     blocksLayout: { grade: 4, tonnage: 5, density: 6 },
@@ -112,6 +113,8 @@ export const REAL_CASES: RealCase[] = [
     provenance_es: 'Gemelo sintético (oreblocks): núcleo rico + halo de baja ley con semilla, pit último exacto, formato MineLib, versionado aquí, óptimo estampado por el generador.',
   },
 ];
+
+export const realCaseName = (realCase: RealCase, es: boolean) => es ? realCase.nameEs : realCase.name;
 
 /** A completed live solve: the embedded model + the exact pit + the published-optimum check. */
 export interface RealSolved {
