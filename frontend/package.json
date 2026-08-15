@@ -2,6 +2,9 @@
   "name": "pitforge-frontend",
   "private": true,
   "version": "0.12.000",
+  "description": "Exact ultimate-pit, nested-shell, and certified CPIT research workbench",
+  "homepage": "https://pitforge.fasl-work.com",
+  "repository": "github:fsantibanezleal/CAOS_PitForge",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",

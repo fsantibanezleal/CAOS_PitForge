@@ -9,6 +9,14 @@ export default function Introduction() {
         ? 'PitForge resuelve el problema clásico del diseño de rajo abierto: dado un modelo de bloques con valor económico por bloque, ¿qué bloques conviene extraer para maximizar el valor total respetando los ángulos de talud? La respuesta exacta es el pit último (ultimate pit limit), y su familia de pits anidados por factor de ingreso guía las fases (pushbacks).'
         : 'PitForge solves the classic open-pit design problem: given a block model with a per-block economic value, which blocks should be extracted to maximise total value subject to slope constraints? The exact answer is the ultimate pit limit, and its family of nested pits by revenue factor guides the phases (pushbacks).'}</p>
 
+      <p className="pf-card pf-publication">
+        <strong>{es ? 'Informe técnico revisable: ' : 'Citable technical report: '}</strong>
+        <a href="https://doi.org/10.5281/zenodo.21519687" target="_blank" rel="noreferrer noopener">
+          10.5281/zenodo.21519687
+        </a>
+        {es ? ' (CC BY 4.0, registro conceptual Zenodo).' : ' (CC BY 4.0, Zenodo concept record).'}
+      </p>
+
       <Callout variant="strong" title={es ? 'El optimizador exacto se ejecuta en vivo en el navegador' : 'The exact optimiser runs live in the browser'}>
         {es
           ? 'El pit último se calcula con un solver de flujo máximo / corte mínimo (Lerchs–Grossmann por la reducción de cierre máximo de Picard) escrito en TypeScript, el mismo motor se ejecuta en el navegador y en el precálculo. Al arrastrar el factor de ingreso, el precio o el talud, el pit se recalcula exacto al instante.'
@@ -36,7 +44,7 @@ export default function Introduction() {
               <p>{es
                 ? 'El pit último fija las reservas, la vida de la mina y el contorno final; los pits anidados de Whittle guían el secuenciamiento por fases. Es el primer eslabón cuantitativo entre la geología y el plan minero. Lerchs & Grossmann '
                 : 'The ultimate pit fixes the reserves, the mine life and the final wall; the Whittle nested pits guide phase sequencing. It is the first quantitative link between geology and the mine plan. Lerchs & Grossmann '}
-                <Cite id="lerchs1965" paren /> {es ? 'dieron el algoritmo de grafos en 1965; Picard ' : 'gave the graph algorithm in 1965; Picard '}<Cite id="picard1976" paren />{es ? ' mostró la equivalencia con el corte mínimo, y Hochbaum ' : ' showed the min-cut equivalence, and Hochbaum '}<Cite id="hochbaum2008" paren />{es ? ' dio el pseudoflow, el método exacto más rápido hoy.' : ' gave pseudoflow, the fastest exact method today.'}</p>
+                <Cite id="lerchs1965" paren /> {es ? 'dieron el algoritmo de grafos en 1965; Picard ' : 'gave the graph algorithm in 1965; Picard '}<Cite id="picard1976" paren />{es ? ' mostró la equivalencia con el corte mínimo, y Hochbaum y Chen compararon implementaciones para rajo abierto ' : ' showed the min-cut equivalence, and Hochbaum and Chen compared open-pit implementations '}<Cite id="hochbaum2000" paren />{es ? '; pseudoflow es una familia exacta posterior ' : '; pseudoflow is a later exact family '}<Cite id="hochbaum2008" paren />.</p>
             </div>
           ),
         },
@@ -45,8 +53,8 @@ export default function Introduction() {
           content: (
             <Callout variant="honest" title={es ? 'Qué es real y qué es sintético' : 'What is real and what is synthetic'}>
               {es
-                ? 'La lane sintética usa yacimientos generados (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija), ahí no hay sondajes reales. La lane real usa 3 instancias publicadas de MineLib (newman1, zuck_small, kd), descargadas en tiempo de ejecución (ningún byte de instancia queda versionado en el repositorio), y el solver reproduce su óptimo UPIT publicado. El optimizador es exacto: el corte mínimo es el mismo que calcula el pseudoflow. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos (entrenados en depósitos sintéticos) se comparan siempre contra su baseline clásico (kriging/IDW; el solver exacto), y nunca se presentan superándolo.'
-                : 'The synthetic lane uses generated deposits (grade fields with a geological trend + spatially-correlated noise, fixed seed), no real drillholes there. The real lane uses 3 published MineLib instances (newman1, zuck_small, kd), fetched at runtime (no instance bytes are committed), and the solver reproduces their published UPIT optimum. The optimiser is exact: the min-cut is the same one pseudoflow computes. The CTRL control has a hand-verifiable closed-form answer. The 2 learned models (trained on synthetic deposits) are always compared against their classical baseline (kriging/IDW; the exact solver), never presented as beating it.'}
+                ? 'La lane sintética usa yacimientos generados (campos de ley con tendencia geológica + ruido espacialmente correlacionado, semilla fija), ahí no hay sondajes reales. La lane real usa 3 instancias publicadas de MineLib (newman1, zuck_small, kd), descargadas en tiempo de ejecución (ningún byte de instancia queda versionado por política del proyecto), y el solver reproduce su valor UPIT publicado. El min-cut de Picard y pseudoflow resuelven el mismo problema de cierre máximo; no afirmamos que produzcan el mismo corte cuando hay empates. El control CTRL tiene respuesta cerrada verificable a mano. Los 2 modelos aprendidos se comparan siempre contra su baseline clásico (kriging/IDW; el solver exacto), y nunca se presentan superándolo.'
+                : 'The synthetic lane uses generated deposits (grade fields with a geological trend + spatially-correlated noise, fixed seed), no real drillholes there. The real lane uses 3 published MineLib instances (newman1, zuck_small, kd), fetched at runtime (no instance bytes are versioned by project policy), and the solver reproduces their published UPIT value. Picard min-cut and pseudoflow solve the same maximum-closure problem; we do not claim identical cuts when ties exist. The CTRL control has a hand-verifiable closed-form answer. The 2 learned models are always compared against their classical baseline (kriging/IDW; the exact solver), never presented as beating it.'}
             </Callout>
           ),
         },

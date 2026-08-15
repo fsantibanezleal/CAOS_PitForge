@@ -20,6 +20,12 @@ export const CITATIONS: Citation[] = [
     doi: '10.1287/opre.1080.0524',
   },
   {
+    id: 'hochbaum2000',
+    label: 'Hochbaum & Chen 2000',
+    citation: 'Hochbaum, D. S. & Chen, A. (2000). Performance analysis and best implementations of old and new algorithms for the open-pit mining problem. Operations Research, 48(6), 894–914.',
+    doi: '10.1287/opre.48.6.894.12392',
+  },
+  {
     id: 'dinic1970',
     label: 'Dinic 1970',
     citation: 'Dinic, E. A. (1970). Algorithm for solution of a problem of maximum flow in networks with power estimation. Soviet Mathematics Doklady, 11, 1277–1280 (pre-DOI translation; no open landing page).',
@@ -94,5 +100,17 @@ export const CITATIONS: Citation[] = [
     label: 'Cappart et al. 2023',
     citation: 'Cappart, Q., Chetelat, D., Khalil, E. B., Lodi, A., Morris, C. & Velickovic, P. (2023). Combinatorial optimization and reasoning with graph neural networks. Journal of Machine Learning Research, 24(130), 1–61.',
     url: 'https://jmlr.org/papers/v24/21-0449.html',
+  },
+  {
+    id: 'chiles2012',
+    label: 'Chilès & Delfiner 2012',
+    citation: 'Chilès, J.-P. & Delfiner, P. (2012). Geostatistics: Modeling Spatial Uncertainty (2nd ed.). Wiley.',
+    doi: '10.1002/9781118136188',
+  },
+  {
+    id: 'virtanen2020',
+    label: 'Virtanen et al. 2020 (SciPy)',
+    citation: 'Virtanen, P. et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods, 17, 261–272.',
+    doi: '10.1038/s41592-019-0686-2',
   },
 ];

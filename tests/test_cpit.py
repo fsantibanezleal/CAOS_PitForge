@@ -1,4 +1,4 @@
-"""CPIT scheduling controls, the two MANDATORY negative controls of the depth capstone (dossier section 3).
+"""CPIT scheduling controls for exactness, bounds, resource limits, precedence, and completeness.
 
 These tie the new scheduling lane to the proven ultimate-pit optimum. They run on small deterministic
 synthetic instances (no network, no MineLib data), so they are safe in CI.
@@ -13,6 +13,9 @@ The exact ultimate pit is also pinned against the hand-computable inverted-pyram
 opt.test.ts uses on the TypeScript engine), so the Python max-flow must not drift from the browser engine.
 """
 from __future__ import annotations
+
+import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -177,3 +180,100 @@ def test_safe_reduction_agrees_with_exact_pit(builder):
     # the three sets partition the blocks.
     assert np.array_equal(red.fix_in | red.fix_out | red.free, np.ones(inst.n, dtype=bool))
     assert not np.any(red.fix_in & red.fix_out)
+
+
+# --------------------------------------------------------------------------------------------------------
+# PUBLISHED CPIT CONTRACT: preserve every resource and period from the MineLib scenario file.
+# --------------------------------------------------------------------------------------------------------
+PUBLISHED_CPIT_MINI = """\
+NAME: Mini
+TYPE: CPIT
+NBLOCKS: 2
+NPERIODS: 2
+NRESOURCE_SIDE_CONSTRAINTS: 2
+DISCOUNT_RATE: 0.10
+RESOURCE_CONSTRAINT_LIMITS:
+0 0 L 10
+0 1 L 10
+1 0 L 0
+1 1 L 4
+OBJECTIVE_FUNCTION:
+0 -1
+1 10
+RESOURCE_CONSTRAINT_COEFFICIENTS:
+0 0 5
+1 0 5
+1 1 4
+EOF
+"""
+
+
+def test_published_cpit_parser_preserves_periods_resources_and_precedence():
+    scenario = cpit.parse_minelib_cpit(PUBLISHED_CPIT_MINI, "0 0\n1 1 0\n")
+
+    assert scenario.name == "Mini"
+    assert scenario.periods == 2
+    assert scenario.rate == pytest.approx(0.10)
+    assert scenario.n_resources == 2
+    assert scenario.resource_limits.tolist() == [[10.0, 10.0], [0.0, 4.0]]
+    assert scenario.resource_coefficients.tolist() == [[5.0, 5.0], [0.0, 4.0]]
+    assert scenario.instance.value.tolist() == [-1.0, 10.0]
+    assert scenario.instance.pred_list.tolist() == [0]
+
+
+def test_multi_resource_published_scenario_bound_and_rounding_are_feasible():
+    scenario = cpit.parse_minelib_cpit(PUBLISHED_CPIT_MINI, "0 0\n1 1 0\n")
+    inst = scenario.instance
+    in_pit, _ = cpit.exact_upit(inst.value, inst.pred_start, inst.pred_list)
+    lp = cpit.solve_cpit_lp(inst, periods=scenario.periods, rate=scenario.rate,
+                            capacity=scenario.resource_limits,
+                            resource_weights=scenario.resource_coefficients)
+    schedule = cpit.round_schedule(inst, in_pit, periods=scenario.periods, rate=scenario.rate,
+                                   capacity=scenario.resource_limits,
+                                   resource_weights=scenario.resource_coefficients)
+
+    assert lp.bound == pytest.approx(9.0 / 1.1)
+    assert schedule.period_of_block.tolist() == [0, 1]
+    assert schedule.per_period_resources.tolist() == [[5.0, 5.0], [0.0, 4.0]]
+    assert np.all(schedule.per_period_resources <= scenario.resource_limits + 1e-9)
+    assert lp.bound >= schedule.npv
+
+
+def test_published_cpit_parser_rejects_unsupported_resource_sense():
+    broken = PUBLISHED_CPIT_MINI.replace("0 0 L 10", "0 0 G 10")
+    with pytest.raises(ValueError, match="unsupported resource sense"):
+        cpit.parse_minelib_cpit(broken, "0 0\n1 1 0\n")
+
+
+def test_committed_newman_artifact_is_the_published_multi_resource_scenario():
+    artifact = json.loads(
+        (Path(__file__).parents[1] / "data" / "derived" / "cpit-schedule.json").read_text(encoding="utf-8")
+    )
+    newman = artifact["cases"]["newman1"]
+
+    assert artifact["schema"] == "pitforge.cpit-schedule/v2"
+    assert newman["scenario"]["kind"] == "minelib-published"
+    assert newman["scenario"]["comparableToPublishedMineLibCpit"] is True
+    assert newman["periods"] == 6
+    assert newman["discountRatePerPeriod"] == pytest.approx(0.08)
+    assert len(newman["resourceConstraints"]) == 2
+    assert newman["certifiedBoundNpv"] == pytest.approx(24_486_184.0, rel=1e-6)
+    assert newman["publishedComparison"]["mineLibPublishedFeasibleNpv"] == 23_483_671.0
+    assert newman["publishedComparison"]["ourBoundMatchesPublished"] is True
+    assert "periodOfBlock" not in newman
+    assert all(value is True for key, value in newman["controls"].items() if key != "dualityBoundVsUpl")
+
+
+def test_committed_twin_artifact_is_explicitly_non_comparable():
+    artifact = json.loads(
+        (Path(__file__).parents[1] / "data" / "derived" / "cpit-schedule.json").read_text(encoding="utf-8")
+    )
+    twin = artifact["cases"]["twin-porphyry-s"]
+
+    assert twin["scenario"]["kind"] == "pitforge-authored"
+    assert twin["scenario"]["comparableToPublishedMineLibCpit"] is False
+    assert twin["periods"] == 8
+    assert twin["discountRatePerPeriod"] == pytest.approx(0.10)
+    assert len(twin["resourceConstraints"]) == 1
+    assert twin["boundToFeasibleGapPct"] == pytest.approx(11.2856013964)
+    assert all(value is True for key, value in twin["controls"].items() if key != "dualityBoundVsUpl")

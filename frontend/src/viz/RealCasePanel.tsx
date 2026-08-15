@@ -68,8 +68,8 @@ export function RealCasePanel({ rc, es }: { rc: RealCase; es: boolean }) {
         </div>
       )}
       <p className="pf-cap">{es
-        ? 'Los archivos MineLib se descargan en tiempo de ejecución a memoria del navegador y nunca se redistribuyen con la app (la licencia sólo permite descarga con fines académicos).'
-        : 'MineLib files are fetched at runtime into browser memory and never redistributed with the app (the license only grants download for academic purposes).'}</p>
+        ? 'MineLib se publica bajo CC BY-SA 3.0 Unported (Espinoza et al. 2013). PitForge elige descargar cada instancia en memoria y no empaquetar sus bytes; es una política del proyecto, no una restricción de la licencia.'
+        : 'MineLib is published under CC BY-SA 3.0 Unported (Espinoza et al. 2013). PitForge chooses to fetch each instance into memory and not bundle its bytes; that is project policy, not a license restriction.'}</p>
     </div>
   );
 }

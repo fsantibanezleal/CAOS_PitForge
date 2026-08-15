@@ -5,7 +5,7 @@
 // This adds the scheduling dimension: a time index, a per-period tonnage capacity, and discounting -> a
 // discounted NPV. It is a greedy heuristic (mine the highest-value available block first, respecting slope
 // precedence, until the period capacity is reached), NOT an optimal schedule. The certified upper bound + the
-// integrality gap come from the offline LP relaxation; here we produce a feasible, glass-box schedule to animate.
+// bound-to-feasible gap comes from the offline LP plus this independent feasible, glass-box heuristic.
 //
 // Duality tie-in (asserted in test/schedule.test.ts): at discount rate 0 and infinite capacity the mined set
 // equals the exact solveUltimatePit set block-for-block. That is the negative control tying this lane to the

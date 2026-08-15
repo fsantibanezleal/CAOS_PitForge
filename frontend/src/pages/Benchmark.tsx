@@ -99,8 +99,8 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? `El mismo motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). Las instancias se descargan bajo la licencia académica de MineLib y nunca se redistribuyen; aquí sólo se publican resúmenes. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
-              : `The same exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). Instances are downloaded under MineLib's academic grant and never redistributed; only summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
+              ? `El mismo motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). MineLib es CC BY-SA 3.0 Unported; por política del proyecto las instancias se descargan a memoria y aquí sólo se publican resúmenes atribuidos. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
+              : `The same exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). MineLib is CC BY-SA 3.0 Unported; by project policy instances are fetched into memory and only attributed summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
           </Callout>
         </>
       ) : (

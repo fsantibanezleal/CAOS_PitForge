@@ -120,7 +120,39 @@ export interface CpitPeriod {
   minedTonnes: number;
   npvIncrement: number;
   cumulativeNpv: number;
+  resourceUsage: number[];
 }
+
+export interface CpitScenario {
+  kind: 'pitforge-authored' | 'minelib-published';
+  label: string;
+  comparableToPublishedMineLibCpit: boolean;
+}
+
+export interface CpitPublishedComparison {
+  mineLibLpUpperBoundNpv: number;
+  mineLibPublishedFeasibleNpv: number;
+  mineLibPublishedGapPct: number;
+  ourBoundRelativeError: number;
+  ourBoundMatchesPublished: boolean;
+  ourHeuristicMinusPublishedFeasibleNpv: number;
+  ourHeuristicRelativeToPublishedFeasiblePct: number;
+}
+
+export type CpitProvenance = {
+  kind: 'minelib';
+  citationDoi: string;
+  license: string;
+  licenseUrl: string;
+  scenarioUrl: string;
+  repositoryPolicy: string;
+} | {
+  kind: 'synthetic-twin';
+  generator: string;
+  generatorVersion: string;
+  generatorRepository: string;
+  license: string;
+};
 
 export interface CpitCase {
   source: string;
@@ -131,16 +163,27 @@ export interface CpitCase {
   uplTonnage: number;
   periods: number;
   discountRatePerPeriod: number;
-  capacityTonnesPerPeriod: number;
-  /** certified upper bound on the discounted NPV (LP relaxation, Bienstock-Zuckerberg / Chicoisne). */
+  /** Certified upper bound from the cumulative Chicoisne LP solved through SciPy/HiGHS. */
   certifiedBoundNpv: number;
-  /** feasible integer schedule NPV (greedy rounding). */
-  roundedScheduleNpv: number;
-  integralityGapPct: number;
+  /** Feasible integer schedule NPV from the independent greedy heuristic. */
+  feasibleHeuristicNpv: number;
+  /** (LP upper bound - feasible heuristic) / LP upper bound; the integer optimum is unknown. */
+  boundToFeasibleGapPct: number;
   minedBlocks: number;
-  controls: { dualityMatch: boolean; dualityBoundVsUpl: number; boundGeqFeasible: boolean };
+  controls: {
+    dualityMatch: boolean;
+    dualityBoundVsUpl: number;
+    boundGeqFeasible: boolean;
+    resourceLimitsRespected: boolean;
+    precedenceRespected: boolean;
+    completeUltimatePit: boolean;
+  };
   perPeriod: CpitPeriod[];
-  /** committed only for the license-free synthetic twin (per-block period index, -1 = never mined). */
+  scenario: CpitScenario;
+  provenance: CpitProvenance;
+  resourceConstraints: { id: number; label: string; limits: number[] }[];
+  publishedComparison?: CpitPublishedComparison;
+  /** Committed only for the MIT-licensed synthetic twin (per-block period index, -1 = never mined). */
   periodOfBlock?: number[];
 }
 
@@ -149,7 +192,9 @@ export interface CpitScheduleFile {
   generatedAt: string;
   engine: string;
   honesty: string;
-  parameters: { periods: number; discountRatePerPeriod: number; capacitySlack: number };
+  parameters: {
+    syntheticTwinScenario: { periods: number; discountRatePerPeriod: number; capacitySlack: number };
+  };
   cases: Record<string, CpitCase>;
 }
 

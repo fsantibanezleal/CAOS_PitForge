@@ -8,6 +8,15 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ### Changed
 
+- Replaced the constructed single-resource `newman1` scheduling example with the published `newman1.cpit`
+  definition: 6 periods, 8% discount, total-movement and processing limits. The reproduced 24,486,184 LP bound,
+  23,553,245 feasible heuristic, and 3.81% named gap are kept separate from the non-comparable synthetic twin.
+- Corrected MineLib licensing to CC BY-SA 3.0 Unported on every product, data, and documentation surface. Keeping
+  instance bytes out of git is a project policy, not a license restriction.
+- Added multi-resource CPIT parsing and solving, six fail-closed schedule controls, visible published comparisons,
+  canonical DOI metadata, citation metadata, reference attributions, and an offline reference-integrity guard.
+- Clarified that PitForge executes the cumulative Chicoisne et al. LP through SciPy/HiGHS; the
+  Bienstock-Zuckerberg algorithm is literature context, not the implementation run.
 - Rebuilt the workbench as a responsive, single-scroll-owner instrument with desktop grouped navigation and a
   phone-safe grouped selector that keeps every view reachable.
 - Localized canonical case names, provenance, validation anchors, chart labels, empty states, error states, and
@@ -113,18 +122,19 @@ presence-and-share check passed. The gate now measures the canvas box and sample
 - Offline CPIT LP relaxation (`data-pipeline/pipeline/science/cpit.py`): a certified upper bound on the
   discounted NPV of the precedence-constrained production schedule (Bienstock and Zuckerberg 2010,
   doi:10.1007/978-3-642-13036-6_1; Chicoisne et al. 2012, doi:10.1287/opre.1120.1050), solved with
-  scipy HiGHS, plus a greedy capacity-constrained integer pushback schedule and its integrality gap.
+  scipy HiGHS, plus a greedy capacity-constrained integer pushback schedule and its bound-to-feasible gap.
   The static ultimate pit is the undiscounted, uncapacitated degenerate case, reproduced exactly.
 - Committed artifact `data/derived/cpit-schedule.json` (generator `scripts/gen_cpit.py`). Results:
-  twin-porphyry-s certified bound 104.6 M vs feasible NPV 92.8 M (gap 11.3 %); newman1 (MineLib,
-  aggregate facts only) bound 20.5 M vs 18.4 M (gap 10.5 %). Both reproduce the exact UPL value
-  (26,086,899 and 126,908,454) at rate 0 + infinite capacity.
+  twin-porphyry-s certified bound 104.6 M vs feasible NPV 92.8 M (gap 11.3%). The former constructed
+  single-resource `newman1` example was not the published CPIT scenario and has been superseded in Unreleased by
+  parsing the published multi-resource `.cpit` definition. Both lanes reproduce the exact UPL value at rate 0
+  plus infinite capacity.
 - The two MANDATORY negative controls as hard tests (`tests/test_cpit.py`): DUALITY (rate 0 +
   infinite capacity mines exactly the ultimate pit, block-for-block, bound equals the UPL value) and
   BOUND validity (the certified bound dominates any feasible integer NPV). Plus the EXACTNESS control
   for the learned reduction (below).
 - New App "Scheduling" tab: a paused-by-default bench-sequence animation (greedy pushback on the
-  current deposit) + the NPV-vs-period certified-bound curve with the integrality gap shown honestly.
+  current deposit) + the NPV-vs-period certified-bound curve with the bound-to-feasible gap shown honestly.
 - Live scheduling engine `frontend/src/opt/schedule.ts` with a TypeScript duality control in the
   frontend suite (rate 0 + infinite capacity mines exactly the `solveUltimatePit` set).
 
@@ -148,8 +158,8 @@ presence-and-share check passed. The gate now measures the canvas box and sample
 
 ### Added
 - Footer provenance + disclaimer (ADR-0016 §2): the real lane cites the MineLib source
-  (Espinoza, Goycoolea, Moreno & Newman 2013, doi:10.1007/s10479-012-1258-3) and its academic-only
-  license, names the exact min-cut engine, and states the honest scope (min-cut is the authority;
+  (Espinoza, Goycoolea, Moreno & Newman 2013, doi:10.1007/s10479-012-1258-3) and its verified
+  CC BY-SA 3.0 Unported license, names the exact min-cut engine, and states the honest scope (min-cut is the authority;
   the ONNX models are triage; not for production planning). Bilingual EN/ES.
 
 ### Fixed
@@ -177,7 +187,7 @@ presence-and-share check passed. The gate now measures the canvas box and sample
   oreblocks" groups. `RealCase.synthetic` flags the twins; the panel says "stamped optimum" (not
   "published") for them. The SAME exact engine reproduces each twin's stamped optimum in the browser
   (porphyry-s: 126,908,454 in 4 ms), giving realistic mid-size instances with a known-by-construction
-  oracle and no license attached.
+  oracle under MIT.
 - License posture preserved: the remote-HTTPS-only test now applies to published instances; synthetic
   twins are exempt (local, committable). +oracle tests (each twin reproduces its stamped optimum via
   the TS engine, rel <=1e-6) + registry guards. gen-twins.py regenerates them (pip install oreblocks).
@@ -206,8 +216,8 @@ block models and reproduces their published optima, alongside the synthetic teac
   **All three mirror-verified instances reproduce their published UPIT optimum**: newman1 26,086,899
   (rel 1.0e-9, 5 ms) · zuck_small 1,422,726,898 (rel 1.9e-10, 237 ms) · kd 652,195,037 (rel 1.3e-10, 259 ms).
   newman1 solves on select; zuck_small/kd behind an explicit size-gate confirm (in-browser 272/317 ms).
-  License posture enforced in code: runtime fetch into browser memory only, gitignored local cache for the
-  offline bake, instance files never committed or redistributed (MineLib grants academic download only).
+  Data posture enforced in code: runtime fetch into browser memory only and a gitignored local cache for the
+  offline bake. MineLib is CC BY-SA 3.0 Unported; not committing source instances is a project choice.
 - **CONTRACT-1 drag-drop** (#14/#15, PR #27): `lib/contractLive.ts` mirrors the Python block rules 1:1
   (drift-guarded by shared-fixture tests); drop a `{ix,iy,iz,tonnage,density,grade}` CSV → accept/reject/flag
   report with row reasons → the WHOLE App re-solves on your model with the live Controls econ.
