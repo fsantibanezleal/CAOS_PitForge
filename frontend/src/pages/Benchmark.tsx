@@ -76,7 +76,7 @@ export default function Benchmark() {
             <thead><tr>
               <th>{es ? 'instancia' : 'instance'}</th><th>{es ? 'bloques' : 'blocks'}</th><th>{es ? 'arcos' : 'arcs'}</th>
               <th>{es ? 'nuestro valor (exacto)' : 'our value (exact)'}</th><th>{es ? 'óptimo publicado' : 'published optimum'}</th>
-              <th>{es ? 'error rel.' : 'rel. error'}</th><th>{es ? 'solve (ms)' : 'solve (ms)'}</th>
+              <th>{es ? 'error rel.' : 'rel. error'}</th><th>Dinic (ms)</th><th>Pseudoflow (ms)</th><th>{es ? 'acuerdo' : 'agreement'}</th>
             </tr></thead>
             <tbody>
               {minelib.results.map((r) => (
@@ -84,7 +84,8 @@ export default function Benchmark() {
                   <td><b>{r.id}</b> {r.match ? '✓' : '✗'}</td>
                   <td>{fInt(r.nBlocks)}</td><td>{fInt(r.nPrecs)}</td>
                   <td>{fInt(r.ourValue)}</td><td>{fInt(r.publishedOptimum)}</td>
-                  <td>{r.relError.toExponential(1)}</td><td>{r.solveMsMedian}</td>
+                  <td>{r.relError.toExponential(1)}</td><td>{r.dinicMsMedian}</td><td>{r.pseudoflowMsMedian}</td>
+                  <td>{r.solverAgreement ? 'value + blocks ✓' : `Δvalue ${r.solverValueDifference}; Δblocks ${r.blockSetDifference}`}</td>
                 </tr>
               ))}
               {minelib.excluded.map((x) => (
@@ -92,15 +93,15 @@ export default function Benchmark() {
                   <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>, </td>
                   <td>{es ? 'no precalculado' : 'not baked'}</td>
                   <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : ', '}</td>
-                  <td colSpan={2}>{x.reason}</td>
+                  <td colSpan={4}>{x.reason}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? `El mismo motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). MineLib es CC BY-SA 3.0 Unported; por política del proyecto las instancias se descargan a memoria y aquí sólo se publican resúmenes atribuidos. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
-              : `The same exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). MineLib is CC BY-SA 3.0 Unported; by project policy instances are fetched into memory and only attributed summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
+              ? `Los dos rungs exactos independientes (Dinic y pseudoflow de árbol normalizado) reproducen el óptimo UPIT publicado en las 3 instancias verificadas, con el mismo valor y conjunto de bloques en estos casos. No se afirma igualdad de cortes para óptimos empatados en general. Los tiempos son locales (Node, mediana de 3) y muestran sin ocultar que este pseudoflow inspeccionable es más lento que Dinic. MineLib es CC BY-SA 3.0 Unported; sólo se publican resúmenes atribuidos. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
+              : `Both independent exact rungs (Dinic and normalised-tree pseudoflow) reproduce the published UPIT optimum on all 3 verified instances, with the same value and block set on these cases. Identical cuts are not claimed for tied optima in general. Local median-of-3 Node timings show transparently that this inspectable pseudoflow rung is slower than Dinic. MineLib is CC BY-SA 3.0 Unported; only attributed summaries are published. Baked ${minelib.bakedAt.slice(0, 10)}.`}
           </Callout>
         </>
       ) : (

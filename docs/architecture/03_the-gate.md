@@ -6,7 +6,7 @@ committed trace (ADR-0054). Runtime evidence comes from the reviewed `runtime-be
 
 ```python
 classify_lane(client_side=True,
-              runtimes={"ts-pseudoflow", "onnxruntime-web"},
+              runtimes={"ts-mincut", "onnxruntime-web"},
               run_ms=...,            # per-case median from the committed reference benchmark
               trace_bytes=...)       # the committed per-case trace size
 ```
@@ -14,7 +14,7 @@ classify_lane(client_side=True,
 A case is **live** iff:
 
 1. it is **client-side** (no server needed), and
-2. its runtimes are a subset of the deployed client set `{ts-pseudoflow, onnxruntime-web}`, and
+2. its runtimes are a subset of the deployed client set `{ts-mincut, onnxruntime-web}`, and
 3. a full solve completes within the interaction budget (`RUN_MS_GATE = 1500 ms`), and
 4. its replay trace stays small (`TRACE_BYTES_GATE = 256 KB`).
 

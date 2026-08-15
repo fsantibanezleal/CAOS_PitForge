@@ -62,7 +62,11 @@ export interface PitResult {
   /** internal max-flow value (for the value identity check). */
   maxflow: number;
   sumPositive: number;
+  /** Exact optimisation rung used for this result. */
+  solver?: ExactSolver;
 }
+
+export type ExactSolver = 'dinic' | 'pseudoflow';
 
 export interface WhittlePoint {
   rf: number;

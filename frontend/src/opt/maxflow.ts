@@ -3,8 +3,9 @@
 // The ultimate-pit (Lerchs–Grossmann) problem is the maximum-weight CLOSURE of the block-precedence graph, and
 // maximum closure reduces to a minimum s–t cut (Picard 1976): the blocks on the SOURCE side of the min cut are the
 // optimal pit. We solve the equivalent max-flow with Dinic's algorithm, exact, deterministic, O(V²E) worst case but
-// near-linear on these sparse precedence graphs, and fast enough in the browser for teaching-scale models. This is
-// the same min-cut that Hochbaum's pseudoflow computes; we keep the implementation transparent and self-checking.
+// near-linear on these sparse precedence graphs, and fast enough in the browser for teaching-scale models. A
+// separate normalised-tree pseudoflow rung solves the same optimisation problem; tied optima can have different
+// minimum-cut partitions, so equality of block sets is validated empirically rather than asserted theoretically.
 //
 // Capacities are doubles. A precedence arc carries INF (a value larger than the total positive block value, so the
 // cut can never pass through it). EPS guards float residuals.

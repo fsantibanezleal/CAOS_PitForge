@@ -26,11 +26,13 @@ This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype
 ## What it does
 
 - **Exact ultimate pit**, the UPL is the maximum-weight closure of the block-precedence graph, solved as a
-  **minimum cut / maximum flow** (Picard’s reduction; Dinic engine). Pseudoflow solves the same optimal-value
-  problem; tied optima need not return an identical cut.
+  **minimum cut / maximum flow** (Picard’s reduction). Dinic is the live engine; an independent normalised-tree
+  pseudoflow rung reproduces all validated oracles and publishes an honest timing comparison. Tied optima need not
+  return an identical cut.
   Transparent and self-checking (`pitValue = Σ positiveValue − maxflow` is asserted every solve).
 - **Nested pit shells (Whittle)**, solving the UPL over an ascending revenue-factor schedule gives nested pits +
-  the value / tonnage / strip-ratio curves, a guide for phase / pushback design.
+  the value / tonnage / strip-ratio curves, a guide for phase / pushback design. Twelve exact pits are precomputed
+  before the paused-by-default 3-D/section evolution plays; playback never solves in its animation loop.
 - **Real MineLib lane**, 3 published instances (`newman1` live; `zuck_small` and `kd` behind an explicit size-gate)
   fetched at runtime from public mirrors and kept out of git by project policy. MineLib is CC BY-SA 3.0 Unported.
   The same exact solver reproduces the
@@ -67,8 +69,8 @@ python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipe
 
 # the SPA (the exact optimiser runs live in the browser)
 cd frontend && npm ci && npm run dev                     # http://localhost:5173
-npm test                                                 # 48 contracts: engine · artifacts · MineLib · infill · CPIT
-npm run test:e2e                                         # real-browser responsive · a11y · degraded-capability checks
+npm test                                                 # 50 contracts: both engines · artifacts · MineLib · infill · CPIT
+npm run test:e2e                                         # 14 real-browser responsive · a11y · degraded-capability checks
 
 # heavy lane (local only), re-bake + retrain the learned models (torch → ONNX)
 python -m venv .venv-precompute && .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt

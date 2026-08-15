@@ -8,7 +8,7 @@ milliseconds and the traces are small, so every case passes. The verdict + budge
 mislabeling. A MEASUREMENT, never a hand-wave."""
 from __future__ import annotations
 
-LIVE_RUNTIMES: set[str] = {"ts-pseudoflow", "onnxruntime-web"}
+LIVE_RUNTIMES: set[str] = {"ts-mincut", "onnxruntime-web"}
 RUN_MS_GATE = 1500.0
 TRACE_BYTES_GATE = 256 * 1024
 
