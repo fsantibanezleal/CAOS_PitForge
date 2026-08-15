@@ -29,7 +29,8 @@ Committed samples that must pass: `data/examples/{scenarios.csv, blockmodel.csv}
 
 ## Contract 2, artifact (`core/{trace,manifest}.py`)
 
-The pipeline-to-web contract. The web loads only manifests + traces + the shared artifacts.
+The pipeline-to-web contract. Experiments loads the index, manifests, and traces; other views load the declared
+shared artifacts.
 
 - **`pitforge.trace/v1`** (per case): the case spec (archetype, dims, block size, econ), the ultimate-pit summary,
   the Whittle curve (per RF: value / ore / waste / strip / nBlocks), a vertical cross-section (shell index per block),
@@ -39,6 +40,8 @@ The pipeline-to-web contract. The web loads only manifests + traces + the shared
   flags, the metrics, and an honesty note.
 - **`pitforge.index/v1`**: the flat inventory of all 9 cases.
 
-A TS mirror, `frontend/src/lib/contract.types.ts`, declares these shapes so a drift **fails `tsc`** (the web cannot
-ship reading a shape the pipeline does not produce). `scripts/check_artifacts.py` enforces manifest ↔ artifact
-consistency (existence, byte size, lane == gate verdict) on disk.
+A TS mirror, `frontend/src/lib/contract.types.ts`, documents these shapes. Runtime parsers in
+`frontend/src/lib/artifacts.ts` enforce schema, identity, safe paths, and required fields against every fetched JSON;
+the production Experiments page uses that index → manifest → trace path. `frontend/test/contract.test.ts` exercises
+the parsers against every committed record. `scripts/check_artifacts.py` independently enforces a closed two-way
+inventory, shared-artifact presence, byte size, per-case flags, version coherence, and lane evidence on disk.

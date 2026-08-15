@@ -12,7 +12,9 @@ solver; train the learned models torch → ONNX), see pipeline/science/.
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from . import registry
@@ -27,7 +29,7 @@ MANIFESTS = DERIVED / "manifests"
 SCIENCE = Path(__file__).resolve().parent / "science"
 
 
-def _load_artifacts() -> tuple[dict, dict | None]:
+def _load_artifacts() -> tuple[dict, dict | None, dict]:
     cr = DERIVED / "case-results.json"
     if not cr.exists():
         raise SystemExit(
@@ -36,24 +38,36 @@ def _load_artifacts() -> tuple[dict, dict | None]:
         )
     learned_path = DERIVED / "pit-learned.json"
     learned = read_json(learned_path) if learned_path.exists() else None  # learned models are optional until trained
-    return read_json(cr), learned
+    runtime_path = DERIVED / "runtime-benchmarks.json"
+    if not runtime_path.exists():
+        raise SystemExit(f"missing runtime evidence {runtime_path}; run `npm run benchmark` in frontend/")
+    return read_json(cr), learned, read_json(runtime_path)
 
 
 def _contract_flags() -> list[dict]:
-    """Apply CONTRACT 1 to the cases' design scenarios, proves the ingestion gate, carries the slope flags."""
+    """Apply Contract 1 to every registered scenario and fail before writing if any row is rejected."""
     rows = [{"case_id": c.id, "archetype": c.archetype, "nx": c.nx, "ny": c.ny, "nz": c.nz, "price": c.price,
              "recovery": c.recovery, "mining_cost": c.mining_cost, "processing_cost": c.processing_cost,
              "slope_angle_deg": c.slope_angle_deg} for c in registry.list_cases()]
-    return validate_records(rows).flagged
+    report = validate_records(rows)
+    if report.rejected:
+        details = "; ".join(f"{item.get('case_id')}: {item['reason']}" for item in report.rejected)
+        raise ValueError(f"Contract 1 rejected {len(report.rejected)} registered case(s): {details}")
+    if len(report.accepted) != len(rows):
+        raise ValueError(f"Contract 1 accepted {len(report.accepted)} of {len(rows)} registered cases")
+    return report.flagged
 
 
 def precompute(case_id: str, seed: int = 42,
-               artifacts: tuple[dict, dict | None] | None = None, flags: list[dict] | None = None) -> dict:
+               artifacts: tuple[dict, dict | None, dict] | None = None, flags: list[dict] | None = None,
+               *, derived_dir: Path | None = None, manifests_dir: Path | None = None) -> dict:
     case = registry.get_case(case_id)
-    case_results, learned = artifacts if artifacts is not None else _load_artifacts()
+    case_results, learned, runtime_benchmarks = artifacts if artifacts is not None else _load_artifacts()
+    out_derived = derived_dir or DERIVED
+    out_manifests = manifests_dir or MANIFESTS
     return export.build_replay(
-        case, derived_dir=str(DERIVED), manifests_dir=str(MANIFESTS),
-        case_results=case_results, learned=learned,
+        case, derived_dir=str(out_derived), manifests_dir=str(out_manifests),
+        case_results=case_results, learned=learned, runtime_benchmarks=runtime_benchmarks,
         contract_flags=(flags if flags is not None else _contract_flags()), seed=seed,
     )
 
@@ -82,15 +96,58 @@ def retrain(seed: int = 42) -> None:
     print(f"[retrain] artifacts -> {DERIVED}", flush=True)
 
 
-def run_all(seed: int = 42) -> list[dict]:
+def _publish_staged_contract(staged: Path, case_ids: set[str]) -> None:
+    """Publish a fully built Contract-2 tree and remove stale case records.
+
+    All generation happens in a temporary directory first, so a validation or case failure cannot partly rewrite
+    the canonical index/traces. The short publication phase runs only after every case and the index exist.
+    """
+    staged_manifests = staged / "manifests"
+    for path in DERIVED.iterdir():
+        if path.is_dir() and path.name != "manifests" and (path / "trace.json").exists() and path.name not in case_ids:
+            shutil.rmtree(path)
+    for case_id in case_ids:
+        destination = DERIVED / case_id
+        if destination.exists():
+            shutil.rmtree(destination)
+        shutil.copytree(staged / case_id, destination)
+    if MANIFESTS.exists():
+        shutil.rmtree(MANIFESTS)
+    shutil.copytree(staged_manifests, MANIFESTS)
+
+
+def run_all(seed: int = 42, *, publish: bool = True, output_dir: Path | None = None) -> list[dict]:
     artifacts = _load_artifacts()
     flags = _contract_flags()
-    entries = []
-    for c in registry.list_cases():
-        precompute(c.id, seed=seed, artifacts=artifacts, flags=flags)
-        entries.append({"case_id": c.id, "category": c.category, "manifest_path": f"manifests/{c.id}.json"})
-    write_json(MANIFESTS / "index.json", build_index(entries))
-    return entries
+    cases = registry.list_cases()
+    if output_dir is not None:
+        staging_root = output_dir
+        staging_root.mkdir(parents=True, exist_ok=True)
+        cleanup = None
+    else:
+        cleanup = tempfile.TemporaryDirectory(prefix="pitforge-contract-")
+        staging_root = Path(cleanup.name)
+    staged_manifests = staging_root / "manifests"
+    try:
+        entries = []
+        for case in cases:
+            precompute(
+                case.id,
+                seed=seed,
+                artifacts=artifacts,
+                flags=flags,
+                derived_dir=staging_root,
+                manifests_dir=staged_manifests,
+            )
+            entries.append({"case_id": case.id, "category": case.category,
+                            "manifest_path": f"manifests/{case.id}.json"})
+        write_json(staged_manifests / "index.json", build_index(entries))
+        if publish:
+            _publish_staged_contract(staging_root, {case.id for case in cases})
+        return entries
+    finally:
+        if cleanup is not None:
+            cleanup.cleanup()
 
 
 def main() -> None:

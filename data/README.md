@@ -12,6 +12,9 @@ Governed by the **two data contracts** of ADR-0057 (see [docs/architecture/08_da
 | `derived/manifests/` | per-case `<case>.json` + the flat `index.json` inventory | committed |
 | `derived/case-results.json` | the exact pits + Whittle curves, baked by the TS solver | committed |
 | `derived/{grade-nn,pit-surrogate}.onnx`, `pit-learned.json` | the trained learned models + metrics | committed |
+| `derived/runtime-benchmarks.json` | reviewed per-case runtime evidence for the lane gate | committed |
+| `derived/minelib-results.json` | exact UPIT summaries against published MineLib optima | committed |
+| `derived/cpit-schedule.json` | offline CPIT bounds, feasible schedules, and controls | committed |
 
 ## CONTRACT 1, ingestion (the *bring-your-own-orebody* gate)
 
@@ -25,12 +28,17 @@ Defined in `data-pipeline/pipeline/io/contract.py`; full schema in
   tonnage/density, out-of-box indices and unphysical grades are **rejected** with a reason; rich grades + duplicate
   indices are **flagged**.
 
-A record is accepted iff it passes; bad records are rejected (never silently coerced); plausible-but-suspicious ones
+A record is accepted iff it passes; negative coordinates and other bad records are rejected (never silently coerced); plausible-but-suspicious ones
 are flagged (accepted; the flag travels into the manifest). The committed `examples/*.csv` must pass (a CI test asserts it).
 
 ## CONTRACT 2, artifact (pipeline → web)
 
-`data-pipeline/pipeline/core/{trace.py, manifest.py}` (`pitforge.trace/v1` + `pitforge.manifest/v2`). The web loads only
-manifests + traces + the shared artifacts; `frontend/src/lib/contract.types.ts` mirrors the shapes so a drift fails
-`tsc`. **No raw/heavy data is committed**, only the compact derived artifacts (the CI guards reject
+`data-pipeline/pipeline/core/{trace.py, manifest.py}` (`pitforge.trace/v1` + `pitforge.manifest/v2`). The Experiments
+page loads the index, manifests, and traces through runtime parsers; the Benchmark and scheduling views consume the
+declared shared artifacts. `scripts/check_artifacts.py` closes both directions of the inventory. **No raw/heavy data
+is committed**, only compact derived artifacts (the CI guards reject
 `.parquet/.h5/.mat/.npy`, venvs, and native binaries).
+
+`data/raw/*.json` is regenerable and git-ignored, but last-bit floating-point bytes can vary across Node/runtime
+versions. Seeds, grouping, labels, and material metrics are reproducible; learned-model refreshes receive explicit
+artifact review rather than an unsupported byte-identity claim.

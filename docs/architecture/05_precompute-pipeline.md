@@ -4,16 +4,16 @@ PitForge’s offline lane is **two-language** (like ChancaDEM / DispatchLab): th
 engine the browser runs, driven from Node via `tsx`; Python only orchestrates + reshapes. This avoids ever
 re-implementing the optimiser in Python.
 
-## The named stages (`pipeline/stages/`)
+## The executable programs
 
-| Stage | What (heavy lane) |
+| Program | What |
 |---|---|
-| `preprocess` | generate the synthetic deposit block models (the TS generator) |
-| `feature_extraction` | assemble the learned-model training tables (`science/gen_train.mjs`) |
-| `train` | fit the 2 learned models → ONNX (`science/train_pit.py`, torch) |
-| `infer` | bake the exact UPL + Whittle shells over every case (`science/bake_cases.mjs`) → `case-results.json` |
-| `evaluate` | the held-out learned-model metrics vs their classical baselines |
-| `export` | build the compact per-case trace + manifest (Contract 2), the light, numpy-only step |
+| `science/bake_cases.mjs` | generate deposits and bake exact UPL + Whittle shells into `case-results.json` |
+| `science/gen_train.mjs` | assemble grouped learned-model training tables |
+| `science/train_pit.py` | leave-one-geology-out evaluation, fit both models, and export ONNX + metrics |
+| `frontend/scripts/benchmark-cases.mjs` | refresh reviewed per-case runtime evidence for the lane gate |
+| `pipeline/stages/export.py` | build each compact trace, measured gate verdict, and manifest |
+| `pipeline/pipeline.py` | validate all cases, stage the complete tree, publish it, and remove orphans |
 
 ## The two lanes of `pipeline.pipeline`
 

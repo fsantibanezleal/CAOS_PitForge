@@ -132,7 +132,9 @@ def validate_blocks(raw_rows: list[dict[str, Any]], *, dims: tuple[int, int, int
             bad.append(f"density={density:g} ≤ 0")
         if not (0.0 <= grade <= GRADE_PHYSICAL_MAX):
             bad.append(f"grade={grade:g} out of [0,{GRADE_PHYSICAL_MAX:g}] (mass fraction)")
-        if dims is not None and not (0 <= ix < dims[0] and 0 <= iy < dims[1] and 0 <= iz < dims[2]):
+        if ix < 0 or iy < 0 or iz < 0:
+            bad.append(f"index ({ix},{iy},{iz}) contains a negative coordinate")
+        elif dims is not None and not (ix < dims[0] and iy < dims[1] and iz < dims[2]):
             bad.append(f"index ({ix},{iy},{iz}) outside the {dims} model box")
         if bad:
             rejected.append({"row": i, "reason": "; ".join(bad)})

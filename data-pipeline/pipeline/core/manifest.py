@@ -1,7 +1,7 @@
 """CONTRACT 2, artifact (pipeline -> web). The manifest is the authoritative, versioned record of a baked case: its
 category, seed, engine+version, the shared learned-model ONNX, the compact per-case trace pointer + byte size, the
-lane/gate verdict, the CONTRACT-1 flags, and the case metrics. The web loads ONLY manifests + traces + the shared
-artifacts; frontend/src/lib/contract.types.ts mirrors this schema so a drift fails the build. The committed
+lane/gate verdict, the CONTRACT-1 flags, and the case metrics. The web's Experiments surface loads the index,
+manifests, and traces through runtime parsers; frontend/src/lib/contract.types.ts documents the same schema. The committed
 case-results.json (baked by the SAME TS solver the browser runs) IS the real output of the offline lane; the learned
 models are honest, measured against their classical baselines (kriging/IDW; the exact solver), never a fabricated win."""
 from __future__ import annotations
@@ -32,6 +32,7 @@ def shared_artifacts() -> dict:
         ],
         "learned_metrics": "pit-learned.json",
         "case_results": "case-results.json",
+        "runtime_benchmarks": "runtime-benchmarks.json",
     }
 
 

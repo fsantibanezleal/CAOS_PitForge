@@ -4,16 +4,16 @@ import {
 } from '../lib/contractLive.ts';
 
 // the committed example (data/examples/blockmodel.csv), inlined so the panel can offer it offline.
-const EXAMPLE_CSV = `ix,iy,iz,tonnage,density,grade
+export const EXAMPLE_CSV = `ix,iy,iz,tonnage,density,grade
 0,0,0,2700,2.7,0.001
 1,0,0,2700,2.7,0.002
 2,0,0,2700,2.7,0.004
 0,0,1,2700,2.7,0.006
 1,0,1,2700,2.7,0.012
-2,0,1,2700,2.7,0.009
-0,0,2,2700,2.7,0.001
-1,0,2,2700,2.7,0.02
-2,0,2,2700,2.7,0.003
+2,0,1,2700,2.7,0.018
+0,0,2,2700,2.7,0.010
+1,0,2,2700,2.7,0.025
+2,0,2,2700,2.7,0.031
 `;
 
 /** Contract-1 drag-drop: drop a block-model CSV → validate (reject/flag, never coerce) → build the
@@ -129,7 +129,7 @@ export function UploadPanel({ es, active, onUse, onClear }: {
 
       <p className="pf-cap">{es
         ? 'Reglas (espejo exacto del pipeline Python): rechaza columnas faltantes, valores no numéricos, NaN/Inf, tonelaje≤0, densidad≤0, ley∉[0,1]; marca ley>0.5 y duplicados. La economía viene de los Controles (el CSV no la trae).'
-        : 'Rules (exact mirror of the Python pipeline): rejects missing columns, non-numeric values, NaN/Inf, tonnage≤0, density≤0, grade∉[0,1]; flags grade>0.5 and duplicates. Econ comes from the Controls (the CSV carries none).'}</p>
+        : 'Rules (exact mirror of the Python pipeline): rejects missing columns, negative indices, non-numeric values, NaN/Inf, tonnage≤0, density≤0, grade∉[0,1]; flags grade>0.5 and duplicates. Econ comes from the Controls (the CSV carries none).'}</p>
     </div>
   );
 }
