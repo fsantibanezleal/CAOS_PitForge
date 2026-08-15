@@ -28,7 +28,7 @@ export default function Methodology() {
               <Equation tex="s \xrightarrow{v_i} i\ (v_i>0),\quad i \xrightarrow{-v_i} t\ (v_i<0),\quad i \xrightarrow{\infty} j\ \text{(precedencia)}" />
               <p>{es ? 'Los bloques del lado de la fuente del corte mínimo forman el pit óptimo, y ' : 'The blocks on the source side of the min cut form the optimal pit, and '}<InlineMath tex="\text{valor} = \sum_{v_i>0} v_i - \text{maxflow}" />{es ? '. PitForge verifica esta identidad en cada solve.' : '. PitForge checks this identity on every solve.'}</p>
               <Callout variant="note" title={es ? 'El motor de flujo' : 'The flow engine'}>
-                {es ? 'Resolvemos el flujo máximo con el algoritmo de Dinic ' : 'We solve the max-flow with Dinic’s algorithm '}<Cite id="dinic1970" paren />{es ? ', exacto y determinista. Es el mismo corte que calcula el pseudoflow de Hochbaum ' : ', exact and deterministic. It is the same cut Hochbaum’s pseudoflow computes '}<Cite id="hochbaum2008" paren />{es ? '; lo mantenemos transparente y auto-verificable.' : '; we keep it transparent and self-checking.'}
+                {es ? 'Resolvemos el flujo máximo con el algoritmo de Dinic ' : 'We solve the max-flow with Dinic’s algorithm '}<Cite id="dinic1970" paren />{es ? ', exacto y determinista. Pseudoflow de Hochbaum ' : ', exact and deterministic. Hochbaum’s pseudoflow '}<Cite id="hochbaum2008" paren />{es ? ' resuelve el mismo problema de cierre máximo, aunque empates pueden producir cierres óptimos distintos; mantenemos el valor y la factibilidad auto-verificables.' : ' solves the same maximum-closure problem, although ties can produce different optimal closures; we keep value and feasibility self-checking.'}
               </Callout>
             </div>
           ),
@@ -62,14 +62,16 @@ export default function Methodology() {
                 ? 'El pit último es estático: no tiene tiempo, capacidad ni descuento. La frontera abierta (SOTA) es el scheduling de producción con restricciones de precedencia (CPIT): decidir en qué periodo se extrae cada bloque para maximizar el NPV descontado bajo capacidad por periodo. En forma acumulada por periodo (Chicoisne et al. '
                 : 'The ultimate pit is static: no time, no capacity, no discounting. The open frontier (SOTA) is precedence-constrained production scheduling (CPIT): choosing which period each block is extracted in to maximise discounted NPV under a per-period capacity. In by-period cumulative form (Chicoisne et al. '}<Cite id="chicoisne2012" paren />{es ? '):' : '):'}</p>
               <Equation tex="\max \sum_{b,t} \frac{v_b}{(1+r)^{t-1}}\,(x_{b,t}-x_{b,t-1})" caption={es ? 'x_{b,t} in {0,1}: bloque b extraído hasta el periodo t (acumulado, monótono); r tasa de descuento' : 'x_{b,t} in {0,1}: block b extracted by period t (cumulative, monotone); r discount rate'} />
-              <Equation tex="x_{b,t-1}\le x_{b,t},\quad x_{b,t}\le x_{a,t}\ \forall a\in \mathrm{pred}(b),\quad \sum_b w_b\,(x_{b,t}-x_{b,t-1})\le C_t" caption={es ? 'monotonía · precedencia en cada periodo · capacidad de tonelaje por periodo' : 'monotonicity · precedence in every period · per-period tonnage capacity'} />
+              <Equation tex="x_{b,t-1}\le x_{b,t},\quad x_{b,t}\le x_{a,t}\ \forall a\in \mathrm{pred}(b),\quad \sum_b w_{q,b}\,(x_{b,t}-x_{b,t-1})\le C_{q,t}\ \forall q" caption={es ? 'monotonía · precedencia · todas las capacidades de recursos por periodo' : 'monotonicity · precedence · every per-period resource capacity'} />
               <p>{es
-                ? 'PitForge resuelve offline la relajación LP de este problema (Bienstock y Zuckerberg '
-                : 'PitForge solves the LP relaxation of this problem offline (Bienstock & Zuckerberg '}<Cite id="bienstock2010" paren />{es
-                ? '; estudio y aplicaciones, Munoz et al. '
-                : '; study and applications, Munoz et al. '}<Cite id="munoz2018" paren />{es
-                ? '): como es una maximización, la relajación es una cota superior certificada del NPV entero. Redondeamos un plan de pushbacks factible (heurística voraz que respeta precedencia y capacidad) y reportamos la brecha de integralidad explícitamente. Una relajación LP es una cota, no un plan.'
-                : '): because it is a maximisation, the relaxation is a certified upper bound on the integer NPV. We round a feasible pushback schedule (a greedy heuristic respecting precedence and capacity) and report the integrality gap explicitly. An LP relaxation is a bound, not a schedule.'}</p>
+                ? 'PitForge resuelve offline la relajación LP acumulada de Chicoisne et al. con scipy.optimize.linprog/HiGHS '
+                : 'PitForge solves the cumulative Chicoisne et al. LP relaxation offline with scipy.optimize.linprog/HiGHS '}<Cite id="virtanen2020" paren />{es
+                ? '. Bienstock y Zuckerberg '
+                : '. Bienstock and Zuckerberg '}<Cite id="bienstock2010" paren />{es
+                ? ' y Munoz et al. '
+                : ' and Munoz et al. '}<Cite id="munoz2018" paren />{es
+                ? ' dan algoritmos especializados y contexto de escala; PitForge no afirma ejecutar el algoritmo BZ. Como es una maximización, la relajación es una cota superior certificada. La heurística voraz respeta precedencia y todas las capacidades; una relajación LP es una cota, no un plan.'
+                : 'provide specialized algorithms and scaling context; PitForge does not claim to run the BZ algorithm. Because this is a maximization, the relaxation is a certified upper bound. The greedy heuristic respects precedence and every capacity; an LP relaxation is a bound, not a schedule.'}</p>
               <Callout variant="strong" title={es ? 'Dualidad con el pit último' : 'Duality to the ultimate pit'}>
                 {es
                   ? 'A tasa de descuento 0 y capacidad infinita el conjunto minado del CPIT es exactamente el pit último (el pit último es el caso degenerado, no descontado y sin capacidad). Es el control de dualidad obligatorio: si no coincide bloque por bloque, es un bug, no un resultado. En newman1 y en el gemelo la cota LP reproduce el óptimo UPL exacto (26.086.899 y 126.908.454).'
@@ -77,8 +79,8 @@ export default function Methodology() {
               </Callout>
               <Callout variant="honest" title={es ? 'Alcance honesto' : 'Honest scope'}>
                 {es
-                  ? 'CPIT es SOTA de 2012, no un algoritmo nuevo: la contribución aquí es la entrega transparente en el navegador (cota certificada + brecha + animación de bancos), atada al mismo terreno MineLib. PitForge entrega una rebanada didáctica (cota + un plan de pushbacks en una o dos instancias); el planificador de producción completo es el producto hermano PhaseFlow.'
-                  : 'CPIT is 2012 SOTA, not a new algorithm: the contribution here is the transparent in-browser delivery (certified bound + gap + bench animation), tied to the same MineLib ground truth. PitForge ships a didactic slice (a bound + a pushback schedule on one or two instances); the full production scheduler is the sibling product PhaseFlow.'}
+                  ? 'CPIT es SOTA de 2012, no un algoritmo nuevo. PitForge abre y resuelve el newman1.cpit publicado (6 periodos, 8%, dos recursos): reproduce la cota MineLib 24.486.184 con error relativo menor que 4e-9 y obtiene una heurística factible de 23.553.245, brecha 3,81% contra esa cota. El valor factible histórico citado es 23.483.671 / brecha 4,1%; no se afirma un nuevo mejor conocido. El gemelo usa un escenario PitForge separado (8 periodos, 10%, un recurso), rotulado no comparable.'
+                  : 'CPIT is 2012 SOTA, not a new algorithm. PitForge opens and solves the published newman1.cpit (6 periods, 8%, two resources): it reproduces MineLib’s 24,486,184 bound within 4e-9 relative error and obtains a feasible 23,553,245 heuristic, a 3.81% gap to that bound. The cited historical feasible value is 23,483,671 / 4.1% gap; no new best-known result is claimed. The twin uses a separate PitForge scenario (8 periods, 10%, one resource), explicitly labeled non-comparable.'}
               </Callout>
             </div>
           ),

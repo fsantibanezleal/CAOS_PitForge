@@ -1,8 +1,8 @@
 {
   "schema": "pitforge.minelib-bench/v1",
-  "bakedAt": "2026-07-03T20:23:32.764Z",
+  "bakedAt": "2026-08-15T18:25:25.471Z",
   "engine": "solveUpitExplicit (Picard max-closure -> Dinic min-cut, TypeScript, Node)",
-  "license": "instances fetched per the MineLib academic-download grant; only summary numbers are committed",
+  "license": "MineLib CC BY-SA 3.0 Unported; only attributed summary numbers are committed by project policy",
   "results": [
     {
       "id": "newman1",
@@ -14,8 +14,8 @@
       "relError": 9.95515035759146e-10,
       "match": true,
       "nInPit": 1059,
-      "parseMs": 6,
-      "solveMsMedian": 5.2
+      "parseMs": 2,
+      "solveMsMedian": 2
     },
     {
       "id": "zuck_small",
@@ -27,8 +27,8 @@
       "relError": 1.8629025682866078e-10,
       "match": true,
       "nInPit": 9399,
-      "parseMs": 53,
-      "solveMsMedian": 237.3
+      "parseMs": 18,
+      "solveMsMedian": 111.9
     },
     {
       "id": "kd",
@@ -40,8 +40,8 @@
       "relError": 1.304997057408205e-10,
       "match": true,
       "nInPit": 12154,
-      "parseMs": 65,
-      "solveMsMedian": 259.3
+      "parseMs": 27,
+      "solveMsMedian": 111.9
     }
   ],
   "excluded": [

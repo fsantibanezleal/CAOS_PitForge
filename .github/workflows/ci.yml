@@ -80,3 +80,5 @@ jobs:
         run: python scripts/check_content_standards.py
       - name: Release and manifest version coherence
         run: python scripts/check_version_coherence.py
+      - name: Scientific references, licenses and CPIT scenario integrity
+        run: python scripts/check_reference_integrity.py

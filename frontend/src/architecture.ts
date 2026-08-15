@@ -23,8 +23,8 @@ export const architecture: ArchitectureConfig = {
         'client-side. An inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor).\n\n' +
         'Two sources, one engine. Synthetic: seeded deposit archetypes (porphyry, vein, layered, core+halo, stated ' +
         'openly as synthetic) plus the CTRL oracle. Real: published MineLib benchmark instances (Espinoza et al. 2013), ' +
-        'fetched at runtime into browser memory, never redistributed with the app, because the MineLib license only ' +
-        'grants download for academic purposes. In real mode the scenario knobs lock: the instance ships explicit ' +
+        'licensed CC BY-SA 3.0 Unported and fetched at runtime into browser memory. PitForge chooses not to bundle ' +
+        'the instance bytes as a project policy. In real mode the scenario knobs lock: the instance ships explicit ' +
         'precedence and net block values, and the solve must reproduce the published optimum.',
       body_es:
         'PitForge es un producto de planificación de rajo abierto: desde un modelo de bloques, la economía ' +
@@ -39,8 +39,8 @@ export const architecture: ArchitectureConfig = {
         'calculable a mano (un ancla de corrección de forma cerrada).\n\n' +
         'Dos fuentes, un motor. Sintético: arquetipos de depósito con semilla (pórfido, veta, estratificado, ' +
         'núcleo+halo, declarados abiertamente como sintéticos) más el oráculo CTRL. Real: instancias del benchmark ' +
-        'MineLib (Espinoza et al. 2013), descargadas en tiempo de ejecución a memoria del navegador, nunca redistribuidas con la ' +
-        'app, porque la licencia MineLib sólo permite descarga con fines académicos. En modo real las perillas de ' +
+        'MineLib (Espinoza et al. 2013), licenciadas CC BY-SA 3.0 Unported y descargadas en tiempo de ejecución a ' +
+        'memoria del navegador. PitForge elige no empaquetar sus bytes como política del proyecto. En modo real las perillas de ' +
         'escenario se bloquean: la instancia trae precedencia explícita y valores netos, y el solve debe reproducir el ' +
         'óptimo publicado.',
     },

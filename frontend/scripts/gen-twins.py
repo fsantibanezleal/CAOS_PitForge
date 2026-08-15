@@ -1,8 +1,8 @@
 """Generate the synthetic MineLib-format twins committed under frontend/public/twins/ (#34).
 
-These are OUR data (the oreblocks package generates a seeded deposit, solves the EXACT ultimate
-pit, and writes .blocks/.prec/.upit with the optimum STAMPED in the meta sidecar). No MineLib
-license applies, so unlike the published instances they are committed and served locally. Run:
+These are MIT-licensed generated data (oreblocks 0.1.0 generates a seeded deposit, solves the exact ultimate
+pit, and writes .blocks/.prec/.upit with the optimum stamped in the meta sidecar). They do not derive from a
+MineLib instance, so the MineLib data license does not apply. Run:
 
     pip install oreblocks
     python frontend/scripts/gen-twins.py frontend/public/twins
@@ -16,7 +16,7 @@ from pathlib import Path
 from oreblocks import make_twin
 OUT = Path(sys.argv[1])
 OUT.mkdir(parents=True, exist_ok=True)
-# a small varied set of synthetic MineLib-format twins with stamped exact optima (license-free)
+# A small varied set of MIT-licensed synthetic MineLib-format twins with stamped exact optima.
 TWINS = [
     ("twin-porphyry-s", "porphyry", (16, 16, 8), 7),
     ("twin-vein-m",     "vein",     (20, 20, 10), 3),

@@ -25,9 +25,10 @@ i  ──∞───►  j      for every precedence arc (j must be removed to 
 ```
 
 The blocks on the **source side of the min cut** are the optimal pit, and `pitValue = Σ_{v_i>0} v_i − maxflow`.
-PitForge solves the max-flow with **Dinic’s algorithm**, exact, deterministic. This is the same cut that Lerchs &
-Grossmann’s 1965 graph algorithm and Hochbaum’s 2008 pseudoflow compute; we keep it transparent and self-checking
-(the value identity is asserted every solve).
+PitForge solves the max-flow with **Dinic’s algorithm**, exactly and deterministically. Lerchs and Grossmann's
+graph method, Picard's reduction, and Hochbaum's pseudoflow address the same maximum-closure optimum. Alternative
+algorithms need not return an identical source-side set when tied optima exist, so PitForge claims equal optimal
+value, not an identical cut. The value identity is asserted on every solve.
 
 ### Why min-cut equals max-closure (the LP-duality derivation)
 
@@ -84,6 +85,6 @@ values); we additionally union each shell with the previous to absorb any float-
 The ultimate pit is the undiscounted, uncapacitated limit of a production schedule. The scheduling extension
 (time, per-period capacity, discounting, a certified NPV bound) is documented in `04_scheduling.md`.
 
-**References:** Lerchs & Grossmann 1965 · Picard 1976 · Dinic 1970 · Hochbaum 2008 · Gallo, Grigoriadis &
-Tarjan 1989 · Deutsch et al. 2022 (MineFlow) · Whittle 1988 · Hustrulid et al. 2013 (full citations in
-`frontend/src/data/citations.ts`).
+**References:** Lerchs and Grossmann 1965; Picard 1976; Hochbaum and Chen 2000; Dinic 1970; Hochbaum 2008;
+Gallo, Grigoriadis and Tarjan 1989; Deutsch et al. 2022 (MineFlow); Whittle 1988; Hustrulid et al. 2013. Full
+citations are in `frontend/src/data/citations.ts`.

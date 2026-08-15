@@ -18,7 +18,8 @@ ENGINE_NOTE = ("exact ultimate-pit limit (Lerchs–Grossmann) via Picard max-clo
                "Whittle revenue-factor nested pit shells; the same TS solver runs live in the browser and in the "
                "offline Node bake.")
 HONESTY = ("The deposits are SYNTHETIC (seeded), stated openly; CTRL is a closed-form analytic control. The optimiser "
-           "is EXACT (the min-cut is the same one Hochbaum pseudoflow computes). The two learned models are framed "
+           "is EXACT (Picard min-cut and pseudoflow solve the same maximum-closure optimal-value problem; tied "
+           "optima need not return an identical cut). The two learned models are framed "
            "against their classical baselines, the grade NN vs kriging/IDW, the pit-inclusion surrogate vs the exact "
            "solver, as fast approximations, never as beating the exact result.")
 

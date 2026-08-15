@@ -20,6 +20,9 @@ Both are trained offline (`science/train_pit.py`, torch) and reported next to th
 metrics live in `data/derived/pit-learned.json` and show in Benchmark; the models run live in the App’s
 **Infill · what-if** (grade-NN) and **Surrogate · preview** (pit-surrogate) tabs.
 
+Ordinary Kriging is the geostatistical reference method described by Chilès and Delfiner (2012),
+doi:10.1002/9781118136188. It is a baseline here, not a PitForge invention.
+
 | Model | Task | Baseline | Held-out metric (this build) |
 |---|---|---|---|
 | `grade-nn` | masked 3×3×3 grade stencil → centre grade | IDW · Ordinary Kriging | **R² 0.8757** vs IDW 0.8591 / OK 0.9333 |

@@ -3,7 +3,7 @@
 // Reads the GITIGNORED .minelib-cache, solves each instance with the exact engine
 // (solveUpitExplicit) and writes data/derived/minelib-results.json, SUMMARY numbers only
 // (counts, values, runtimes; the published optima are already public facts). Instance files are
-// never committed (MineLib grants academic download only).
+// never committed by project policy (MineLib itself is CC BY-SA 3.0 Unported).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,7 +61,7 @@ writeFileSync(OUT, JSON.stringify({
   schema: 'pitforge.minelib-bench/v1',
   bakedAt: new Date().toISOString(),
   engine: 'solveUpitExplicit (Picard max-closure -> Dinic min-cut, TypeScript, Node)',
-  license: 'instances fetched per the MineLib academic-download grant; only summary numbers are committed',
+  license: 'MineLib CC BY-SA 3.0 Unported; only attributed summary numbers are committed by project policy',
   results, excluded,
 }, null, 2));
 console.log(`[bake-minelib] wrote ${OUT} (${results.length} baked, ${excluded.length} excluded-with-reason)`);

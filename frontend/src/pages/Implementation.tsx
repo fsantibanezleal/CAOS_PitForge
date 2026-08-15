@@ -1,4 +1,4 @@
-import { Callout, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
+import { Callout, Cite, Tabs, useShellLang } from '@fasl-work/caos-app-shell';
 
 export default function Implementation() {
   const es = useShellLang() === 'es';
@@ -37,11 +37,14 @@ export default function Implementation() {
         {
           id: 'learned', label: es ? 'Modelos aprendidos' : 'Learned models',
           content: (
-            <Callout variant="honest" title={es ? 'Dos modelos honestos, no AE/CNN postizos' : 'Two honest models, not bolted-on AE/CNN'}>
-              {es
-                ? '(1) grade-NN: un estimador de ley por red neuronal vs kriging ordinario / IDW (R² held-out). (2) pit-surrogate: un clasificador de inclusión en el pit entrenado con las etiquetas exactas del solver, comparado contra el solver exacto como verdad de terreno (AUC). Ambos entrenan offline (torch, exportado a ONNX) y se ejecutan en vivo (onnxruntime-web). El optimizador exacto es el titular; estos son aproximaciones rápidas medidas contra su baseline. En este build ambos van entrenados (los .onnx están versionados; métricas held-out en Benchmark); si un modelo no carga, la app lo degrada y lo declara en el tab.'
-                : '(1) grade-NN: a neural-network grade estimator vs Ordinary Kriging / IDW (held-out R²). (2) pit-surrogate: a pit-inclusion classifier trained on the exact solver labels, benchmarked against the exact solver as ground truth (AUC). Both train offline (torch, exported to ONNX) and run live (onnxruntime-web). The exact optimiser is the headline; these are fast approximations measured against their baseline. In this build both ship trained (the .onnx files are committed; held-out metrics in Benchmark); if a model fails to load, the app degrades gracefully and says so in the tab.'}
-            </Callout>
+            <div className="pf-doc-sec">
+              <Callout variant="honest" title={es ? 'Dos modelos honestos, no AE/CNN postizos' : 'Two honest models, not bolted-on AE/CNN'}>
+                {es
+                  ? '(1) grade-NN: un estimador de ley por red neuronal vs kriging ordinario / IDW (R² held-out). (2) pit-surrogate: un clasificador de inclusión en el pit entrenado con las etiquetas exactas del solver, comparado contra el solver exacto como verdad de terreno (AUC). Ambos entrenan offline (torch, exportado a ONNX) y se ejecutan en vivo (onnxruntime-web). El optimizador exacto es el titular; estos son aproximaciones rápidas medidas contra su baseline. En este build ambos van entrenados (los .onnx están versionados; métricas held-out en Benchmark); si un modelo no carga, la app lo degrada y lo declara en el tab.'
+                  : '(1) grade-NN: a neural-network grade estimator vs Ordinary Kriging / IDW (held-out R²). (2) pit-surrogate: a pit-inclusion classifier trained on the exact solver labels, benchmarked against the exact solver as ground truth (AUC). Both train offline (torch, exported to ONNX) and run live (onnxruntime-web). The exact optimiser is the headline; these are fast approximations measured against their baseline. In this build both ship trained (the .onnx files are committed; held-out metrics in Benchmark); if a model fails to load, the app degrades gracefully and says so in the tab.'}
+              </Callout>
+              <p>{es ? 'Kriging ordinario se usa como baseline geoestadístico clásico, siguiendo el tratamiento de Chilès y Delfiner ' : 'Ordinary Kriging is the classical geostatistical baseline, following the treatment in Chilès and Delfiner '}<Cite id="chiles2012" paren />{es ? '; sus parámetros y el split held-out están versionados, no ajustados sobre el test.' : '; its parameters and the held-out split are versioned, not tuned on the test set.'}</p>
+            </div>
           ),
         },
         {
@@ -50,11 +53,12 @@ export default function Implementation() {
             <div className="pf-doc-sec">
               <pre className="codeblock">{`# light .venv-pipeline (numpy only)
 ruff check data-pipeline tests          # clean
-pytest                                  # 9 passed
+pytest                                  # 32 passed
 python -m pipeline.pipeline all            # 9 cases → traces + manifests
 python scripts/check_artifacts.py       # Contract 2 OK
 # byte-identical re-run → deterministic
-cd frontend && npm test                 # 34 passed (engine · contracts · MineLib · infill)
+cd frontend && npm test                 # 48 contracts (45 pass + 3 cache-gated)
+npm run test:e2e                        # 13 real-browser UI contracts
 npm run build                           # tsc + vite green`}</pre>
             </div>
           ),
