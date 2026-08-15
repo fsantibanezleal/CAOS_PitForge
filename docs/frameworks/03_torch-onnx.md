@@ -22,6 +22,8 @@ it resolves to `null` and the UI shows the honest "pending training" state inste
 
 ## Honesty
 
-Held-out numbers are reported next to the baseline (see [model evaluation](../architecture/06_model-evaluation.md)).
-On the smooth synthetic fields the grade is highly predictable so all methods score high; the surrogate is a strong
-fast approximation (AUC ≈ 0.98) but not the exact answer. No metric is computed on training data.
+Held-out numbers are reported next to comparable baselines (see
+[model evaluation](../architecture/06_model-evaluation.md)). The split leaves one geology out; paired full/sparse
+stencils and reused deposit geometries cannot cross the boundary. The grade NN narrowly beats IDW but trails
+Ordinary Kriging, and the surrogate reaches AUC 0.9123. Neither is the exact answer, and no metric is computed on
+training data.

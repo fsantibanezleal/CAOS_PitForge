@@ -1,6 +1,6 @@
 // Contract 2 mirror (frontend side). Must stay in lock-step with the Python schemas in
-// data-pipeline/pipeline/core/{trace.py, manifest.py}. A drift here makes `tsc` fail -> the contract is enforced at
-// build time (the web cannot ship reading a shape the pipeline does not produce).
+// data-pipeline/pipeline/core/{trace.py, manifest.py}. Runtime parsers in artifacts.ts enforce fetched JSON; these
+// interfaces keep application code typed after validation.
 
 // ---------- per-case replay trace (pitforge.trace/v1) ----------
 
@@ -48,8 +48,12 @@ export interface CaseSpec {
 
 export interface LearnedMetrics {
   status: 'trained' | 'pending-training';
-  gradeNN: { r2_vs_holdout: number; r2_idw: number; r2_ok: number; nTrain: number; nEval: number } | null;
-  pitSurrogate: { auc: number; acc: number; baseline: number; nTrain: number; nEval: number } | null;
+  scope: 'corpus';
+  source: 'pit-learned.json';
+  gradeNN: { r2_vs_holdout: number; r2_idw: number; r2_ok: number; nTrain: number; nEval: number;
+    split: string; evalGroup: string } | null;
+  pitSurrogate: { auc: number; acc: number; baseline_auc: number; baseline_acc: number; nTrain: number; nEval: number;
+    split: string; evalGroup: string } | null;
 }
 
 export interface CaseTrace {
@@ -75,6 +79,8 @@ export interface GateVerdict {
   lane: string;
   client_side: boolean;
   runtimes: string[];
+  measured_run_ms: number;
+  measurement_source: string;
   trace_bytes: number;
   run_ms_budget: number;
   trace_bytes_budget: number;
@@ -85,6 +91,7 @@ export interface SharedArtifacts {
   models: Array<{ id: string; file: string; opset: number; kind: string }>;
   learned_metrics: string;
   case_results: string;
+  runtime_benchmarks: string;
 }
 
 export interface CaseManifest {

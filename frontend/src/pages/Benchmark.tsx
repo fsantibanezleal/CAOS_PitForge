@@ -111,13 +111,14 @@ export default function Benchmark() {
               <tr><td>grade-NN</td><td>R²</td><td><b>{learned.gradeNN.r2_vs_holdout}</b></td>
                 <td>IDW {learned.gradeNN.r2_idw} · OK {learned.gradeNN.r2_ok}</td><td>{learned.gradeNN.nEval}</td></tr>
               <tr><td>pit-surrogate</td><td>AUC · acc</td><td><b>{learned.pitSurrogate.auc}</b> · {learned.pitSurrogate.acc}</td>
-                <td>{es ? 'mayoría' : 'majority'} {learned.pitSurrogate.baseline}</td><td>{learned.pitSurrogate.nEval}</td></tr>
+                <td>AUC {learned.pitSurrogate.baseline_auc} · {es ? 'exactitud mayoría' : 'majority accuracy'} {learned.pitSurrogate.baseline_acc}</td>
+                <td>{learned.pitSurrogate.nEval}</td></tr>
             </tbody>
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero no la respuesta exacta. Su rol correcto es preprocesamiento exacto acelerado por aprendizaje: ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras y el min-cut certifica la instancia reducida, así que el óptimo nunca cambia (valor = escala). El corte mínimo siempre manda.'
-              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but not the exact answer. Its correct role is learning-accelerated exact preprocessing: it orders provably-safe fix-in/fix-out reductions and the min-cut certifies the reduced instance, so the optimum never changes (value = scale). The min-cut is always the authority.'}
+              ? `La evaluación deja fuera una geología completa (${learned.gradeNN.evalGroup}); pares de stencil completo/disperso nunca cruzan el split. La NN supera apenas IDW y queda bajo kriging ordinario. El pit-surrogate logra AUC ${learned.pitSurrogate.auc} en la geología excluida, una aproximación útil pero no la respuesta exacta. Sólo ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras; el min-cut certifica el óptimo.`
+              : `Evaluation leaves out one complete geology (${learned.gradeNN.evalGroup}); paired full/sparse stencils never cross the split. The NN narrowly beats IDW and trails Ordinary Kriging. The pit surrogate reaches AUC ${learned.pitSurrogate.auc} on the excluded geology, useful but not exact. It only orders provably safe fix-in/fix-out reductions; the min-cut certifies the optimum.`}
           </Callout>
         </>
       ) : (

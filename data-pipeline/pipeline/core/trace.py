@@ -1,5 +1,5 @@
-"""The compact per-case TRACE = the web-replay artifact. Part of CONTRACT 2: its shape is mirrored by
-frontend/src/lib/contract.types.ts, so a drift fails the web build. Each trace is built deterministically from the
+"""The compact per-case TRACE = the web-replay artifact. Part of CONTRACT 2: its shape is documented in
+frontend/src/lib/contract.types.ts and enforced by the runtime parsers. Each trace is built deterministically from the
 committed solver outputs (case-results.json, produced by the SAME TS engine the browser runs) + the learned-model
 metrics (pit-learned.json, when present). It carries the case SPEC so the browser can re-solve LIVE, the Whittle
 curve, the ultimate-pit summary, and a vertical cross-section for an instant 2-D preview. It references the shared
@@ -14,11 +14,14 @@ TRACE_SCHEMA = "pitforge.trace/v1"
 
 def _learned_block(learned: dict | None) -> dict:
     if not learned:
-        return {"status": "pending-training", "gradeNN": None, "pitSurrogate": None}
+        return {"status": "pending-training", "scope": "corpus", "source": "pit-learned.json",
+                "gradeNN": None, "pitSurrogate": None}
     return {
         "status": "trained",
+        "scope": "corpus",
+        "source": "pit-learned.json",
         "gradeNN": learned.get("gradeNN"),          # {r2_vs_holdout, r2_idw, r2_ok, nTrain, nEval}
-        "pitSurrogate": learned.get("pitSurrogate"),  # {auc, acc, baseline, nTrain, nEval}
+        "pitSurrogate": learned.get("pitSurrogate"),
     }
 
 

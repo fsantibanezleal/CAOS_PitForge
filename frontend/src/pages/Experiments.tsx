@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Callout, Cite, useShellLang } from '@fasl-work/caos-app-shell';
-import { type CpitScheduleFile, loadCaseResults, loadCpitSchedule } from '../lib/artifacts.ts';
-import type { CaseResultsFile } from '../lib/contract.types.ts';
+import { type ContractCase, type CpitScheduleFile, loadContractCases, loadCpitSchedule } from '../lib/artifacts.ts';
 
 const fM = (v: number) => `$${(v / 1e6).toFixed(1)}M`;
 
 export default function Experiments() {
   const es = useShellLang() === 'es';
-  const [data, setData] = useState<CaseResultsFile | null>(null);
+  const [cases, setCases] = useState<ContractCase[] | null>(null);
+  const [contractError, setContractError] = useState<string | null>(null);
   const [cpit, setCpit] = useState<CpitScheduleFile | null>(null);
-  useEffect(() => { loadCaseResults().then(setData).catch(() => setData(null)); }, []);
+  useEffect(() => {
+    loadContractCases().then(setCases).catch((error: unknown) => {
+      setCases([]);
+      setContractError(error instanceof Error ? error.message : String(error));
+    });
+  }, []);
   useEffect(() => { loadCpitSchedule().then(setCpit).catch(() => setCpit(null)); }, []);
 
   return (
@@ -19,19 +24,23 @@ export default function Experiments() {
         ? 'Cada caso es un experimento con un ancla de validación: una propiedad que el resultado debe cumplir. Todas se verifican en el precálculo (frontend/test/contract.test.ts).'
         : 'Each case is an experiment with a validation anchor: a property the result must satisfy. They are all checked in the bake (frontend/test/contract.test.ts).'}</p>
 
-      {!data ? <p className="pf-note">{es ? 'cargando casos…' : 'loading cases…'}</p> : (
+      {!cases ? <p className="pf-note">{es ? 'cargando casos…' : 'loading cases…'}</p> : contractError ? (
+        <Callout variant="honest" title={es ? 'Contrato de artefactos inválido' : 'Invalid artifact contract'}>
+          {contractError}
+        </Callout>
+      ) : (
         <div className="pf-exp-grid">
-          {Object.entries(data.cases).map(([id, c]) => (
-            <div key={id} className="pf-card pf-exp">
-              <div className="pf-exp-h"><b>{id}</b> <span>{c.name}</span></div>
-              <div className="pf-cap pf-muted">{c.category.split(' (')[0]}</div>
+          {cases.map(({ manifest, trace }) => (
+            <div key={trace.case_id} className="pf-card pf-exp">
+              <div className="pf-exp-h"><b>{trace.case_id}</b> <span>{trace.name}</span></div>
+              <div className="pf-cap pf-muted">{trace.category.split(' (')[0]}</div>
               <div className="pf-kpis">
-                <div className="pf-kpi"><div className="pf-kpi-v">${(c.ultimate.pitValue / 1e6).toFixed(0)}M</div><div className="pf-kpi-l">{es ? 'valor' : 'value'}</div></div>
-                <div className="pf-kpi"><div className="pf-kpi-v">{c.ultimate.nBlocks}</div><div className="pf-kpi-l">{es ? 'bloques' : 'blocks'}</div></div>
-                <div className="pf-kpi"><div className="pf-kpi-v">{c.ultimate.stripRatio.toFixed(2)}</div><div className="pf-kpi-l">strip</div></div>
+                <div className="pf-kpi"><div className="pf-kpi-v">${(trace.ultimate.pitValue / 1e6).toFixed(0)}M</div><div className="pf-kpi-l">{es ? 'valor' : 'value'}</div></div>
+                <div className="pf-kpi"><div className="pf-kpi-v">{trace.ultimate.nBlocks}</div><div className="pf-kpi-l">{es ? 'bloques' : 'blocks'}</div></div>
+                <div className="pf-kpi"><div className="pf-kpi-v">{trace.ultimate.stripRatio.toFixed(2)}</div><div className="pf-kpi-l">strip</div></div>
               </div>
-              <div className="pf-anchor">⚓ {c.validationAnchor}</div>
-              <div className="pf-cap">{c.expectedBand}</div>
+              <div className="pf-anchor">⚓ {manifest.validation_anchor}</div>
+              <div className="pf-cap">{trace.expected_band}</div>
             </div>
           ))}
         </div>
