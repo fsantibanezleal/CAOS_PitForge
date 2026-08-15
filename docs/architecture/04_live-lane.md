@@ -8,7 +8,8 @@ Node bake (via `tsx`), so there is exactly **one** implementation of the science
 
 | Module | Role |
 |---|---|
-| `maxflow.ts` | Dinic maximum-flow / minimum-cut, the exact engine |
+| `maxflow.ts` | Dinic maximum-flow / minimum-cut, the live exact engine |
+| `pseudoflow.ts` | independent normalised-tree pseudoflow maximum-closure rung used for exact comparison |
 | `precedence.ts` | the slope-precedence cone template (reduced 1-bench arcs + transitivity) |
 | `econ.ts` | the floating-cutoff block-value model (RF, ore/waste decision) |
 | `ultimatepit.ts` | builds the min-cut graph, solves it, reads the pit off the source side; checks the value identity |
@@ -26,7 +27,8 @@ binary is pinned to the same version as the npm package (a skew is the classic l
 ## Live re-solve in the App
 
 The App holds `(case, RF, price×, slope°)` in state. On every change it re-runs `solveUltimatePit(model, econ)` (one
-fast max-flow) to drive the 3-D pit / section / KPIs, and recomputes `nestedPitShells` (the Whittle curve + shells)
-when the case/price/slope change. The `pit-surrogate` ONNX runs live over the current section in the
+fast max-flow) to drive the 3-D pit / section / KPIs, and precomputes `nestedPitShells` (12 exact pits, the Whittle
+curve + shells) when the case/price/slope change. Shell playback changes only a frame index and stops when the tab
+is hidden; no optimisation runs in its animation loop. The `pit-surrogate` ONNX runs live over the current section in the
 **Surrogate · preview** tab (the grade-NN in **Infill · what-if**). This is the "interactive value-readout viz that
 reacts to the controls", the exact pit, re-solved, not a replay.

@@ -21,9 +21,7 @@ jobs:
         run: ruff check data-pipeline tests
       - name: Tests
         run: pytest
-      - name: Pipeline smoke (regenerate one case)
-        run: python data-pipeline/run.py A01
-      - name: CONTRACT 2, manifests <-> artifacts consistent (no drift)
+      - name: CONTRACT 2, closed artifact inventory
         run: python scripts/check_artifacts.py
 
   frontend:
@@ -41,6 +39,16 @@ jobs:
       - run: npm ci
       - name: Engine tests (exact ultimate-pit oracle + nested-shell monotonicity)
         run: npm test
+      - name: Install browser for production UI contracts
+        run: npx playwright install --with-deps chromium
+      - name: Responsive, locale, accessibility and degraded-capability checks
+        run: npm run test:e2e
+      - name: Regenerate deterministic Contract-2 artifacts
+        run: |
+          npm run bake
+          python ../data-pipeline/run.py all
+          python ../scripts/check_artifacts.py
+          git diff --exit-code -- ../data/derived
       - name: Type-check + build the SPA
         run: npm run build
 
@@ -70,3 +78,7 @@ jobs:
           python-version: "3.12"
       - name: No em-dash or emoji in product content (ADR-0067)
         run: python scripts/check_content_standards.py
+      - name: Release and manifest version coherence
+        run: python scripts/check_version_coherence.py
+      - name: Scientific references, licenses and CPIT scenario integrity
+        run: python scripts/check_reference_integrity.py

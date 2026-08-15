@@ -13,8 +13,7 @@ from ..core.manifest import build_case_manifest
 from ..core.trace import build_trace
 from ..io.formats import write_json
 
-_RUN_MS = 60.0   # a teaching-scale full solve + nested shells, tens of ms; deterministic gate budget
-_RUNTIMES = {"ts-pseudoflow", "onnxruntime-web"}
+_RUNTIMES = {"ts-mincut", "onnxruntime-web"}
 
 
 def _case_metrics(case_result: dict, learned: dict | None) -> dict:
@@ -26,24 +25,31 @@ def _case_metrics(case_result: dict, learned: dict | None) -> dict:
         "n_blocks": float(u.get("nBlocks", 0.0)),
         "n_shells": float(len(case_result.get("curve", []))),
     }
-    if learned:
-        gnn = (learned.get("gradeNN") or {})
-        ps = (learned.get("pitSurrogate") or {})
-        m["grade_nn_r2"] = float(gnn.get("r2_vs_holdout", 0.0))
-        m["pit_surrogate_auc"] = float(ps.get("auc", 0.0))
     return m
 
 
 def build_replay(case: Any, *, derived_dir: str, manifests_dir: str,
-                 case_results: dict, learned: dict | None, contract_flags: list[dict], seed: int) -> dict:
+                 case_results: dict, learned: dict | None, runtime_benchmarks: dict,
+                 contract_flags: list[dict], seed: int) -> dict:
     cr = case_results["cases"][case.id]
     trace = build_trace(case, case_result=cr, learned=learned)
     artifact_rel = f"{case.id}/trace.json"
     trace_bytes = write_json(Path(derived_dir) / artifact_rel, trace)
-    gate = classify_lane(client_side=True, runtimes=_RUNTIMES, run_ms=_RUN_MS, trace_bytes=trace_bytes)
+    runtime = runtime_benchmarks["cases"].get(case.id)
+    if not runtime:
+        raise ValueError(f"runtime benchmark missing for case {case.id}")
+    gate = classify_lane(
+        client_side=True,
+        runtimes=_RUNTIMES,
+        run_ms=float(runtime["median_ms"]),
+        trace_bytes=trace_bytes,
+        measurement_source=runtime_benchmarks["source"],
+    )
     manifest = build_case_manifest(
         case=case, seed=seed, artifact_rel=artifact_rel, trace_bytes=trace_bytes,
-        gate=gate, flags=contract_flags, metrics=_case_metrics(cr, learned),
+        gate=gate,
+        flags=[flag for flag in contract_flags if flag.get("case_id") == case.id],
+        metrics=_case_metrics(cr, learned),
     )
     write_json(Path(manifests_dir) / f"{case.id}.json", manifest)
     return manifest

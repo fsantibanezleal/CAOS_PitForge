@@ -6,11 +6,33 @@ import { dirname, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { CaseResultsFile } from '../src/lib/contract.types.ts';
+import { parseCaseIndex, parseCaseManifest, parseCaseTrace } from '../src/lib/artifacts.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const data: CaseResultsFile = JSON.parse(
   readFileSync(resolve(HERE, '../../data/derived/case-results.json'), 'utf-8'),
 );
+
+test('runtime parsers enforce every committed index, manifest, and trace', () => {
+  const index = parseCaseIndex(JSON.parse(
+    readFileSync(resolve(HERE, '../../data/derived/manifests/index.json'), 'utf-8'),
+  ));
+  assert.equal(index.cases.length, 9);
+  for (const entry of index.cases) {
+    const manifest = parseCaseManifest(JSON.parse(
+      readFileSync(resolve(HERE, `../../data/derived/${entry.manifest_path}`), 'utf-8'),
+    ), entry.case_id);
+    const trace = parseCaseTrace(JSON.parse(
+      readFileSync(resolve(HERE, `../../data/derived/${manifest.artifact.path}`), 'utf-8'),
+    ), entry.case_id);
+    assert.equal(trace.case_id, manifest.case_id);
+  }
+});
+
+test('runtime parsers reject identity and schema drift', () => {
+  assert.throws(() => parseCaseIndex({ schema: 'wrong', n_cases: 0, cases: [] }), /schema/);
+  assert.throws(() => parseCaseTrace({ schema: 'pitforge.trace/v1', case_id: 'A02' }, 'A01'), /identity/);
+});
 
 test('case-results.json has the expected schema + all 9 cases', () => {
   assert.equal(data.schema, 'pitforge.case-results/v1');

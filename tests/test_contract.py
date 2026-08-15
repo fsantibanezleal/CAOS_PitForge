@@ -49,6 +49,16 @@ def test_block_contract_rejects_unphysical_and_flags_rich():
     assert len(rep.accepted) == 2 and len(rep.rejected) == 2 and rep.flagged
 
 
+def test_block_contract_rejects_negative_indices_without_dims():
+    rows = [
+        {"ix": -1, "iy": 0, "iz": 0, "tonnage": 2700, "density": 2.7, "grade": 0.01},
+        {"ix": 0, "iy": 0, "iz": -2, "tonnage": 2700, "density": 2.7, "grade": 0.01},
+    ]
+    rep = validate_blocks(rows)
+    assert not rep.accepted and len(rep.rejected) == 2
+    assert all("negative" in item["reason"] for item in rep.rejected)
+
+
 def test_committed_examples_pass_contract():
     root = Path(__file__).resolve().parents[1] / "data" / "examples"
     rep_s = validate_records(read_csv_rows(root / "scenarios.csv"))

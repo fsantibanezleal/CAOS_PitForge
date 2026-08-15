@@ -1,8 +1,8 @@
 {
-  "schema": "pitforge.minelib-bench/v1",
-  "bakedAt": "2026-07-03T20:23:32.764Z",
-  "engine": "solveUpitExplicit (Picard max-closure -> Dinic min-cut, TypeScript, Node)",
-  "license": "instances fetched per the MineLib academic-download grant; only summary numbers are committed",
+  "schema": "pitforge.minelib-bench/v2",
+  "bakedAt": "2026-08-15T18:57:08.033Z",
+  "engine": "solveUpitExplicit (Picard maximum closure; Dinic and Hochbaum normalised-tree pseudoflow rungs; TypeScript, Node)",
+  "license": "MineLib CC BY-SA 3.0 Unported; only attributed summary numbers are committed by project policy",
   "results": [
     {
       "id": "newman1",
@@ -14,8 +14,18 @@
       "relError": 9.95515035759146e-10,
       "match": true,
       "nInPit": 1059,
-      "parseMs": 6,
-      "solveMsMedian": 5.2
+      "parseMs": 3,
+      "dinicMsMedian": 1.9,
+      "pseudoflowMsMedian": 8.3,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 605,
+        "pushes": 3371,
+        "splits": 16,
+        "arcScans": 860265
+      }
     },
     {
       "id": "zuck_small",
@@ -27,8 +37,18 @@
       "relError": 1.8629025682866078e-10,
       "match": true,
       "nInPit": 9399,
-      "parseMs": 53,
-      "solveMsMedian": 237.3
+      "parseMs": 17,
+      "dinicMsMedian": 111.2,
+      "pseudoflowMsMedian": 11630,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 15836,
+        "pushes": 183154,
+        "splits": 10086,
+        "arcScans": 1075747251
+      }
     },
     {
       "id": "kd",
@@ -40,8 +60,18 @@
       "relError": 1.304997057408205e-10,
       "match": true,
       "nInPit": 12154,
-      "parseMs": 65,
-      "solveMsMedian": 259.3
+      "parseMs": 55,
+      "dinicMsMedian": 207.1,
+      "pseudoflowMsMedian": 12217,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 11388,
+        "pushes": 79792,
+        "splits": 4786,
+        "arcScans": 1188770464
+      }
     }
   ],
   "excluded": [

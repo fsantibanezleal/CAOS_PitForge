@@ -32,7 +32,7 @@ export function parseCsv(text: string): Record<string, string>[] {
 
 const bad = (v: number) => Number.isNaN(v) || !Number.isFinite(v);
 
-/** validate_blocks, mirrored. `dims` bounds the index box when given (same optionality as Python). */
+/** validate_blocks, mirrored. Negative coordinates are always invalid; `dims` adds upper bounds when known. */
 export function validateBlocksLive(rawRows: Record<string, string>[], dims?: [number, number, number]): ContractLiveReport {
   const accepted: BlockRow[] = [];
   const rejected: { row: number; reason: string }[] = [];
@@ -65,7 +65,9 @@ export function validateBlocksLive(rawRows: Record<string, string>[], dims?: [nu
       if (density <= 0) reasons.push(`density=${density} ≤ 0`);
       if (!(grade >= 0 && grade <= GRADE_PHYSICAL_MAX)) reasons.push(`grade=${grade} out of [0,${GRADE_PHYSICAL_MAX}] (mass fraction)`);
     }
-    if (dims && !(ix >= 0 && ix < dims[0] && iy >= 0 && iy < dims[1] && iz >= 0 && iz < dims[2])) {
+    if (ix < 0 || iy < 0 || iz < 0) {
+      reasons.push(`index (${ix},${iy},${iz}) contains a negative coordinate`);
+    } else if (dims && !(ix < dims[0] && iy < dims[1] && iz < dims[2])) {
       reasons.push(`index (${ix},${iy},${iz}) outside the (${dims.join(',')}) model box`);
     }
     if (reasons.length) { rejected.push({ row: i, reason: reasons.join('; ') }); return; }
@@ -94,6 +96,9 @@ export interface UserModel {
  *  Indices must start ≥ 0 (the contract's model box); dims = the index bounding box. */
 export function buildUserModel(rows: BlockRow[], name: string): UserModel {
   if (rows.length === 0) throw new Error('no accepted blocks');
+  if (rows.some((r) => r.ix < 0 || r.iy < 0 || r.iz < 0)) {
+    throw new Error('block indices must be non-negative');
+  }
   let nx = 0;
   let ny = 0;
   let nz = 0;
@@ -115,6 +120,11 @@ export function buildUserModel(rows: BlockRow[], name: string): UserModel {
     density[d] = r.density;
     grade[d] = r.grade;
     present[d] = 1;
+  }
+  const uniqueCells = new Set(rows.map((r) => `${r.ix},${r.iy},${r.iz}`)).size;
+  const populatedCells = present.reduce((total, value) => total + value, 0);
+  if (populatedCells !== uniqueCells) {
+    throw new Error(`model population mismatch: ${rows.length} accepted rows produced ${populatedCells} cells`);
   }
   const model: BlockModel = {
     dims, block: { dx: 10, dy: 10, dz: 10 },

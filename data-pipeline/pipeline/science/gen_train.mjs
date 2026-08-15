@@ -17,12 +17,14 @@ mkdirSync(RAW, { recursive: true });
 // features: [depth_frac, block_value (raw), neighbourhood_value (raw), radial_frac]; label = in the exact pit.
 const pitF = [];
 const pitY = [];
+const pitGroups = [];
 for (const c of CASES) {
   if (c.archetype === null) continue;                       // skip the tiny oracle
   const model = caseModel(c);
   const { nx, ny, nz } = model.dims;
   const econ = { ...c.econ, revenueFactor: 1 };
   const pit = solveUltimatePit(model, econ);
+  const geologyGroup = `${c.archetype}:${c.seed}:${c.peakGrade}`;
   const val = new Float64Array(nx * ny * nz);
   for (let i = 0; i < val.length; i++) val[i] = blockValue(model, i, econ);
   const cx = (nx - 1) / 2;
@@ -43,6 +45,7 @@ for (const c of CASES) {
         }
         pitF.push([iz / Math.max(1, nz - 1), val[i], ncnt ? nsum / ncnt : 0, Math.hypot(ix - cx, iy - cy) / maxR]);
         pitY.push(pit.inPit[i]);
+        pitGroups.push(geologyGroup);
       }
     }
   }
@@ -55,6 +58,7 @@ for (const c of CASES) {
 // sees complete neighbourhoods and collapses on partially-drilled stencils.
 const gX = [];
 const gY = [];
+const gradeGroups = [];
 let rngState = 0xC0FFEE;
 const rand = () => {
   rngState |= 0; rngState = (rngState + 0x6d2b79f5) | 0;
@@ -85,14 +89,16 @@ for (const c of CASES) {
         const y = model.grade[idx(model.dims, ix, iy, iz)];
         gX.push(stencil);
         gY.push(y);
+        gradeGroups.push(key);
         const keep = 0.1 + 0.8 * rand();                      // sparse variant (drilling-density dropout)
         gX.push(stencil.map((v) => (rand() < keep ? v : 0)));
         gY.push(y);
+        gradeGroups.push(key);
       }
     }
   }
 }
 
-writeFileSync(resolve(RAW, 'pit-train.json'), JSON.stringify({ f: pitF, y: pitY }));
-writeFileSync(resolve(RAW, 'grade-train.json'), JSON.stringify({ x: gX, y: gY }));
+writeFileSync(resolve(RAW, 'pit-train.json'), JSON.stringify({ f: pitF, y: pitY, group: pitGroups }));
+writeFileSync(resolve(RAW, 'grade-train.json'), JSON.stringify({ x: gX, y: gY, group: gradeGroups }));
 console.log(`gen_train: pit-surrogate ${pitY.length} rows · grade-nn ${gY.length} rows -> ${RAW}`);

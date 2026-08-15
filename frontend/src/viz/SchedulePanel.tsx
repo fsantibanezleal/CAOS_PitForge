@@ -9,7 +9,7 @@ import { type CpitCase, type CpitScheduleFile, loadCpitSchedule } from '../lib/a
 // limit of a schedule. Here we add the scheduling dimension (time, per-period capacity, discounting -> NPV).
 // Left/top: a paused-by-default bench-sequence animation of a live greedy pushback on the current deposit.
 // Bottom: the certified NPV-vs-period curve, from the offline LP relaxation (data/derived/cpit-schedule.json),
-// with the integrality gap shown honestly. The browser cannot solve the LP, so the certified bound is offline;
+// with the bound-to-feasible gap shown honestly. The browser cannot solve the LP, so the certified bound is offline;
 // the live schedule is a feasible glass-box heuristic. Honesty: the LP relaxation is a bound, not a schedule.
 
 import uPlot from 'uplot';
@@ -55,7 +55,11 @@ function NpvPeriodChart({ cum, bound, upl, es }: { cum: number[]; bound: number;
       legend: { live: true },
     };
   }, [n, es]);
-  return <UPlotChart data={data} build={build} height={230} />;
+  const summary = cum.map((value, index) => `${es ? 'periodo' : 'period'} ${index + 1}: ${fM(value)}`).join('; ');
+  return <UPlotChart data={data} build={build} height={230}
+                     ariaLabel={es ? 'NPV acumulado por periodo con cota certificada' : 'Cumulative NPV by period with certified bound'}
+                     summary={`${summary}; ${es ? 'cota' : 'bound'}: ${fM(bound)}`}
+                     interactionHint={es ? 'Flechas desplazan, +/− amplían e Inicio restablece.' : 'Arrows pan, +/− zoom, and Home resets.'} />;
 }
 
 export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ: EconParams; iy: number; es: boolean }) {
@@ -66,10 +70,15 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
   const [playing, setPlaying] = useState(false);
   const timer = useRef<number | null>(null);
 
-  const [cert, setCert] = useState<CpitScheduleFile | null>(null);
+  const [cert, setCert] = useState<CpitScheduleFile | null | undefined>(undefined);
   const [certErr, setCertErr] = useState(false);
   const [certId, setCertId] = useState('twin-porphyry-s');
-  useEffect(() => { loadCpitSchedule().then(setCert).catch(() => setCertErr(true)); }, []);
+  const loadCertificate = useCallback(() => {
+    setCert(undefined);
+    setCertErr(false);
+    loadCpitSchedule().then(setCert).catch(() => { setCert(null); setCertErr(true); });
+  }, []);
+  useEffect(loadCertificate, [loadCertificate]);
 
   const econ1 = useMemo(() => ({ ...econ, revenueFactor: 1 }), [econ]);
   const sched = useMemo(
@@ -158,13 +167,17 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
       </div>
 
       <div className="pf-card">
-        <div className="pf-card-t">{es ? 'Cota certificada (LP offline) + brecha de integralidad' : 'Certified bound (offline LP) + integrality gap'}</div>
-        {certErr || !cert ? (
-          <p className="pf-note">{es
-            ? 'Artefacto cpit-schedule.json ausente. Ejecutar `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'
-            : 'cpit-schedule.json artifact absent. Run `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py`.'}</p>
+        <div className="pf-card-t">{es ? 'Cota certificada (LP offline) + brecha a factible' : 'Certified bound (offline LP) + gap to feasible'}</div>
+        {cert === undefined ? (
+          <div className="pf-status" role="status">{es ? 'Cargando cota certificada…' : 'Loading certified bound…'}</div>
+        ) : certErr || !cert ? (
+          <div className="pf-status" data-kind="error" role="alert">
+            <strong>{es ? 'Cota certificada no disponible' : 'Certified bound unavailable'}</strong>
+            <p>{es ? 'No se pudo leer cpit-schedule.json. El plan factible en vivo sigue operativo.' : 'cpit-schedule.json could not be read. The live feasible schedule remains operational.'}</p>
+            <div className="pf-status-actions"><button className="chip" onClick={loadCertificate}>{es ? 'Reintentar' : 'Retry'}</button></div>
+          </div>
         ) : !certCase ? (
-          <p className="pf-note">{es ? 'caso no encontrado' : 'case not found'}</p>
+          <div className="pf-status" data-kind="empty">{es ? 'Caso certificado no encontrado.' : 'Certified case not found.'}</div>
         ) : (
           <>
             <div className="pf-seg" style={{ marginBottom: '0.6rem' }}>
@@ -172,20 +185,51 @@ export function SchedulePanel({ model, econ, iy, es }: { model: BlockModel; econ
                 <button key={id} className={`chip ${certId === id ? 'on' : ''}`} onClick={() => setCertId(id)}>{id}</button>
               ))}
             </div>
+            <p><strong>{certCase.scenario.label}</strong></p>
+            <p className="pf-cap">{certCase.provenance.kind === 'minelib' ? <>
+              <a href={`https://doi.org/${certCase.provenance.citationDoi}`}>MineLib</a> · <a href={certCase.provenance.licenseUrl}>{certCase.provenance.license}</a> · <a href={certCase.provenance.scenarioUrl}>newman1.cpit</a>
+            </> : <><a href={certCase.provenance.generatorRepository}>{certCase.provenance.generator} {certCase.provenance.generatorVersion}</a> · {certCase.provenance.license}</>}</p>
+            {!certCase.scenario.comparableToPublishedMineLibCpit && (
+              <p className="pf-cap pf-muted">{es
+                ? 'Escenario didáctico propio de PitForge. No es comparable con la brecha del escenario CPIT publicado de MineLib.'
+                : 'PitForge-authored didactic scenario. It is not comparable with the published MineLib CPIT scenario gap.'}</p>
+            )}
             <NpvPeriodChart cum={certCase.perPeriod.map((p) => p.cumulativeNpv)} bound={certCase.certifiedBoundNpv}
                             upl={certCase.uplValue} es={es} />
             <div className="pf-kpis">
               <Kpi label={es ? 'cota certificada NPV' : 'certified NPV bound'} value={fM(certCase.certifiedBoundNpv)} />
-              <Kpi label={es ? 'NPV plan factible' : 'feasible schedule NPV'} value={fM(certCase.roundedScheduleNpv)} />
-              <Kpi label={es ? 'brecha de integralidad' : 'integrality gap'} value={`${certCase.integralityGapPct.toFixed(1)}%`} />
+              <Kpi label={es ? 'NPV heurística factible' : 'feasible heuristic NPV'} value={fM(certCase.feasibleHeuristicNpv)} />
+              <Kpi label={es ? 'brecha cota a factible' : 'bound-to-feasible gap'} value={`${certCase.boundToFeasibleGapPct.toFixed(1)}%`} />
               <Kpi label={es ? 'control dualidad' : 'duality control'} value={certCase.controls.dualityMatch ? (es ? 'PASA' : 'PASS') : 'FAIL'} />
             </div>
+            <table className="cmp-table">
+              <thead><tr><th>{es ? 'recurso' : 'resource'}</th><th>{es ? 'límite por periodo' : 'per-period limit'}</th><th>{es ? 'máximo usado' : 'maximum used'}</th></tr></thead>
+              <tbody>{certCase.resourceConstraints.map((resource, index) => (
+                <tr key={resource.id}><td>{resource.label}</td>
+                  <td>{Math.max(...resource.limits).toLocaleString()}</td>
+                  <td>{Math.max(...certCase.perPeriod.map((period) => period.resourceUsage[index] ?? 0)).toLocaleString()}</td></tr>
+              ))}</tbody>
+            </table>
+            {certCase.publishedComparison && (
+              <div className="pf-card" style={{ marginTop: '0.7rem' }}>
+                <div className="pf-card-t">{es ? 'Control contra MineLib publicado' : 'Published MineLib control'}</div>
+                <div className="pf-kpis">
+                  <Kpi label={es ? 'cota MineLib' : 'MineLib bound'} value={fM(certCase.publishedComparison.mineLibLpUpperBoundNpv)} />
+                  <Kpi label={es ? 'error relativo de cota' : 'bound relative error'} value={certCase.publishedComparison.ourBoundRelativeError.toExponential(2)} />
+                  <Kpi label={es ? 'factible publicado' : 'published feasible'} value={fM(certCase.publishedComparison.mineLibPublishedFeasibleNpv)} />
+                  <Kpi label={es ? 'brecha PitForge a cota' : 'PitForge gap to bound'} value={`${certCase.boundToFeasibleGapPct.toFixed(2)}%`} />
+                </div>
+                <p className="pf-cap pf-muted">{es
+                  ? `Nuestra heurística factible está ${certCase.publishedComparison.ourHeuristicRelativeToPublishedFeasiblePct.toFixed(2)}% sobre el valor factible histórico citado. No se afirma un nuevo mejor conocido; la cota publicada reproducida es el certificado.`
+                  : `Our feasible heuristic is ${certCase.publishedComparison.ourHeuristicRelativeToPublishedFeasiblePct.toFixed(2)}% above the cited historical feasible value. No new best-known claim is made; the reproduced published upper bound is the certificate.`}</p>
+              </div>
+            )}
             <p className="pf-cap">{es
-              ? `Fuente: ${certCase.source}. Motor: relajación LP de CPIT (Bienstock-Zuckerberg 2010 / Chicoisne 2012) vía scipy HiGHS; ${certCase.periods} periodos, tasa ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. La relajación LP es una cota superior certificada del NPV, no un plan; el plan redondeado es una heurística factible y la brecha se reporta arriba.`
-              : `Source: ${certCase.source}. Engine: CPIT LP relaxation (Bienstock-Zuckerberg 2010 / Chicoisne 2012) via scipy HiGHS; ${certCase.periods} periods, rate ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. The LP relaxation is a certified upper bound on the NPV, not a schedule; the rounded schedule is a feasible heuristic and the gap is reported above.`}</p>
+              ? `Fuente: ${certCase.source}. Motor ejecutado: formulación LP acumulativa de CPIT de Chicoisne et al. 2012 vía scipy HiGHS; ${certCase.periods} periodos, tasa ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. Bienstock-Zuckerberg es contexto especializado de la literatura, no el algoritmo ejecutado. La relajación es una cota superior certificada, no un plan.`
+              : `Source: ${certCase.source}. Engine actually run: Chicoisne et al. 2012 cumulative CPIT LP formulation via scipy HiGHS; ${certCase.periods} periods, rate ${(certCase.discountRatePerPeriod * 100).toFixed(0)}%. Bienstock-Zuckerberg is specialized literature context, not the algorithm executed. The relaxation is a certified upper bound, not a schedule.`}</p>
             <p className="pf-cap pf-muted">{es
-              ? `Control de dualidad: a tasa 0 y capacidad infinita la cota LP iguala el pit último exacto (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} bloques) bloque por bloque, y la cota domina al NPV factible.`
-              : `Duality control: at rate 0 and infinite capacity the LP bound equals the exact ultimate pit (${(certCase.uplValue / 1e6).toFixed(1)} M, ${certCase.uplBlocks} blocks) block-for-block, and the bound dominates the feasible NPV.`}</p>
+              ? `Controles: dualidad ${certCase.controls.dualityMatch ? 'PASA' : 'FALLA'}; cota sobre factible ${certCase.controls.boundGeqFeasible ? 'PASA' : 'FALLA'}; recursos ${certCase.controls.resourceLimitsRespected ? 'PASA' : 'FALLA'}; precedencia ${certCase.controls.precedenceRespected ? 'PASA' : 'FALLA'}; pit completo ${certCase.controls.completeUltimatePit ? 'PASA' : 'FALLA'}.`
+              : `Controls: duality ${certCase.controls.dualityMatch ? 'PASS' : 'FAIL'}; bound over feasible ${certCase.controls.boundGeqFeasible ? 'PASS' : 'FAIL'}; resources ${certCase.controls.resourceLimitsRespected ? 'PASS' : 'FAIL'}; precedence ${certCase.controls.precedenceRespected ? 'PASS' : 'FAIL'}; complete pit ${certCase.controls.completeUltimatePit ? 'PASS' : 'FAIL'}.`}</p>
           </>
         )}
       </div>

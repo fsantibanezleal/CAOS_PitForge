@@ -1,7 +1,7 @@
 """CONTRACT 2, artifact (pipeline -> web). The manifest is the authoritative, versioned record of a baked case: its
 category, seed, engine+version, the shared learned-model ONNX, the compact per-case trace pointer + byte size, the
-lane/gate verdict, the CONTRACT-1 flags, and the case metrics. The web loads ONLY manifests + traces + the shared
-artifacts; frontend/src/lib/contract.types.ts mirrors this schema so a drift fails the build. The committed
+lane/gate verdict, the CONTRACT-1 flags, and the case metrics. The web's Experiments surface loads the index,
+manifests, and traces through runtime parsers; frontend/src/lib/contract.types.ts documents the same schema. The committed
 case-results.json (baked by the SAME TS solver the browser runs) IS the real output of the offline lane; the learned
 models are honest, measured against their classical baselines (kriging/IDW; the exact solver), never a fabricated win."""
 from __future__ import annotations
@@ -18,7 +18,8 @@ ENGINE_NOTE = ("exact ultimate-pit limit (Lerchs–Grossmann) via Picard max-clo
                "Whittle revenue-factor nested pit shells; the same TS solver runs live in the browser and in the "
                "offline Node bake.")
 HONESTY = ("The deposits are SYNTHETIC (seeded), stated openly; CTRL is a closed-form analytic control. The optimiser "
-           "is EXACT (the min-cut is the same one Hochbaum pseudoflow computes). The two learned models are framed "
+           "is EXACT (Picard min-cut and pseudoflow solve the same maximum-closure optimal-value problem; tied "
+           "optima need not return an identical cut). The two learned models are framed "
            "against their classical baselines, the grade NN vs kriging/IDW, the pit-inclusion surrogate vs the exact "
            "solver, as fast approximations, never as beating the exact result.")
 
@@ -32,6 +33,7 @@ def shared_artifacts() -> dict:
         ],
         "learned_metrics": "pit-learned.json",
         "case_results": "case-results.json",
+        "runtime_benchmarks": "runtime-benchmarks.json",
     }
 
 

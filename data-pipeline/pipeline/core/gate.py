@@ -8,12 +8,13 @@ milliseconds and the traces are small, so every case passes. The verdict + budge
 mislabeling. A MEASUREMENT, never a hand-wave."""
 from __future__ import annotations
 
-LIVE_RUNTIMES: set[str] = {"ts-pseudoflow", "onnxruntime-web"}
+LIVE_RUNTIMES: set[str] = {"ts-mincut", "onnxruntime-web"}
 RUN_MS_GATE = 1500.0
 TRACE_BYTES_GATE = 256 * 1024
 
 
-def classify_lane(*, client_side: bool, runtimes: set[str], run_ms: float, trace_bytes: int) -> dict:
+def classify_lane(*, client_side: bool, runtimes: set[str], run_ms: float, trace_bytes: int,
+                  measurement_source: str) -> dict:
     reasons: list[str] = []
     live = True
     if not client_side:
@@ -33,6 +34,8 @@ def classify_lane(*, client_side: bool, runtimes: set[str], run_ms: float, trace
         "lane": "live" if live else "precompute",
         "client_side": client_side,
         "runtimes": sorted(runtimes),
+        "measured_run_ms": run_ms,
+        "measurement_source": measurement_source,
         "trace_bytes": trace_bytes,
         "run_ms_budget": RUN_MS_GATE,
         "trace_bytes_budget": TRACE_BYTES_GATE,

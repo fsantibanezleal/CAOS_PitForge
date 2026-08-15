@@ -6,27 +6,31 @@ limit of a schedule. This module adds the scheduling dimension the UPL does not 
 per-period tonnage capacity, and discounting, giving a discounted NPV.
 
 Honesty first (dossier section 7). The UPL is already proven optimal and reproduced exactly by the min-cut,
-so nothing here "beats" it. The genuine contribution is (a) a CERTIFIED upper bound on the discounted NPV
-from a linear-programming relaxation of the constrained pit (Bienstock and Zuckerberg 2010, IPCO,
-doi:10.1007/978-3-642-13036-6_1; Chicoisne et al. 2012, Operations Research 60(3):517-528,
-doi:10.1287/opre.1120.1050), and (b) a feasible integer pushback schedule rounded from that relaxation,
-with the integrality gap reported explicitly. An LP relaxation is a bound, not a schedule; the rounded
+so nothing here "beats" it. The implementation uses the cumulative Chicoisne et al. 2012 formulation
+(Operations Research 60(3):517-528, doi:10.1287/opre.1120.1050), solved through SciPy/HiGHS. Bienstock and
+Zuckerberg 2010 (doi:10.1007/978-3-642-13036-6_1) is specialized algorithmic context, not the algorithm run.
+The deliverables are (a) a CERTIFIED upper bound on discounted NPV and (b) a feasible integer schedule,
+with the gap to the LP bound reported explicitly. An LP relaxation is a bound, not a schedule; the greedy
 schedule is a heuristic and is never presented as optimal.
 
 Formulation (by-period cumulative form of the precedence-constrained production scheduling, CPIT):
   x[b,t] in [0,1]   fraction of block b extracted by the END of period t (cumulative, monotone in t)
   monotone      x[b,t-1] <= x[b,t]                         (once mined, stays mined; x[b,0] = 0)
   precedence    x[b,t]   <= x[a,t]   for a a predecessor of b (a must be gone before b, in every period)
-  capacity      sum_b w[b] (x[b,t] - x[b,t-1]) <= C[t]     (tonnage mined in period t)
+  capacity      sum_b a[q,b] (x[b,t] - x[b,t-1]) <= C[q,t] (every resource q in period t)
   objective     max sum_{b,t} d[t] v[b] (x[b,t] - x[b,t-1]),  d[t] = 1 / (1+r)^(t-1)   (period 1 undiscounted)
 
 The LP relaxation (x in [0,1] rather than {0,1}) is a valid UPPER bound on the integer NPV for this
-maximisation. The two MANDATORY negative controls (dossier section 3) tie the lane to the proven optimum:
+maximisation. Six fail-closed controls tie the lane to the proven optimum and a valid schedule:
   DUALITY    at rate r = 0 and infinite capacity, the CPIT mined set MUST equal the exact UPL pit
              block-for-block (else a bug), and the LP bound MUST equal the exact UPL value.
   BOUND      the certified bound MUST be >= any feasible integer NPV (a bound below a feasible is a bug).
+  RESOURCES  every resource-period usage MUST be within its limit.
+  PRECEDENCE every scheduled block MUST follow all predecessors.
+  COMPLETE   every block in the UPL MUST be scheduled.
 
-The exact UPL used by the duality control is an independent Python max-flow (Dinic), mirroring the
+The duality value and mined-set match are two parts of the same DUALITY control. The exact UPL is an independent
+Python max-flow (Dinic), mirroring the
 TypeScript engine that the browser runs (Picard 1976 max-closure to min-cut reduction).
 """
 from __future__ import annotations
@@ -62,21 +66,8 @@ def _rows(text: str) -> list[list[str]]:
     return [ln.split() for ln in text.splitlines() if ln.strip()]
 
 
-def parse_minelib(blocks_text: str, prec_text: str, upit_text: str, tonnage_col: int) -> Instance:
-    """Parse the published .blocks / .prec / .upit triple. `tonnage_col` is the 0-based token index of the
-    extraction tonnage in a .blocks row (id=0 x=1 y=2 z=3, then instance-specific free columns)."""
-    brows = [t for t in _rows(blocks_text) if t and t[0].isdigit()]
-    n = len(brows)
-    weight = np.zeros(n, dtype=np.float64)
-    for t in brows:
-        b = int(t[0])
-        if b < 0 or b >= n:
-            raise ValueError(f".blocks: bad id {b} (n={n})")
-        w = float(t[tonnage_col])
-        if not np.isfinite(w) or w <= 0:
-            raise ValueError(f".blocks: bad tonnage for id {b}")
-        weight[b] = w
-
+def _parse_precedence(prec_text: str, n: int) -> tuple[np.ndarray, np.ndarray]:
+    """Parse MineLib predecessor rows into CSR, validating block ids and row cardinality."""
     counts = np.zeros(n, dtype=np.int64)
     prows = _rows(prec_text)
     for t in prows:
@@ -98,6 +89,25 @@ def parse_minelib(blocks_text: str, prec_text: str, upit_text: str, tonnage_col:
                 raise ValueError(f".prec: bad predecessor {p} for block {b}")
             pred_list[fill[b]] = p
             fill[b] += 1
+    return pred_start, pred_list
+
+
+def parse_minelib(blocks_text: str, prec_text: str, upit_text: str, tonnage_col: int) -> Instance:
+    """Parse the published .blocks / .prec / .upit triple. `tonnage_col` is the 0-based token index of the
+    extraction tonnage in a .blocks row (id=0 x=1 y=2 z=3, then instance-specific free columns)."""
+    brows = [t for t in _rows(blocks_text) if t and t[0].isdigit()]
+    n = len(brows)
+    weight = np.zeros(n, dtype=np.float64)
+    for t in brows:
+        b = int(t[0])
+        if b < 0 or b >= n:
+            raise ValueError(f".blocks: bad id {b} (n={n})")
+        w = float(t[tonnage_col])
+        if not np.isfinite(w) or w <= 0:
+            raise ValueError(f".blocks: bad tonnage for id {b}")
+        weight[b] = w
+
+    pred_start, pred_list = _parse_precedence(prec_text, n)
 
     value = np.full(n, np.nan, dtype=np.float64)
     for t in _rows(upit_text):
@@ -108,6 +118,110 @@ def parse_minelib(blocks_text: str, prec_text: str, upit_text: str, tonnage_col:
     if np.isnan(value).any():
         raise ValueError(".upit: missing value for some block")
     return Instance(n=n, value=value, weight=weight, pred_start=pred_start, pred_list=pred_list)
+
+
+@dataclass
+class PublishedCpitScenario:
+    """A MineLib CPIT file plus its precedence graph, ready for the multi-resource LP lane."""
+
+    name: str
+    instance: Instance
+    periods: int
+    rate: float
+    resource_coefficients: np.ndarray  # shape (n_resources, n_blocks)
+    resource_limits: np.ndarray  # shape (n_resources, periods)
+
+    @property
+    def n_resources(self) -> int:
+        return int(self.resource_coefficients.shape[0])
+
+
+def parse_minelib_cpit(cpit_text: str, prec_text: str) -> PublishedCpitScenario:
+    """Parse a published MineLib `.cpit` scenario, including every period/resource constraint.
+
+    MineLib stores one undiscounted objective coefficient per block, an upper limit for each
+    resource-period pair, and sparse resource coefficients keyed by `(block, resource)`. The
+    precedence graph remains in the sibling `.prec` file. Lower-bound/resource-equality rows are
+    rejected because the current certified solver implements the published upper-capacity form.
+    """
+    lines = [line.strip() for line in cpit_text.splitlines() if line.strip()]
+
+    def header(key: str) -> str:
+        prefix = f"{key}:"
+        for line in lines:
+            if line.startswith(prefix):
+                return line[len(prefix):].strip()
+        raise ValueError(f".cpit: missing {key}")
+
+    name = header("NAME")
+    if header("TYPE") != "CPIT":
+        raise ValueError(".cpit: TYPE must be CPIT")
+    n = int(header("NBLOCKS"))
+    periods = int(header("NPERIODS"))
+    n_resources = int(header("NRESOURCE_SIDE_CONSTRAINTS"))
+    rate = float(header("DISCOUNT_RATE"))
+    if n <= 0 or periods <= 0 or n_resources <= 0 or not np.isfinite(rate) or rate < 0:
+        raise ValueError(".cpit: invalid dimensions or discount rate")
+
+    try:
+        limits_at = lines.index("RESOURCE_CONSTRAINT_LIMITS:")
+        objective_at = lines.index("OBJECTIVE_FUNCTION:")
+        resources_at = lines.index("RESOURCE_CONSTRAINT_COEFFICIENTS:")
+    except ValueError as exc:
+        raise ValueError(".cpit: missing a required data section") from exc
+    if not limits_at < objective_at < resources_at:
+        raise ValueError(".cpit: data sections are out of order")
+
+    limits = np.full((n_resources, periods), np.nan, dtype=np.float64)
+    for line in lines[limits_at + 1:objective_at]:
+        tokens = line.split()
+        if len(tokens) != 4:
+            raise ValueError(f".cpit: invalid resource-limit row: {line}")
+        resource, period = int(tokens[0]), int(tokens[1])
+        if tokens[2] != "L":
+            raise ValueError(f".cpit: unsupported resource sense {tokens[2]}")
+        if not (0 <= resource < n_resources and 0 <= period < periods):
+            raise ValueError(".cpit: resource-limit index out of range")
+        limits[resource, period] = float(tokens[3])
+    if np.isnan(limits).any() or not np.isfinite(limits).all() or (limits < 0).any():
+        raise ValueError(".cpit: missing or invalid resource limits")
+
+    value = np.full(n, np.nan, dtype=np.float64)
+    for line in lines[objective_at + 1:resources_at]:
+        tokens = line.split()
+        if len(tokens) != 2:
+            raise ValueError(f".cpit: invalid objective row: {line}")
+        block = int(tokens[0])
+        if not 0 <= block < n:
+            raise ValueError(".cpit: objective block id out of range")
+        value[block] = float(tokens[1])
+    if np.isnan(value).any() or not np.isfinite(value).all():
+        raise ValueError(".cpit: missing or invalid objective coefficients")
+
+    coefficients = np.zeros((n_resources, n), dtype=np.float64)
+    seen = np.zeros((n_resources, n), dtype=bool)
+    for line in lines[resources_at + 1:]:
+        if line == "EOF":
+            continue
+        tokens = line.split()
+        if len(tokens) != 3:
+            raise ValueError(f".cpit: invalid resource-coefficient row: {line}")
+        block, resource = int(tokens[0]), int(tokens[1])
+        if not (0 <= block < n and 0 <= resource < n_resources):
+            raise ValueError(".cpit: resource-coefficient index out of range")
+        coefficient = float(tokens[2])
+        if not np.isfinite(coefficient) or coefficient < 0:
+            raise ValueError(".cpit: resource coefficients must be finite and non-negative")
+        coefficients[resource, block] = coefficient
+        seen[resource, block] = True
+    if not seen.any(axis=1).all():
+        raise ValueError(".cpit: every declared resource needs at least one coefficient")
+
+    pred_start, pred_list = _parse_precedence(prec_text, n)
+    instance = Instance(n=n, value=value, weight=coefficients[0].copy(),
+                        pred_start=pred_start, pred_list=pred_list)
+    return PublishedCpitScenario(name=name, instance=instance, periods=periods, rate=rate,
+                                 resource_coefficients=coefficients, resource_limits=limits)
 
 
 # --------------------------------------------------------------------------------------------------------
@@ -243,18 +357,48 @@ class CpitLp:
     x: np.ndarray  # (n, periods) fractional cumulative extraction
     periods: int
     rate: float
-    capacity: float
+    capacity: float | np.ndarray
 
 
-def solve_cpit_lp(inst: Instance, periods: int, rate: float, capacity: float) -> CpitLp:
-    """Solve the by-period cumulative CPIT LP relaxation with HiGHS. `capacity` is the per-period tonnage
-    cap (pass a large number for the uncapacitated limit). Returns the certified bound + fractional x."""
+def normalise_resource_model(inst: Instance, periods: int, capacity: float | np.ndarray,
+                             resource_weights: np.ndarray | None) -> tuple[np.ndarray, np.ndarray]:
+    """Normalize scalar/single-resource and matrix/multi-resource capacity inputs."""
+    weights = inst.weight.reshape(1, inst.n) if resource_weights is None else np.asarray(
+        resource_weights, dtype=np.float64,
+    )
+    if weights.ndim != 2 or weights.shape[1] != inst.n or weights.shape[0] == 0:
+        raise ValueError("resource_weights must have shape (n_resources, n_blocks)")
+    if not np.isfinite(weights).all() or (weights < 0).any():
+        raise ValueError("resource weights must be finite and non-negative")
+
+    raw_limits = np.asarray(capacity, dtype=np.float64)
+    if raw_limits.ndim == 0:
+        limits = np.full((weights.shape[0], periods), float(raw_limits), dtype=np.float64)
+    elif raw_limits.ndim == 1 and weights.shape[0] == 1 and raw_limits.shape == (periods,):
+        limits = raw_limits.reshape(1, periods)
+    elif raw_limits.ndim == 2 and raw_limits.shape == (weights.shape[0], periods):
+        limits = raw_limits
+    else:
+        raise ValueError("capacity must be a scalar, a single-resource period vector, or a resource-by-period matrix")
+    if not np.isfinite(limits).all() or (limits < 0).any():
+        raise ValueError("capacity limits must be finite and non-negative")
+    return weights, limits
+
+
+def solve_cpit_lp(inst: Instance, periods: int, rate: float, capacity: float | np.ndarray,
+                  resource_weights: np.ndarray | None = None) -> CpitLp:
+    """Solve the by-period cumulative CPIT LP relaxation with HiGHS.
+
+    The legacy scalar `capacity` path applies one extraction-tonnage constraint per period. Published
+    MineLib scenarios pass a `(resources, periods)` limit matrix and matching coefficient matrix.
+    """
     from scipy.optimize import linprog
     from scipy.sparse import coo_matrix
 
     n, T = inst.n, periods
     nv = n * T
     d = discount_factors(T, rate)
+    weights, limits = normalise_resource_model(inst, T, capacity, resource_weights)
 
     def col(b: int, t: int) -> int:
         return b * T + t
@@ -292,19 +436,22 @@ def solve_cpit_lp(inst: Instance, periods: int, rate: float, capacity: float) ->
                 vals += [1.0, -1.0]
                 b_ub.append(0.0)
                 r += 1
-    # capacity: sum_b w[b] (x[b,t] - x[b,t-1]) <= C[t]
-    for t in range(T):
-        for b in range(n):
-            w = inst.weight[b]
-            rows.append(r)
-            cols.append(col(b, t))
-            vals.append(w)
-            if t >= 1:
+    # capacity: sum_b w[q,b] (x[b,t] - x[b,t-1]) <= C[q,t], for every resource q.
+    for q in range(weights.shape[0]):
+        for t in range(T):
+            for b in range(n):
+                w = weights[q, b]
+                if w == 0:
+                    continue
                 rows.append(r)
-                cols.append(col(b, t - 1))
-                vals.append(-w)
-        b_ub.append(capacity)
-        r += 1
+                cols.append(col(b, t))
+                vals.append(w)
+                if t >= 1:
+                    rows.append(r)
+                    cols.append(col(b, t - 1))
+                    vals.append(-w)
+            b_ub.append(float(limits[q, t]))
+            r += 1
 
     a_ub = coo_matrix((vals, (rows, cols)), shape=(r, nv))
     res = linprog(c, A_ub=a_ub, b_ub=np.array(b_ub), bounds=(0.0, 1.0), method="highs")
@@ -322,21 +469,24 @@ class Schedule:
     per_period_tonnes: np.ndarray
     per_period_npv: np.ndarray  # discounted value added in each period
     per_period_cum_npv: np.ndarray
+    per_period_resources: np.ndarray  # shape (n_resources, periods)
     mined: np.ndarray  # bool, blocks actually mined
 
 
 def round_schedule(inst: Instance, upit_set: np.ndarray, periods: int, rate: float,
-                   capacity: float, priority: np.ndarray | None = None) -> Schedule:
+                   capacity: float | np.ndarray, priority: np.ndarray | None = None,
+                   resource_weights: np.ndarray | None = None) -> Schedule:
     """Greedy feasible integer schedule over the UPL set: fill each period up to the tonnage capacity,
     mining the highest-`priority` available block first (default priority = block value), respecting
     precedence. When the highest-priority available block no longer fits the period's remaining capacity,
     the period closes and mining continues in the next one. Blocks outside `upit_set` are never mined
-    (mining them can only lower the total value). Returns the rounded schedule + its discounted NPV.
+    (mining them can only lower the total value). Returns the feasible greedy schedule and discounted NPV.
     This is a heuristic, not an optimal schedule; the LP relaxation is the certified bound above it."""
     import heapq
 
     n, T = inst.n, periods
     d = discount_factors(T, rate)
+    weights, limits = normalise_resource_model(inst, T, capacity, resource_weights)
     period_of = np.full(n, -1, dtype=np.int32)
     mined = np.zeros(n, dtype=bool)
     prio = priority if priority is not None else inst.value
@@ -360,21 +510,21 @@ def round_schedule(inst: Instance, upit_set: np.ndarray, periods: int, rate: flo
                                      if upit_set[b] and remaining_pred[b] == 0]
     heapq.heapify(heap)
     per_tonnes = np.zeros(T, dtype=np.float64)
+    per_resources = np.zeros((weights.shape[0], T), dtype=np.float64)
     per_npv = np.zeros(T, dtype=np.float64)
 
     for t in range(T):
-        used = 0.0
         deferred: list[tuple[float, int]] = []  # available but did not fit this period
         while heap:
             key, b = heapq.heappop(heap)
-            if used + inst.weight[b] > capacity + 1e-9:
+            if np.any(per_resources[:, t] + weights[:, b] > limits[:, t] + 1e-9):
                 deferred.append((key, b))
                 # close the period once the best-available block no longer fits.
                 break
             mined[b] = True
             period_of[b] = t
-            used += inst.weight[b]
-            per_tonnes[t] += inst.weight[b]
+            per_resources[:, t] += weights[:, b]
+            per_tonnes[t] = per_resources[0, t]
             per_npv[t] += d[t] * inst.value[b]
             for c2 in succ[b]:
                 remaining_pred[c2] -= 1
@@ -384,7 +534,8 @@ def round_schedule(inst: Instance, upit_set: np.ndarray, periods: int, rate: flo
             heapq.heappush(heap, item)
     cum = np.cumsum(per_npv)
     return Schedule(period_of_block=period_of, npv=float(per_npv.sum()), per_period_tonnes=per_tonnes,
-                    per_period_npv=per_npv, per_period_cum_npv=cum, mined=mined)
+                    per_period_npv=per_npv, per_period_cum_npv=cum,
+                    per_period_resources=per_resources, mined=mined)
 
 
 # --------------------------------------------------------------------------------------------------------

@@ -25,9 +25,12 @@ i  ──∞───►  j      for every precedence arc (j must be removed to 
 ```
 
 The blocks on the **source side of the min cut** are the optimal pit, and `pitValue = Σ_{v_i>0} v_i − maxflow`.
-PitForge solves the max-flow with **Dinic’s algorithm**, exact, deterministic. This is the same cut that Lerchs &
-Grossmann’s 1965 graph algorithm and Hochbaum’s 2008 pseudoflow compute; we keep it transparent and self-checking
-(the value identity is asserted every solve).
+PitForge ships two independent exact rungs. **Dinic’s algorithm** is the deterministic live default. The second is
+an independently implemented, closure-specialised normalised-tree **pseudoflow** phase one following Hochbaum
+(2008), with merger, path inversion, excess push and saturated-arc split counters. The pseudoflow rung deliberately
+uses a transparent full merger scan rather than claiming the paper's labelled complexity. Both reproduce all six
+validated MineLib/twin optima and return the same block set on those cases; tied optima can differ in general, so
+PitForge claims equal optimal value, not universal cut identity. The value identity is asserted on every solve.
 
 ### Why min-cut equals max-closure (the LP-duality derivation)
 
@@ -58,14 +61,13 @@ an unsaturated precedence arc cannot cross the cut, so no mined block is missing
 asserts the value identity `pitValue = Σ positive − maxflow` on **every** solve, in both the browser and the
 offline Python control (Dinic in `data-pipeline/pipeline/science/cpit.py`).
 
-### The nested-shell sweep is free (why we claim no learned speedup)
+### The nested-shell sweep: exact, discrete, and precomputed before playback
 
-A tempting but wrong claim would be that a learned model speeds up the revenue-factor sweep. It does not need
-speeding up: **parametric maximum flow** computes the entire sweep, all revenue-factor breakpoints, in the same
-asymptotic time as a **single** max-flow (Gallo, Grigoriadis & Tarjan 1989; parametric pseudoflow, Hochbaum
-2008). So the static UPL and its shell sweep are, at MineLib scale, a solved and fast problem. This is why the
-honest depth contribution is the scheduling dimension (see `04_scheduling.md`) and a scale-oriented, exactness
--preserving learned preprocessing, never a shell-sweep speedup.
+PitForge currently solves the 12 declared revenue factors independently with exact Dinic min-cuts and stores the
+whole family before playback. The UI timer only advances a shell index and pauses on a hidden tab; it never solves
+inside `requestAnimationFrame` or the playback interval. Parametric maximum-flow methods can obtain all breakpoints
+more efficiently (Gallo, Grigoriadis & Tarjan 1989; Hochbaum 2008), but that algorithm is not implemented here.
+Accordingly PitForge makes no "free sweep" or parametric-runtime claim and no learned speedup claim.
 
 ## Slope precedence
 
@@ -84,6 +86,6 @@ values); we additionally union each shell with the previous to absorb any float-
 The ultimate pit is the undiscounted, uncapacitated limit of a production schedule. The scheduling extension
 (time, per-period capacity, discounting, a certified NPV bound) is documented in `04_scheduling.md`.
 
-**References:** Lerchs & Grossmann 1965 · Picard 1976 · Dinic 1970 · Hochbaum 2008 · Gallo, Grigoriadis &
-Tarjan 1989 · Deutsch et al. 2022 (MineFlow) · Whittle 1988 · Hustrulid et al. 2013 (full citations in
-`frontend/src/data/citations.ts`).
+**References:** Lerchs and Grossmann 1965; Picard 1976; Hochbaum and Chen 2000; Dinic 1970; Hochbaum 2008;
+Gallo, Grigoriadis and Tarjan 1989; Deutsch et al. 2022 (MineFlow); Whittle 1988; Hustrulid et al. 2013. Full
+citations are in `frontend/src/data/citations.ts`.

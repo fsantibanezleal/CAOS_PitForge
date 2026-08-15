@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use PitForge, cite the technical report and this software repository."
+title: "PitForge"
+type: software
+version: "0.13.000"
+authors:
+  - family-names: "Santibáñez-Leal"
+    given-names: "Felipe"
+repository-code: "https://github.com/fsantibanezleal/CAOS_PitForge"
+url: "https://pitforge.fasl-work.com"
+license: MIT
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21519687"
+    description: "Concept DOI for the citable PitForge technical report"
+preferred-citation:
+  type: report
+  title: "PitForge: Exact Ultimate-Pit Optimization Reproducing the Published MineLib Optima, with Whittle Nested Shells and Scheduling"
+  authors:
+    - family-names: "Santibáñez-Leal"
+      given-names: "Felipe"
+  year: 2026
+  doi: "10.5281/zenodo.21519687"

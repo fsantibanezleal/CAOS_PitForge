@@ -1,18 +1,23 @@
 {
   "schema": "pitforge.learned/v1",
   "gradeNN": {
-    "r2_vs_holdout": 0.9613,
-    "r2_idw": 0.9129,
-    "r2_ok": 0.958,
-    "nTrain": 22118,
-    "nEval": 5530
+    "r2_vs_holdout": 0.8757,
+    "r2_idw": 0.8591,
+    "r2_ok": 0.9333,
+    "nTrain": 20736,
+    "nEval": 6912,
+    "split": "leave-one-geology-out",
+    "evalGroup": "vein:12:0.03"
   },
   "pitSurrogate": {
-    "auc": 0.9811,
-    "acc": 0.9117,
-    "baseline": 0.7642,
-    "nTrain": 44236,
-    "nEval": 11060
+    "auc": 0.9123,
+    "acc": 0.8294,
+    "baseline_auc": 0.5,
+    "baseline_acc": 0.6428,
+    "nTrain": 48384,
+    "nEval": 6912,
+    "split": "leave-one-geology-out",
+    "evalGroup": "vein:12:0.03"
   },
-  "honesty": "Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and Ordinary Kriging on the SAME held-out stencils, over a mixed stencil-density distribution (full 26-neighbour rows + random-dropout sparse rows, so partially-drilled what-ifs are in distribution); pit-surrogate against the exact min-cut. Fast approximations, never beating the exact result."
+  "honesty": "Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and Ordinary Kriging on one held-out geology, over a mixed stencil-density distribution (full 26-neighbour rows + random-dropout sparse rows, so partially-drilled what-ifs are in distribution and paired rows stay in one split); pit-surrogate against the exact min-cut on a held-out geology. Fast approximations, never beating the exact result."
 }

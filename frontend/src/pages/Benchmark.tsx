@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Callout, useShellLang } from '@fasl-work/caos-app-shell';
 import { loadCaseResults, loadLearned, loadMinelibBench, type LearnedFile, type MinelibBenchFile } from '../lib/artifacts.ts';
 import type { CaseResultsFile } from '../lib/contract.types.ts';
@@ -7,12 +7,15 @@ const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
 
 export default function Benchmark() {
   const es = useShellLang() === 'es';
-  const [data, setData] = useState<CaseResultsFile | null>(null);
-  const [learned, setLearned] = useState<LearnedFile | null>(null);
-  const [minelib, setMinelib] = useState<MinelibBenchFile | null>(null);
-  useEffect(() => { loadCaseResults().then(setData).catch(() => setData(null)); }, []);
-  useEffect(() => { loadLearned().then(setLearned).catch(() => setLearned(null)); }, []);
-  useEffect(() => { loadMinelibBench().then(setMinelib).catch(() => setMinelib(null)); }, []);
+  const [data, setData] = useState<CaseResultsFile | null | undefined>(undefined);
+  const [learned, setLearned] = useState<LearnedFile | null | undefined>(undefined);
+  const [minelib, setMinelib] = useState<MinelibBenchFile | null | undefined>(undefined);
+  const loadData = useCallback(() => { setData(undefined); loadCaseResults().then(setData).catch(() => setData(null)); }, []);
+  const loadLearnedData = useCallback(() => { setLearned(undefined); loadLearned().then(setLearned).catch(() => setLearned(null)); }, []);
+  const loadMinelibData = useCallback(() => { setMinelib(undefined); loadMinelibBench().then(setMinelib).catch(() => setMinelib(null)); }, []);
+  useEffect(loadData, [loadData]);
+  useEffect(loadLearnedData, [loadLearnedData]);
+  useEffect(loadMinelibData, [loadMinelibData]);
   const u = (id: string) => data?.cases[id]?.ultimate;
 
   return (
@@ -22,7 +25,13 @@ export default function Benchmark() {
         ? 'Comparaciones cruzadas entre casos, las que no dependen de un solo caso van aquí (no en la App). Todas salen del precálculo exacto del solver.'
         : 'Cross-case comparisons, the ones that do not depend on a single case live here (not in the App). All come from the exact solver bake.'}</p>
 
-      {!data ? <p className="pf-note">{es ? 'cargando…' : 'loading…'}</p> : (
+      {data === undefined ? <div className="pf-status" role="status">{es ? 'Cargando resultados…' : 'Loading results…'}</div> : !data ? (
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Resultados no disponibles' : 'Results unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el artefacto de resultados. Las otras secciones siguen operativas.' : 'The results artifact could not be read. Other sections remain operational.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
+      ) : (
         <>
           <h2>{es ? 'Todos los casos' : 'All cases'}</h2>
           <table className="cmp-table">
@@ -59,13 +68,15 @@ export default function Benchmark() {
       )}
 
       <h2>{es ? 'MineLib real (UPIT), exacto vs óptimo publicado' : 'Real MineLib (UPIT), exact vs published optimum'}</h2>
-      {minelib ? (
+      {minelib === undefined ? (
+        <div className="pf-status" role="status">{es ? 'Cargando benchmark MineLib…' : 'Loading MineLib benchmark…'}</div>
+      ) : minelib ? (
         <>
           <table className="cmp-table">
             <thead><tr>
               <th>{es ? 'instancia' : 'instance'}</th><th>{es ? 'bloques' : 'blocks'}</th><th>{es ? 'arcos' : 'arcs'}</th>
               <th>{es ? 'nuestro valor (exacto)' : 'our value (exact)'}</th><th>{es ? 'óptimo publicado' : 'published optimum'}</th>
-              <th>{es ? 'error rel.' : 'rel. error'}</th><th>{es ? 'solve (ms)' : 'solve (ms)'}</th>
+              <th>{es ? 'error rel.' : 'rel. error'}</th><th>Dinic (ms)</th><th>Pseudoflow (ms)</th><th>{es ? 'acuerdo' : 'agreement'}</th>
             </tr></thead>
             <tbody>
               {minelib.results.map((r) => (
@@ -73,7 +84,8 @@ export default function Benchmark() {
                   <td><b>{r.id}</b> {r.match ? '✓' : '✗'}</td>
                   <td>{fInt(r.nBlocks)}</td><td>{fInt(r.nPrecs)}</td>
                   <td>{fInt(r.ourValue)}</td><td>{fInt(r.publishedOptimum)}</td>
-                  <td>{r.relError.toExponential(1)}</td><td>{r.solveMsMedian}</td>
+                  <td>{r.relError.toExponential(1)}</td><td>{r.dinicMsMedian}</td><td>{r.pseudoflowMsMedian}</td>
+                  <td>{r.solverAgreement ? 'value + blocks ✓' : `Δvalue ${r.solverValueDifference}; Δblocks ${r.blockSetDifference}`}</td>
                 </tr>
               ))}
               {minelib.excluded.map((x) => (
@@ -81,25 +93,29 @@ export default function Benchmark() {
                   <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>, </td>
                   <td>{es ? 'no precalculado' : 'not baked'}</td>
                   <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : ', '}</td>
-                  <td colSpan={2}>{x.reason}</td>
+                  <td colSpan={4}>{x.reason}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? `El mismo motor exacto de la App (Picard → Dinic, solveUpitExplicit) reproduce el óptimo UPIT publicado en las 3 instancias con espejo verificado (error relativo ≤ 2·10⁻⁹, acumulación float sobre valores decimales). Los tiempos son locales (Node, mediana de 3). Las instancias se descargan bajo la licencia académica de MineLib y nunca se redistribuyen; aquí sólo se publican resúmenes. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
-              : `The same exact engine the App runs (Picard → Dinic, solveUpitExplicit) reproduces the published UPIT optimum on all 3 mirror-verified instances (relative error ≤ 2·10⁻⁹, float accumulation over decimal values). Times are local (Node, median of 3). Instances are downloaded under MineLib's academic grant and never redistributed; only summaries are published here. Baked ${minelib.bakedAt.slice(0, 10)}.`}
+              ? `Los dos rungs exactos independientes (Dinic y pseudoflow de árbol normalizado) reproducen el óptimo UPIT publicado en las 3 instancias verificadas, con el mismo valor y conjunto de bloques en estos casos. No se afirma igualdad de cortes para óptimos empatados en general. Los tiempos son locales (Node, mediana de 3) y muestran sin ocultar que este pseudoflow inspeccionable es más lento que Dinic. MineLib es CC BY-SA 3.0 Unported; sólo se publican resúmenes atribuidos. Precalculado ${minelib.bakedAt.slice(0, 10)}.`
+              : `Both independent exact rungs (Dinic and normalised-tree pseudoflow) reproduce the published UPIT optimum on all 3 verified instances, with the same value and block set on these cases. Identical cuts are not claimed for tied optima in general. Local median-of-3 Node timings show transparently that this inspectable pseudoflow rung is slower than Dinic. MineLib is CC BY-SA 3.0 Unported; only attributed summaries are published. Baked ${minelib.bakedAt.slice(0, 10)}.`}
           </Callout>
         </>
       ) : (
-        <Callout variant="honest" title={es ? 'Bake MineLib no presente' : 'MineLib bake not present'}>
-          {es ? 'Ejecutar `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` localmente (nunca en CI).' : 'Run `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` locally (never in CI).'}
-        </Callout>
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Benchmark MineLib no disponible' : 'MineLib benchmark unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el resumen publicado; no se ocultan valores sustitutos.' : 'The published summary could not be read; no substitute values are shown.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadMinelibData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
       )}
 
       <h2>{es ? 'Aprendido vs clásico' : 'Learned vs classical'}</h2>
-      {learned ? (
+      {learned === undefined ? (
+        <div className="pf-status" role="status">{es ? 'Cargando evaluación aprendida…' : 'Loading learned evaluation…'}</div>
+      ) : learned ? (
         <>
           <table className="cmp-table">
             <thead><tr>
@@ -111,19 +127,22 @@ export default function Benchmark() {
               <tr><td>grade-NN</td><td>R²</td><td><b>{learned.gradeNN.r2_vs_holdout}</b></td>
                 <td>IDW {learned.gradeNN.r2_idw} · OK {learned.gradeNN.r2_ok}</td><td>{learned.gradeNN.nEval}</td></tr>
               <tr><td>pit-surrogate</td><td>AUC · acc</td><td><b>{learned.pitSurrogate.auc}</b> · {learned.pitSurrogate.acc}</td>
-                <td>{es ? 'mayoría' : 'majority'} {learned.pitSurrogate.baseline}</td><td>{learned.pitSurrogate.nEval}</td></tr>
+                <td>AUC {learned.pitSurrogate.baseline_auc} · {es ? 'exactitud mayoría' : 'majority accuracy'} {learned.pitSurrogate.baseline_acc}</td>
+                <td>{learned.pitSurrogate.nEval}</td></tr>
             </tbody>
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? 'En los campos sintéticos suaves la ley local es muy predecible, así que los tres métodos de ley puntúan alto, la NN es competitiva con la geoestadística, no una victoria dramática. El pit-surrogate es una aproximación rápida fuerte (AUC ≈ 0.98) pero no la respuesta exacta. Su rol correcto es preprocesamiento exacto acelerado por aprendizaje: ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras y el min-cut certifica la instancia reducida, así que el óptimo nunca cambia (valor = escala). El corte mínimo siempre manda.'
-              : 'On the smooth synthetic fields the local grade is highly predictable, so all three grade methods score high, the NN is competitive with geostatistics, not a dramatic win. The pit-surrogate is a strong fast approximation (AUC ≈ 0.98) but not the exact answer. Its correct role is learning-accelerated exact preprocessing: it orders provably-safe fix-in/fix-out reductions and the min-cut certifies the reduced instance, so the optimum never changes (value = scale). The min-cut is always the authority.'}
+              ? `La evaluación deja fuera una geología completa (${learned.gradeNN.evalGroup}); pares de stencil completo/disperso nunca cruzan el split. La NN supera apenas IDW y queda bajo kriging ordinario. El pit-surrogate logra AUC ${learned.pitSurrogate.auc} en la geología excluida, una aproximación útil pero no la respuesta exacta. Sólo ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras; el min-cut certifica el óptimo.`
+              : `Evaluation leaves out one complete geology (${learned.gradeNN.evalGroup}); paired full/sparse stencils never cross the split. The NN narrowly beats IDW and trails Ordinary Kriging. The pit surrogate reaches AUC ${learned.pitSurrogate.auc} on the excluded geology, useful but not exact. It only orders provably safe fix-in/fix-out reductions; the min-cut certifies the optimum.`}
           </Callout>
         </>
       ) : (
-        <Callout variant="honest" title={es ? 'Modelos no entrenados' : 'Models not trained'}>
-          {es ? 'Ejecutar `python -m pipeline.pipeline all --retrain` para entrenarlos.' : 'Run `python -m pipeline.pipeline all --retrain` to train them.'}
-        </Callout>
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Evaluación aprendida no disponible' : 'Learned evaluation unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el artefacto validado; el solver exacto y los benchmarks clásicos siguen disponibles.' : 'The validated artifact could not be read; the exact solver and classical benchmarks remain available.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadLearnedData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
       )}
     </article>
   );

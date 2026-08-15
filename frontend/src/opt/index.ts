@@ -10,6 +10,7 @@
 export * from './types.ts';
 export { blockValue, isOre, recoverableRevenue } from './econ.ts';
 export { MaxFlow } from './maxflow.ts';
+export { solveClosurePseudoflow, type PseudoflowClosureResult, type PseudoflowStats } from './pseudoflow.ts';
 export { forEachPrecedenceArc, slopeTemplate, type PrecedenceTemplate } from './precedence.ts';
 export { solveUltimatePit } from './ultimatepit.ts';
 export { defaultRevenueFactors, nestedPitShells } from './whittle.ts';

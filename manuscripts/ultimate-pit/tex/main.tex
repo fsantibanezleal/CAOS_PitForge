@@ -46,10 +46,12 @@ $1000$ to $14000$ blocks), the solver reproduces the \emph{published} optimum to
 $10^{-10}$, an exact match, and solves the largest in about a quarter of a second in a browser tab. Beyond the
 single pit, the tool computes the Whittle nested pit shells, the family of optimal pits over an ascending
 revenue-factor schedule, with their value, tonnage and strip-ratio curves that guide phase and pushback design,
-and it solves a constrained production schedule over time, reporting both a certified upper-bound net present
-value and the achievable rounded schedule, and honestly, the $11\%$ optimality gap between them. Every pit value
+and it solves two explicitly separated constrained production-scheduling scenarios. On the published
+\texttt{newman1.cpit} scenario (six periods, 8\% discount and two resources), it reproduces the published
+$24{,}486{,}184$ LP bound and reports a feasible $23{,}553{,}245$ heuristic, a 3.81\% gap. A separate synthetic
+twin (eight periods, 10\% discount and one resource) has an 11.29\% gap and is labelled non-comparable. Every pit value
 is self-checked ($\text{pit value} = \sum\text{positive value} - \text{max flow}$ is asserted on every solve),
-the MineLib instances are fetched per their academic-download terms with only summary numbers committed, and every
+MineLib is CC BY-SA 3.0 Unported; the project fetches instances into a local cache and commits only attributed summaries, and every
 figure regenerates from the committed artifacts.
 \end{abstract}
 
@@ -129,9 +131,10 @@ kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ & $259$ \\
 \caption{Beyond the single pit. \textbf{(a)} The Whittle nested pit shells: solving the ultimate pit over an
 ascending revenue factor gives a family of nested pits whose value rises and whose strip ratio falls as the pit
 grows, the value-tonnage-strip curves that phase and pushback design read. \textbf{(b)} A constrained production
-schedule over eight discounted periods: the certified upper-bound net present value ($105$M) and the achievable
-rounded schedule ($93$M), whose $11.3\%$ gap is the honest cost of a feasible integer schedule against the
-relaxation bound.}
+schedule for the separate PitForge-authored synthetic twin over eight periods at 10\% discount and one movement
+limit: the certified upper-bound net present value ($104.6$M) and the independent feasible greedy schedule ($92.8$M),
+whose 11.29\% gap is reported against that scenario's relaxation bound. It is not the published
+\texttt{newman1.cpit} scenario.}
 \label{fig:whittle}
 \end{figure}
 
@@ -143,10 +146,13 @@ and strip-ratio curves (Fig.~\ref{fig:whittle}a) are exactly what a planner uses
 Because each shell is an exact ultimate-pit solve, the whole family is exact. The second is the production
 schedule: assigning the pit's blocks to time periods under a capacity constraint to maximise discounted value is
 the constrained pit scheduling problem~\cite{chicoisne}, harder than the UPL, and PitForge reports it honestly
-(Fig.~\ref{fig:whittle}b), a certified upper-bound net present value of $105$~million from the relaxation, and an
-achievable rounded schedule of $93$~million, with the $11.3\%$ gap between them stated rather than hidden. That
-gap is the real difficulty of scheduling: the ultimate pit is solved exactly, but turning it into a feasible,
-capacity-limited, time-phased plan leaves an optimality gap that an honest tool reports.
+(Fig.~\ref{fig:whittle}b). The displayed synthetic-twin scenario has a $104.6$~million bound and a
+$92.8$~million feasible heuristic, a 11.29\% gap. Separately, PitForge parses the published
+\texttt{newman1.cpit} definition (six periods, 8\% discount, total-movement and processing limits), reproduces its
+$24{,}486{,}184$ bound within relative error $4\times10^{-9}$, and finds a feasible $23{,}553{,}245$ heuristic,
+a 3.81\% gap to that bound. MineLib's cited historical feasible value is $23{,}483{,}671$ with a 4.1\% gap;
+PitForge does not claim a new best-known result. Naming the scenario and denominator prevents the two gaps from
+being mixed.
 
 \section{Discussion and Scope}\label{sec:discuss}
 
@@ -155,9 +161,9 @@ design in the browser and is honest about where exactness ends. The ultimate pit
 \emph{exactly}, and the MineLib reproduction to relative error $10^{-10}$ is the proof; the schedule is solved to a
 certified bound with the optimality gap reported, because the scheduling problem, unlike the UPL, does not admit a
 cheap exact solve at these sizes. The self-checking value identity means a returned pit value is guaranteed
-consistent, not merely plausible. The scope is stated plainly. The MineLib instances are fetched at runtime under
-their academic-download grant and are not re-hosted; only the summary numbers (the optima and timings) are
-committed. The synthetic cases used for the nested shells and the schedule are physically reasonable block models,
+consistent, not merely plausible. The scope is stated plainly. MineLib is licensed CC BY-SA 3.0 Unported. As a
+project data-minimisation choice, source instances are fetched at runtime and only attributed summary numbers
+(the optima and timings) are committed. The synthetic cases used for the nested shells and the schedule are physically reasonable block models,
 not a specific deposit, so their numbers illustrate the method rather than predict a mine. And the tool computes
 the pit and the schedule; it does not replace the geological, geotechnical and financial judgement that turns them
 into a mine plan. None of this is hidden; the interface asserts the value identity and states the scheduling gap
@@ -168,7 +174,8 @@ on every solve.
 PitForge solves the open-pit ultimate-pit limit exactly, as a maximum-closure minimum cut, live in the browser,
 and reproduces the three published MineLib optima to relative error near $10^{-10}$, in milliseconds to a quarter
 of a second. It extends the exact solve to the Whittle nested pit shells that guide phase design, and to a
-constrained production schedule whose $11\%$ optimality gap it reports rather than conceals. Reproducing the
+constrained production schedule whose gaps it reports per scenario: 3.81\% for the published
+\texttt{newman1.cpit} scenario and 11.29\% for a separate, non-comparable synthetic twin. Reproducing the
 benchmark optima exactly, self-checking every solve, and stating the scheduling gap honestly are the report's
 discipline, and the transparent, reproducible optimiser that does it is its contribution.
 
@@ -181,14 +188,14 @@ per-instance published optimum, solved value, relative error and timing), the ne
 (\texttt{cpit-schedule.json}: the certified bound and rounded-schedule net present values). The figure scripts
 under \texttt{manuscripts/ultimate-pit/figures/} read those artifacts; the exact solver is deterministic, so
 re-running reproduces Table~\ref{tab:minelib} and Figs.~\ref{fig:minelib}--\ref{fig:whittle}. The MineLib
-instances themselves are fetched from public mirrors under their academic-download terms and are not committed.
+instances themselves are CC BY-SA 3.0 Unported and fetched from public mirrors into a gitignored cache by project policy.
 
 \balance
 
 \begin{thebibliography}{00}
 
-\bibitem{lg} H.~Lerchs and I.~F. Grossmann, ``Optimum design of open-pit mines,'' \emph{Transactions of the
-Canadian Institute of Mining and Metallurgy}, vol.~68, pp.~17--24, 1965.
+\bibitem{lg} H.~Lerchs and I.~F. Grossmann, ``Optimum design of open-pit mines,'' \emph{CIM Bulletin},
+vol.~58, pp.~47--54, 1965.
 
 \bibitem{picard} J.-C. Picard, ``Maximal closure of a graph and applications to combinatorial problems,''
 \emph{Management Science}, vol.~22, no.~11, pp.~1268--1272, 1976. doi:10.1287/mnsc.22.11.1268.

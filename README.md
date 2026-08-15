@@ -9,7 +9,8 @@ Technical report (CC-BY-4.0): *"PitForge: Exact Ultimate-Pit Optimization Reprod
 Optima, with Whittle Nested Shells and Scheduling"*, concept DOI
 [10.5281/zenodo.21519687](https://doi.org/10.5281/zenodo.21519687) (source in
 [`manuscripts/ultimate-pit/`](manuscripts/ultimate-pit/)). Reproduces the 3 published MineLib optima to rel error
-~1e-10 in 5-259ms in-browser; adds Whittle nested shells + a scheduling optimality gap reported honestly (11.3%).
+~1e-10 in-browser; adds Whittle nested shells and two explicitly separated scheduling scenarios. The published
+`newman1.cpit` scenario has a 3.81% PitForge feasible-to-bound gap; the non-comparable synthetic twin has 11.29%.
 
 [![CI](https://github.com/fsantibanezleal/CAOS_PitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
 **Live:** https://pitforge.fasl-work.com
@@ -25,15 +26,23 @@ This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype
 ## What it does
 
 - **Exact ultimate pit**, the UPL is the maximum-weight closure of the block-precedence graph, solved as a
-  **minimum cut / maximum flow** (Picard’s reduction; the same cut Hochbaum’s pseudoflow computes; Dinic engine).
+  **minimum cut / maximum flow** (Picard’s reduction). Dinic is the live engine; an independent normalised-tree
+  pseudoflow rung reproduces all validated oracles and publishes an honest timing comparison. Tied optima need not
+  return an identical cut.
   Transparent and self-checking (`pitValue = Σ positiveValue − maxflow` is asserted every solve).
 - **Nested pit shells (Whittle)**, solving the UPL over an ascending revenue-factor schedule gives nested pits +
-  the value / tonnage / strip-ratio curves, a guide for phase / pushback design.
+  the value / tonnage / strip-ratio curves, a guide for phase / pushback design. Twelve exact pits are precomputed
+  before the paused-by-default 3-D/section evolution plays; playback never solves in its animation loop.
 - **Real MineLib lane**, 3 published instances (`newman1` live; `zuck_small` and `kd` behind an explicit size-gate)
-  fetched at runtime from public mirrors (no instance bytes committed). The same exact solver reproduces the
+  fetched at runtime from public mirrors and kept out of git by project policy. MineLib is CC BY-SA 3.0 Unported.
+  The same exact solver reproduces the
   published UPIT optimum on all 3 (rel. err ≤ 2×10⁻⁹; `data/derived/minelib-results.json`). Scenario knobs are
   locked in real mode: the instances publish net values + explicit precedence, so re-deriving them would break
   comparability with the published optimum.
+- **Certified scheduling lane**, parses the published multi-resource `newman1.cpit` scenario (6 periods, 8%
+  discount, movement plus processing), reproduces its 24,486,184 LP bound within `4e-9` relative error, and reports
+  a feasible 23,553,245 schedule with a 3.81% named gap. A separate 8-period synthetic-twin scenario is labeled
+  non-comparable. Resource, precedence, completeness, duality, and bound controls must all pass.
 - **Two honest learned models**, a NN grade estimator (vs Ordinary Kriging / IDW) and a pit-inclusion surrogate
   (vs the exact solver), trained offline (torch → ONNX) and run **live** (onnxruntime-web). The exact optimiser is
   always the authority; these are fast approximations, measured against their classical baselines.
@@ -60,7 +69,8 @@ python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipe
 
 # the SPA (the exact optimiser runs live in the browser)
 cd frontend && npm ci && npm run dev                     # http://localhost:5173
-npm test                                                 # 34 tests: engine · contracts · MineLib · infill
+npm test                                                 # 50 contracts: both engines · artifacts · MineLib · infill · CPIT
+npm run test:e2e                                         # 14 real-browser responsive · a11y · degraded-capability checks
 
 # heavy lane (local only), re-bake + retrain the learned models (torch → ONNX)
 python -m venv .venv-precompute && .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt

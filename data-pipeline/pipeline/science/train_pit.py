@@ -4,7 +4,7 @@ Run inside the .venv-precompute (torch) after gen_train.mjs has written data/raw
     python data-pipeline/pipeline/science/train_pit.py
 
 1. grade-nn     , a small MLP grade estimator (masked 3×3×3 stencil → centre grade), benchmarked vs IDW and Ordinary
-                   Kriging (cross-validated R² on a held-out spatial split). Honest claim: competitive with geostatistics.
+                   Kriging on a held-out geology. Paired full/sparse stencils never cross the split.
 2. pit-surrogate, an MLP ultimate-pit INCLUSION classifier (4 features → P(in pit)), trained on the EXACT solver
                    labels, benchmarked vs the exact solver as ground truth (AUC/accuracy). A fast approximation; the
                    exact min-cut is always the authority. Standardisation is BAKED into the ONNX graph (raw features in).
@@ -25,7 +25,20 @@ RAW = ROOT / "data" / "raw"
 DERIVED = ROOT / "data" / "derived"
 DERIVED.mkdir(parents=True, exist_ok=True)
 torch.manual_seed(0)
-rng = np.random.default_rng(0)
+
+
+def grouped_split(groups: list[str]) -> tuple[np.ndarray, np.ndarray, str]:
+    """Deterministic leave-one-geology-out split; no deposit or paired row can leak across the boundary."""
+    values = np.asarray(groups)
+    unique = sorted(set(groups))
+    if len(unique) < 2:
+        raise ValueError("training data needs at least two geology groups")
+    eval_group = unique[-1]
+    train = np.flatnonzero(values != eval_group)
+    evaluate = np.flatnonzero(values == eval_group)
+    if not len(train) or not len(evaluate):
+        raise ValueError(f"invalid grouped split for {eval_group}")
+    return train, evaluate, eval_group
 
 
 def r2(y: np.ndarray, yhat: np.ndarray) -> float:
@@ -55,10 +68,7 @@ def train_grade() -> dict:
     d = json.loads((RAW / "grade-train.json").read_text())
     X = np.asarray(d["x"], dtype=np.float32)        # (N, 27) masked stencil
     y = np.asarray(d["y"], dtype=np.float32)        # (N,)   centre grade
-    n = len(y)
-    idx = rng.permutation(n)
-    cut = int(n * 0.8)
-    tr, te = idx[:cut], idx[cut:]
+    tr, te, eval_group = grouped_split(d["group"])
 
     net = GradeNet()
     opt = torch.optim.Adam(net.parameters(), lr=2e-3)
@@ -95,7 +105,8 @@ def train_grade() -> dict:
             "r2_vs_holdout": round(r2(y[te], nn_pred), 4),
             "r2_idw": round(r2(y[te], idw.astype(np.float32)), 4),
             "r2_ok": round(r2(y[te], ok.astype(np.float32)), 4),
-            "nTrain": int(cut), "nEval": int(n - cut),
+            "nTrain": int(len(tr)), "nEval": int(len(te)),
+            "split": "leave-one-geology-out", "evalGroup": eval_group,
         },
     }
 
@@ -147,10 +158,7 @@ def train_pit() -> dict:
     d = json.loads((RAW / "pit-train.json").read_text())
     X = np.asarray(d["f"], dtype=np.float32)         # (N,4) raw features
     y = np.asarray(d["y"], dtype=np.float32)         # (N,) 0/1
-    n = len(y)
-    idx = rng.permutation(n)
-    cut = int(n * 0.8)
-    tr, te = idx[:cut], idx[cut:]
+    tr, te, eval_group = grouped_split(d["group"])
     mean = X[tr].mean(0)
     std = X[tr].std(0) + 1e-6
 
@@ -171,9 +179,11 @@ def train_pit() -> dict:
         p_te = net(torch.from_numpy(X[te])).squeeze(1).numpy()
     acc = float(((p_te > 0.5) == (y[te] > 0.5)).mean())
     auc = _auc(y[te], p_te)
-    baseline = max(pos := float(y[te].mean()), 1 - pos)   # majority-class accuracy
+    baseline_acc = max(pos := float(y[te].mean()), 1 - pos)
     return {"model": net, "metrics": {"auc": round(auc, 4), "acc": round(acc, 4),
-            "baseline": round(baseline, 4), "nTrain": int(cut), "nEval": int(n - cut)}}
+            "baseline_auc": 0.5, "baseline_acc": round(baseline_acc, 4),
+            "nTrain": int(len(tr)), "nEval": int(len(te)),
+            "split": "leave-one-geology-out", "evalGroup": eval_group}}
 
 
 def _auc(y: np.ndarray, score: np.ndarray) -> float:
@@ -204,9 +214,10 @@ def main() -> None:
         "gradeNN": g["metrics"],
         "pitSurrogate": p["metrics"],
         "honesty": ("Synthetic deposits + the EXACT solver as ground truth. grade-nn is measured against IDW and "
-                    "Ordinary Kriging on the SAME held-out stencils, over a mixed stencil-density distribution "
+                    "Ordinary Kriging on one held-out geology, over a mixed stencil-density distribution "
                     "(full 26-neighbour rows + random-dropout sparse rows, so partially-drilled what-ifs are in "
-                    "distribution); pit-surrogate against the exact min-cut. Fast approximations, never beating "
+                    "distribution and paired rows stay in one split); pit-surrogate against the exact min-cut on "
+                    "a held-out geology. Fast approximations, never beating "
                     "the exact result."),
     }
     (DERIVED / "pit-learned.json").write_text(json.dumps(learned, indent=2))

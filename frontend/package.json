@@ -1,7 +1,10 @@
 {
   "name": "pitforge-frontend",
   "private": true,
-  "version": "0.12.000",
+  "version": "0.13.000",
+  "description": "Exact ultimate-pit, nested-shell, and certified CPIT research workbench",
+  "homepage": "https://pitforge.fasl-work.com",
+  "repository": "github:fsantibanezleal/CAOS_PitForge",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",
@@ -11,7 +14,9 @@
     "postbuild": "node spa-404.mjs",
     "preview": "vite preview",
     "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts test/minelib.test.ts test/contract-live.test.ts test/infill.test.ts test/schedule.test.ts",
+    "test:e2e": "playwright test",
     "bake": "node --import tsx ../data-pipeline/pipeline/science/bake_cases.mjs",
+    "benchmark": "node --import tsx scripts/benchmark-cases.mjs",
     "fetch-minelib": "node scripts/fetch-minelib.mjs",
     "bake:minelib": "node --import tsx scripts/bake-minelib.mjs"
   },
@@ -27,6 +32,8 @@
     "uplot": "^1.6.31"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^22.20.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

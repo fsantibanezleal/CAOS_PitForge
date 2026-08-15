@@ -1,24 +1,24 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useShellLang } from '@fasl-work/caos-app-shell';
-import { CASES, caseModel, type PitCase } from '../opt/cases.ts';
+import { CASES, caseExpectedBand, caseModel, caseName, type PitCase } from '../opt/cases.ts';
 import { blockValue, defaultRevenueFactors, isOre, nestedPitShells, solveUltimatePit } from '../opt/index.ts';
 import { idx, type EconParams } from '../opt/types.ts';
 import { SectionView, type SectionCell } from '../viz/SectionView.tsx';
 import { WhittleChart } from '../viz/WhittleChart.tsx';
 import { Gauge } from '../viz/Gauge.tsx';
 import { shellColor, viridisCss } from '../viz/colormap.ts';
-import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
+import { REAL_CASES, realCaseName, type RealCase } from '../opt/realCases.ts';
 import { RealCasePanel } from '../viz/RealCasePanel.tsx';
 import { BarMini } from '../viz/BarMini.tsx';
 import { UploadPanel } from '../viz/UploadPanel.tsx';
-import { InfillPanel } from '../viz/InfillPanel.tsx';
-import { LearnedPanel } from '../viz/LearnedPanel.tsx';
 import { SchedulePanel } from '../viz/SchedulePanel.tsx';
 import type { UserModel } from '../lib/contractLive.ts';
 import { PanelBoundary } from '../viz/PanelBoundary.tsx';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
+const InfillPanel = lazy(() => import('../viz/InfillPanel.tsx').then((module) => ({ default: module.InfillPanel })));
+const LearnedPanel = lazy(() => import('../viz/LearnedPanel.tsx').then((module) => ({ default: module.LearnedPanel })));
 const RFS = defaultRevenueFactors(12);
 const fM = (v: number) => `${(v / 1e6).toFixed(1)}`;
 const fMt = (v: number) => `${(v / 1e6).toFixed(2)}`;
@@ -65,6 +65,10 @@ export default function Tool() {
   const [rf, setRf] = useState(1);
   const [bench, setBench] = useState<number | null>(null);
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
+  // All exact pits are computed before playback. Animation changes this integer only:
+  // it never starts an optimisation solve from requestAnimationFrame or the timer.
+  const [shellFrame, setShellFrame] = useState(RFS.length - 1);
+  const [shellPlaying, setShellPlaying] = useState(false); // paused by default
   const [catTab, setCatTab] = useState(0); // which case-category tab is open in the sidebar
   const real = source === 'real';
   const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
@@ -97,6 +101,27 @@ export default function Tool() {
     if (k >= 0) setCatTab(k);
   }, [theCase]);
   useEffect(() => { setBench(null); }, [userModel]);
+  useEffect(() => { setShellPlaying(false); setShellFrame(RFS.length - 1); }, [shells]);
+  useEffect(() => {
+    if (!shellPlaying) return;
+    const onVisibility = () => { if (document.hidden) setShellPlaying(false); };
+    document.addEventListener('visibilitychange', onVisibility);
+    const timer = window.setInterval(() => {
+      if (document.hidden) { setShellPlaying(false); return; }
+      setShellFrame((frame) => {
+        if (frame >= RFS.length - 1) { setShellPlaying(false); return frame; }
+        return frame + 1;
+      });
+    }, 700);
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', onVisibility); };
+  }, [shellPlaying]);
+
+  const pickShellRf = (picked: number) => {
+    let best = 0;
+    for (let i = 1; i < RFS.length; i++) if (Math.abs(RFS[i] - picked) < Math.abs(RFS[best] - picked)) best = i;
+    setShellPlaying(false);
+    setShellFrame(best);
+  };
 
   // ---- section cell builders ------------------------------------------------------------------------------
   const cellGrade = (ix: number, iz: number): SectionCell => {
@@ -114,7 +139,7 @@ export default function Tool() {
     if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const s = shells.shellOf[i];
     return {
-      color: s < 0 ? null : shellColor(s, RFS.length),
+      color: s < 0 || s > shellFrame ? null : shellColor(s, RFS.length),
       inPit: false,
       label: s < 0 ? `(${ix},${iz}) · never mined` : `(${ix},${iz}) · RF shell ${s + 1}/${RFS.length} (RF ${RFS[s]})`,
     };
@@ -166,15 +191,21 @@ export default function Tool() {
             <div className="pf-seg">
               {(['pit', 'grade', 'shells'] as const).map((m) => (
                 <button key={m} className={`chip ${mode3d === m ? 'on' : ''}`} onClick={() => setMode3d(m)}>
-                  {m === 'pit' ? (es ? 'solo pit' : 'pit only') : m === 'grade' ? (es ? 'orebody' : 'orebody') : (es ? 'shells' : 'shells')}
+                  {m === 'pit' ? (es ? 'sólo rajo' : 'pit only') : m === 'grade' ? (es ? 'yacimiento' : 'orebody') : (es ? 'cáscaras' : 'shells')}
                 </button>
               ))}
             </div>
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
             <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} />
+                       shellOf={shells.shellOf} nShells={RFS.length}
+                       maxShell={mode3d === 'shells' ? shellFrame : undefined}
+                       present={present ?? undefined} es={es} />
           </Suspense>
+          {mode3d === 'shells' && <ShellTimeline frame={shellFrame} playing={shellPlaying} es={es}
+            onFrame={(frame) => { setShellPlaying(false); setShellFrame(frame); }}
+            onPlay={() => { if (shellFrame >= RFS.length - 1) setShellFrame(0); setShellPlaying(true); }}
+            onPause={() => setShellPlaying(false)} />}
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
             <Kpi label={es ? 'bloques' : 'blocks'} value={`${pit.nBlocks}`} />
@@ -202,7 +233,7 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? 'Pit anidado por factor de ingreso (RF), valor + tonelaje; click para fijar RF' : 'Nested pits by revenue factor (RF), value + tonnage; click to set RF'}</div>
-          <WhittleChart curve={shells.curve} currentRF={rf} onPickRF={setRf} />
+          <WhittleChart curve={shells.curve} currentRF={rf} onPickRF={setRf} es={es} />
           <div className="pf-cap">{es ? `RF = ${rf.toFixed(2)} · valor $${fM(pit.pitValue)} M · ${pit.nBlocks} bloques` : `RF = ${rf.toFixed(2)} · value $${fM(pit.pitValue)} M · ${pit.nBlocks} blocks`}</div>
         </div>
       ),
@@ -211,11 +242,19 @@ export default function Tool() {
       id: 'pushback', label: es ? 'Shells' : 'Shells',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? `Shells de RF anidados en la sección Y=${iy}, guía de pushbacks (shells crudos, sin agrupar ni chequear ancho mínimo de minado)` : `Nested RF shells on section Y=${iy}, a pushback guide (raw shells, not grouped or width-checked)`}</div>
+          <div className="pf-plot-t">{es ? `Evolución de shells de RF en Y=${iy}; barrido exacto precalculado antes de reproducir` : `RF-shell evolution at Y=${iy}; exact sweep precomputed before playback`}</div>
+          <WhittleChart curve={shells.curve} currentRF={RFS[shellFrame]} onPickRF={pickShellRf} es={es} />
+          <ShellTimeline frame={shellFrame} playing={shellPlaying} es={es}
+            onFrame={(frame) => { setShellPlaying(false); setShellFrame(frame); }}
+            onPlay={() => { if (shellFrame >= RFS.length - 1) setShellFrame(0); setShellPlaying(true); }}
+            onPause={() => setShellPlaying(false)} />
           <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cellShell} />
           <div className="pf-legend">
-            {RFS.map((r, k) => <span key={k}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
+            {RFS.map((r, k) => <span key={k} style={{ opacity: k <= shellFrame ? 1 : 0.3 }}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
           </div>
+          <p className="pf-note">{es
+            ? 'La curva muestra valor no descontado del pit y tonelaje de mineral acumulados por shell. Es una guía de fases; no es un programa de producción ni un NPV calendarizado.'
+            : 'The curve shows cumulative undiscounted pit value and ore tonnage by shell. It is a phase guide, not a production schedule or calendar-discounted NPV.'}</p>
         </div>
       ),
     },
@@ -244,7 +283,10 @@ export default function Tool() {
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? 'Curva ley–tonelaje del modelo (tonelaje sobre ley de corte)' : 'Model grade–tonnage curve (tonnage above cutoff)'}</div>
           <BarMini values={gradeTonnage.map((g) => g.tonnes / 1e6)}
-                   labels={gradeTonnage.map((g) => `${(g.cut * 100).toFixed(1)}%`)} unit="Mt" />
+                   labels={gradeTonnage.map((g) => `${(g.cut * 100).toFixed(1)}%`)} unit="Mt"
+                   ariaLabel={es ? 'Curva interactiva de ley y tonelaje' : 'Interactive grade-tonnage curve'}
+                   valueLabel={es ? 'tonelaje sobre corte' : 'tonnage above cutoff'}
+                   interactionHint={es ? 'Enfoque el gráfico: flechas desplazan, +/− amplían y Inicio restablece.' : 'Focus the chart: arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     },
@@ -253,8 +295,12 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? `Histograma del valor de bloque (RF ${rf.toFixed(2)}), negativos = lastre` : `Block-value histogram (RF ${rf.toFixed(2)}), negatives = waste`}</div>
-          <BarMini values={valueHist.bins} labels={valueHist.bins.map(() => '')}
-                   unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`} />
+          <BarMini values={valueHist.bins}
+                   labels={valueHist.bins.map((_, index) => `$${fM(valueHist.lo + ((index + 0.5) / valueHist.bins.length) * (valueHist.hi - valueHist.lo))}M`)}
+                   unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`}
+                   ariaLabel={es ? 'Histograma interactivo del valor de bloque' : 'Interactive block-value histogram'}
+                   valueLabel={es ? 'cantidad de bloques' : 'block count'}
+                   interactionHint={es ? 'Enfoque el gráfico: flechas desplazan, +/− amplían y Inicio restablece.' : 'Focus the chart: arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     },
@@ -264,11 +310,15 @@ export default function Tool() {
     },
     {
       id: 'infill', label: es ? 'Infill · what-if' : 'Infill · what-if',
-      content: <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />,
+      content: <Suspense fallback={<div className="pf-status" role="status">{es ? 'Cargando infill…' : 'Loading infill…'}</div>}>
+        <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />
+      </Suspense>,
     },
     {
       id: 'surrogate', label: es ? 'Surrogate · preview' : 'Surrogate · preview',
-      content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
+      content: <Suspense fallback={<div className="pf-status" role="status">{es ? 'Cargando surrogate…' : 'Loading surrogate…'}</div>}>
+        <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />
+      </Suspense>,
     },
     {
       id: 'byo', label: es ? 'Modelo propio' : 'Bring your own',
@@ -318,7 +368,7 @@ export default function Tool() {
                 <div className="pf-catlabel">{es ? 'publicadas · MineLib' : 'published · MineLib'}</div>
                 <div className="pf-chips">
                   {REAL_CASES.filter((r) => !r.synthetic).map((r) => (
-                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={realCaseName(r, es)}
                             onClick={() => setRealId(r.id)}>{r.id}</button>
                   ))}
                 </div>
@@ -327,12 +377,12 @@ export default function Tool() {
                 <div className="pf-catlabel">{es ? 'gemelos sintéticos · oreblocks' : 'synthetic twins · oreblocks'}</div>
                 <div className="pf-chips">
                   {REAL_CASES.filter((r) => r.synthetic).map((r) => (
-                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={realCaseName(r, es)}
                             onClick={() => setRealId(r.id)}>{r.id.replace('twin-', '')}</button>
                   ))}
                 </div>
               </div>
-              <div className="pf-cap">{realCase.name}</div>
+              <div className="pf-cap">{realCaseName(realCase, es)}</div>
               <div className="pf-cap pf-muted">{es ? realCase.provenance_es : realCase.provenance_en}</div>
             </>
           ) : (
@@ -351,7 +401,7 @@ export default function Tool() {
               </div>
               <div className="pf-chips">
                 {CASES.filter((c) => c.category === CAT_TABS[catTab].cat).map((c) => (
-                  <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
+                  <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={caseName(c, es)}
                           onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
                 ))}
               </div>
@@ -362,8 +412,8 @@ export default function Tool() {
                 </>
               ) : (
                 <>
-                  <div className="pf-cap">{theCase.name}</div>
-                  <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+                  <div className="pf-cap">{caseName(theCase, es)}</div>
+                  <div className="pf-cap pf-muted">{caseExpectedBand(theCase, es)}</div>
                 </>
               )}
             </>
@@ -398,7 +448,21 @@ export default function Tool() {
           ? <RealCasePanel rc={realCase} es={es} />
           : (
             <div className="pf-tabs">
-              <div className="pf-tabrow" role="tablist" aria-label={es ? 'vistas del pit' : 'pit views'}>
+              <div className="pf-tabselect">
+                <label>
+                  <span>{es ? 'Vista del análisis' : 'Analysis view'}</span>
+                  <select value={activeTab} onChange={(event) => { setActiveTab(event.target.value); setOpenMenu(null); }}>
+                    {TAB_GROUPS.filter((group) => tabs.some((tab) => group.members.includes(tab.id))).map((group) => (
+                      <optgroup key={group.id} label={es ? group.es : group.en}>
+                        {tabs.filter((tab) => group.members.includes(tab.id)).map((tab) => (
+                          <option key={tab.id} value={tab.id}>{tab.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <nav className="pf-tabrow" aria-label={es ? 'vistas del pit' : 'pit views'}>
                 {TAB_GROUPS.filter((g) => tabs.some((x) => g.members.includes(x.id))).map((g) => {
                   const mine = tabs.filter((x) => g.members.includes(x.id));
                   const activeHere = mine.some((x) => x.id === activeTab);
@@ -406,12 +470,16 @@ export default function Tool() {
                   const multi = mine.length > 1;
                   return (
                     <div key={g.id} className="pf-tabwrap"
+                         onKeyDown={(event) => { if (event.key === 'Escape') { setOpenMenu(null); event.currentTarget.querySelector('button')?.focus(); } }}
+                         onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null); }}
                          onPointerEnter={() => { if (multi) { if (closeTimer.current) clearTimeout(closeTimer.current); setOpenMenu(g.id); } }}
                          onPointerLeave={() => {
                            if (closeTimer.current) clearTimeout(closeTimer.current);
                            closeTimer.current = setTimeout(() => setOpenMenu((m) => (m === g.id ? null : m)), 240);
                          }}>
-                      <button role="tab" aria-selected={activeHere}
+                      <button aria-current={activeHere ? 'page' : undefined}
+                              aria-haspopup={multi ? 'menu' : undefined} aria-expanded={multi ? openMenu === g.id : undefined}
+                              aria-controls={multi ? `pf-menu-${g.id}` : 'pf-view-panel'}
                               className={`pf-tab ${activeHere ? 'on' : ''}`}
                               onClick={() => {
                                 if (!multi) { setActiveTab(mine[0].id); setOpenMenu(null); return; }
@@ -421,7 +489,7 @@ export default function Tool() {
                         {activeHere ? shown.label : (es ? g.es : g.en)}{multi ? <span className="pf-caret">v</span> : null}
                       </button>
                       {multi && openMenu === g.id && (
-                        <div className="pf-tabmenu" role="menu">
+                        <div className="pf-tabmenu" role="menu" id={`pf-menu-${g.id}`} aria-label={es ? g.es : g.en}>
                           {mine.map((x) => (
                             <button key={x.id} role="menuitem" className={x.id === activeTab ? 'on' : ''}
                                     onClick={() => { setActiveTab(x.id); setOpenMenu(null); }}>{x.label}</button>
@@ -431,8 +499,9 @@ export default function Tool() {
                     </div>
                   );
                 })}
-              </div>
-              <div className="pf-tabpanel">
+              </nav>
+              <div className="pf-tabpanel" id="pf-view-panel" role="region" aria-live="polite"
+                   aria-label={tabs.find((tab) => tab.id === activeTab)?.label}>
                 {(() => {
                   const cur = tabs.find((x) => x.id === activeTab) ?? tabs[0];
                   return cur ? <PanelBoundary key={`${caseId}-${cur.id}`} lang={es ? 'es' : 'en'}>{cur.content}</PanelBoundary> : null;
@@ -447,4 +516,25 @@ export default function Tool() {
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return <div className="pf-kpi"><div className="pf-kpi-v">{value}</div><div className="pf-kpi-l">{label}</div></div>;
+}
+
+function ShellTimeline({ frame, playing, es, onFrame, onPlay, onPause }: {
+  frame: number; playing: boolean; es: boolean;
+  onFrame: (frame: number) => void; onPlay: () => void; onPause: () => void;
+}) {
+  return <div className="pf-shell-timeline" role="group" aria-label={es ? 'Reproducción de evolución de shells' : 'Shell-evolution playback'}>
+    <button className="chip" onClick={() => onFrame(Math.max(0, frame - 1))} disabled={frame === 0}
+            aria-label={es ? 'Shell anterior' : 'Previous shell'}>←</button>
+    {playing
+      ? <button className="chip on" onClick={onPause}>{es ? 'Pausar' : 'Pause'}</button>
+      : <button className="chip" onClick={onPlay}>{frame >= RFS.length - 1 ? (es ? 'Repetir' : 'Replay') : (es ? 'Reproducir' : 'Play')}</button>}
+    <button className="chip" onClick={() => onFrame(Math.min(RFS.length - 1, frame + 1))} disabled={frame === RFS.length - 1}
+            aria-label={es ? 'Shell siguiente' : 'Next shell'}>→</button>
+    <label>
+      <span>shell {frame + 1}/{RFS.length} · RF {RFS[frame].toFixed(3)}</span>
+      <input className="range" type="range" min={0} max={RFS.length - 1} step={1} value={frame}
+             onChange={(event) => onFrame(Number(event.target.value))} />
+    </label>
+    <span className="pf-cap pf-muted">{es ? '12 pits exactos en memoria · pausa al ocultar la pestaña' : '12 exact pits in memory · pauses when the tab is hidden'}</span>
+  </div>;
 }

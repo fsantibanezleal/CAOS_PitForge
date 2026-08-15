@@ -20,14 +20,16 @@ Both are trained offline (`science/train_pit.py`, torch) and reported next to th
 metrics live in `data/derived/pit-learned.json` and show in Benchmark; the models run live in the App’s
 **Infill · what-if** (grade-NN) and **Surrogate · preview** (pit-surrogate) tabs.
 
+Ordinary Kriging is the geostatistical reference method described by Chilès and Delfiner (2012),
+doi:10.1002/9781118136188. It is a baseline here, not a PitForge invention.
+
 | Model | Task | Baseline | Held-out metric (this build) |
 |---|---|---|---|
-| `grade-nn` | masked 3×3×3 grade stencil → centre grade | IDW · Ordinary Kriging | **R² 0.9613** vs IDW 0.9129 / OK 0.958 |
-| `pit-surrogate` | 4 block features → P(block ∈ pit) | the exact min-cut | **AUC 0.9811 · acc 0.9117** vs majority 0.7642 |
+| `grade-nn` | masked 3×3×3 grade stencil → centre grade | IDW · Ordinary Kriging | **R² 0.8757** vs IDW 0.8591 / OK 0.9333 |
+| `pit-surrogate` | 4 block features → P(block ∈ pit) | exact labels; majority reference | **AUC 0.9123 · acc 0.8294** vs AUC 0.5 / majority acc 0.6428 |
 
-**Honesty.** On the smooth synthetic fields the local grade is quite predictable, so all three grade methods score
-high, the NN is *competitive* with geostatistics, not a dramatic win. The held-out stencils mix full 26-neighbour
-rows with random-dropout sparse rows (so partially-drilled what-ifs are in distribution). The pit-surrogate is a
-strong fast approximation (AUC 0.98) but **not** the exact answer; the App shows its agreement with the exact pit per
-section, and the exact min-cut is always the authority. No metric is computed on training data; the split is a
-held-out fraction.
+**Honesty.** The deterministic split leaves the vein geology out entirely. Full and random-dropout stencil pairs
+share a group and can never cross the boundary. On that unseen geology, the NN narrowly beats IDW but trails Ordinary
+Kriging; it is not a geostatistical win. The pit surrogate is useful at AUC 0.9123 but **not** the exact answer. The
+App shows its agreement with the exact pit per section, and the exact min-cut is always the authority. No metric is
+computed on training data and no reused porphyry geometry leaks into evaluation.

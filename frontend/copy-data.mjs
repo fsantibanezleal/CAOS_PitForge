@@ -9,6 +9,17 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
 const PUB = join(HERE, 'public');
 const derived = join(ROOT, 'data', 'derived');
+const ortDist = join(HERE, 'node_modules', 'onnxruntime-web', 'dist');
+const ortPublic = join(PUB, 'ort-runtime');
+
+// Keep inference self-contained: the WASM execution provider is served by the same origin as the
+// SPA, so private deployments and offline installations never depend on a third-party CDN.
+mkdirSync(ortPublic, { recursive: true });
+for (const file of ['ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm']) {
+  const src = join(ortDist, file);
+  if (!existsSync(src)) throw new Error(`[copy-data] missing pinned onnxruntime-web asset: ${file}`);
+  copyFileSync(src, join(ortPublic, file));
+}
 
 if (!existsSync(derived)) {
   console.warn('[copy-data] no data/derived, run `npm run bake` (or `python data-pipeline/run.py all`) first');
@@ -21,5 +32,5 @@ if (!existsSync(derived)) {
     const src = join(derived, f);
     if (existsSync(src)) copyFileSync(src, join(PUB, f));
   }
-  console.log('[copy-data] data/derived -> public/data (+ root-level case-results / onnx)');
+  console.log('[copy-data] data/derived -> public/data (+ root-level case-results / onnx); ONNX WASM -> public/ort-runtime');
 }

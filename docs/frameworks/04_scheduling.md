@@ -1,106 +1,93 @@
 # Framework, the scheduling frontier (CPIT)
 
-Beyond the ultimate pit. The ultimate pit (UPL) that PitForge solves exactly is **static**: it has no time,
-no capacity, and no discounting. The open, published frontier is **precedence-constrained production
-scheduling** (CPIT): decide in which period each block is extracted so as to maximise the **discounted NPV**
-under a per-period tonnage capacity. This lane adds exactly the capability the fast exact UPL does not have.
+The ultimate pit (UPL) that PitForge solves exactly is static: it has no time, resource capacity, or discounting.
+Precedence-constrained production scheduling (CPIT) decides when each block is extracted to maximise discounted
+NPV under one or more per-period resource limits. This lane adds the decision the fast exact UPL does not make.
 
-Honesty first. The UPL is already proven optimal and the min-cut reproduces the MineLib optima exactly, so
-nothing here beats it. The contribution is (1) a **certified upper bound** on the discounted NPV from a linear
-programming relaxation, and (2) a **feasible integer pushback schedule** rounded from that relaxation, with the
-**integrality gap reported explicitly**. An LP relaxation is a bound, not a schedule.
+The contribution is deliberately bounded: a certified upper bound from a linear-programming relaxation, a
+feasible integer pushback schedule, and the named gap between them. An LP relaxation is a bound, not a schedule.
 
-## The time-indexed formulation
+## The cumulative time-indexed formulation
 
-Introduce a binary variable per block and period, in the by-period cumulative form (Chicoisne et al. 2012):
+Let `x[b,t]` be 1 when block `b` has been extracted by the end of period `t`, and 0 otherwise. Let `v[b]` be net
+block value, `a[k,b]` be consumption of resource `k`, `C[k,t]` be its period limit, and `r` be the discount rate.
+With `x[b,0] = 0`, the mined-in-period indicator is `y[b,t] = x[b,t] - x[b,t-1]`:
 
-```
-x_{b,t} in {0,1}   =  1 if block b has been extracted by the END of period t (cumulative, monotone in t)
-```
+```text
+maximise    sum(b,t) v[b] / (1+r)^(t-1) * (x[b,t] - x[b,t-1])
 
-with `x_{b,0} = 0`. Write `w_b` for the extraction tonnage of block b, `v_b` for its net value (destination
-already optimised, the same `.upit` value the min-cut uses), `r` the discount rate per period, and `C_t` the
-tonnage capacity of period t. The block mined-in-period-t indicator is `y_{b,t} = x_{b,t} - x_{b,t-1}`.
-
-```
-maximise    sum_{b,t}  v_b / (1+r)^(t-1)  ( x_{b,t} - x_{b,t-1} )        (discounted NPV; period 1 undiscounted)
-
-subject to  x_{b,t-1} <= x_{b,t}                        (once mined, stays mined)
-            x_{b,t}   <= x_{a,t}   for a in pred(b)      (precedence, in every period)
-            sum_b w_b ( x_{b,t} - x_{b,t-1} ) <= C_t     (per-period tonnage capacity)
-            x_{b,t} in {0,1}
+subject to  x[b,t-1] <= x[b,t]                              monotonicity
+            x[b,t] <= x[p,t] for every p in pred(b)          precedence
+            sum(b) a[k,b] * (x[b,t] - x[b,t-1]) <= C[k,t]    every resource k and period t
+            x[b,t] in {0,1}
 ```
 
-The precedence constraint says: block b cannot be mined by period t unless every predecessor a (each block in
-b's slope cone, which must be removed first) has also been mined by period t.
+The implementation supports multiple resources with distinct limits in every period. `newman1.cpit`, for
+example, has total-movement and processing constraints; the separate synthetic-twin scenario has one movement
+constraint.
 
-## The Bienstock and Zuckerberg LP relaxation (the certified bound)
+## The certified bound and the algorithm actually run
 
-Relaxing the integrality (`x_{b,t} in [0,1]` instead of `{0,1}`) gives a linear program. Because the problem is
-a **maximisation**, the LP optimum is a valid **upper bound** on the best integer NPV:
+PitForge relaxes `x[b,t]` to `[0,1]` and solves that cumulative Chicoisne et al. (2012) formulation offline with
+`scipy.optimize.linprog` using HiGHS. Since CPIT is a maximisation problem, its LP optimum is an upper bound:
 
-```
-NPV*(integer)  <=  NPV(LP relaxation)  =  the certified bound
-```
-
-Solving this LP at scale is itself a research contribution: Bienstock and Zuckerberg (2010) give a specialised
-algorithm for the LP relaxation of large precedence-constrained problems, studied and extended for mining and
-resource-constrained project scheduling by Munoz et al. (2018). PitForge solves the LP **offline** in the
-`.venv` with `scipy.optimize.linprog` (the HiGHS backend) on a small MineLib instance and a license-free
-synthetic twin, commits the bound and the per-period schedule as an artifact
-(`data/derived/cpit-schedule.json`), and the browser replays it. The browser cannot run a general LP, so the
-certified bound is offline by construction; the live tab shows a feasible greedy schedule for the animation.
-
-## The rounded schedule and the integrality gap
-
-The LP gives a fractional solution and a bound, not an integer plan. We round to a feasible integer schedule
-with a greedy heuristic: fill each period up to its capacity, mining the highest-value available block first
-(all predecessors already mined), advancing the period when the best available block no longer fits. Then
-
-```
-integrality gap  =  ( certified bound  -  rounded schedule NPV )  /  certified bound
+```text
+feasible integer NPV <= optimal integer NPV <= LP upper bound
 ```
 
-is reported honestly. On the committed cases the gap is around 10 to 11 percent. It is never presented as
-optimal; the honest bound and gap are the deliverable.
+Bienstock and Zuckerberg (2010) is important specialized algorithmic context for large precedence-constrained LP
+relaxations, but PitForge does not run the Bienstock-Zuckerberg algorithm. The artifact and interface name the
+actual SciPy/HiGHS execution path.
 
-## Duality to the ultimate pit (the mandatory control)
+The browser cannot run this general LP. The offline pipeline commits only the resulting aggregate certificate and
+the license-safe synthetic schedule in `data/derived/cpit-schedule.json`. The live tab separately computes a
+glass-box greedy schedule for the current synthetic deposit.
 
-Set the discount rate to `r = 0` and the capacity to infinity. Then every discount factor is 1, the objective
-collapses to `sum_b v_b x_{b,T}`, and the only remaining constraints are precedence and `x in [0,1]`. That is
-exactly the **max-closure LP**, whose optimum is integral and equals the ultimate pit. Therefore:
+## Two scenarios that must not be mixed
 
-> At rate 0 and infinite capacity the CPIT mined set must equal the exact ultimate pit **block-for-block**,
-> and the LP bound must equal the exact UPL value. If it does not, it is a bug, not a result.
+| Scenario | Definition | LP bound | PitForge feasible NPV | Named gap |
+|---|---|---:|---:|---:|
+| MineLib `newman1.cpit` | Published: 6 periods, 8% discount, movement plus processing | 24,486,184 | 23,553,245 | 3.81% to the reproduced published bound |
+| `twin-porphyry-s` | PitForge-authored and non-comparable: 8 periods, 10% discount, one movement limit | 104,612,788 | 92,806,606 | 11.29% to the PitForge scenario bound |
 
-This is the mandatory duality negative control (verified in `tests/test_cpit.py` and, on the live TypeScript
-schedule, in `frontend/test/schedule.test.ts`). On `newman1` and the porphyry twin the LP bound reproduces the
-exact UPL optima 26,086,899 and 126,908,454 to floating-point noise (~1e-7). The ultimate pit is the
-undiscounted, uncapacitated degenerate case of the schedule, so the new lane is a rigorous **superset** of the
-current product, not a bolt-on.
+For the published `newman1.cpit` scenario, PitForge reproduces the MineLib LP bound to relative error below
+`4e-9`. MineLib also reports a historical feasible value of 23,483,671 and a 4.1% gap. PitForge's feasible
+heuristic is about 0.30% above that cited historical feasible value, but this repository does not claim a new
+best-known result. The reproduced published upper bound remains the certificate.
 
-A second control is bound validity: the certified bound must be greater than or equal to any feasible integer
-NPV (a bound below a feasible solution is a bug).
+The twin is a useful replay and interaction case, not a MineLib CPIT reproduction. Its 11.29% gap cannot be used
+as the `newman1.cpit` gap, and neither number is described without its scenario and denominator.
 
-## Scope (honest)
+## Feasible rounding and mandatory controls
 
-CPIT is 2012 SOTA, not a new algorithm. The contribution here is the transparent, certified, in-browser
-**delivery** (the bound, the gap, the bench-sequence animation), wired to the same MineLib ground truth.
-PitForge ships a **didactic slice**: a certified bound plus a pushback schedule on one to two instances. The
-full production scheduler is the sibling product PhaseFlow; PitForge does not annex it.
+The integer heuristic repeatedly selects a high-value available block whose predecessors are already scheduled
+and whose resource vector fits the remaining limits. Every generated case must pass all of these controls:
+
+1. At zero discount and infinite capacity, the mined set equals the exact ultimate pit block for block.
+2. The zero-discount LP value equals the exact UPL value within floating-point tolerance.
+3. The certified LP bound is not below the feasible integer NPV.
+4. Every resource-period usage is within its published or authored limit.
+5. Every scheduled block respects all precedence relations.
+6. Every block in the ultimate pit is scheduled.
+
+The controls run in `tests/test_cpit.py`, the generator fails closed, and `scripts/check_reference_integrity.py`
+validates the committed artifact without requiring network access.
+
+## Scope
+
+CPIT is established literature, not a new PitForge algorithm. PitForge delivers a transparent, reproducible,
+didactic slice with a certificate, a feasible heuristic, explicit controls, and an interactive explanation. It is
+not a production mine plan and does not replace geological, geotechnical, operational, or financial review.
 
 ## References
 
-- Chicoisne, R., Espinoza, D., Goycoolea, M., Moreno, E. & Rubio, E. (2012). A new algorithm for the open-pit
+- Chicoisne, R., Espinoza, D., Goycoolea, M., Moreno, E. and Rubio, E. (2012). A new algorithm for the open-pit
   mine production scheduling problem. Operations Research, 60(3), 517-528. doi:10.1287/opre.1120.1050
-- Bienstock, D. & Zuckerberg, M. (2010). Solving LP relaxations of large-scale precedence constrained
-  problems. IPCO, LNCS 6080, 1-14. doi:10.1007/978-3-642-13036-6_1
-- Munoz, G., Espinoza, D., Goycoolea, M., Moreno, E., Queyranne, M. & Rivera Letelier, O. (2018). A study of
-  the Bienstock-Zuckerberg algorithm. Computational Optimization and Applications, 69, 501-534.
-  doi:10.1007/s10589-017-9946-1
-- Lambert, W. B. & Newman, A. M. (2014). Tailored Lagrangian relaxation for the open pit block sequencing
-  problem. Annals of Operations Research, 222, 419-438. doi:10.1007/s10479-012-1287-y
-- Espinoza, D., Goycoolea, M., Moreno, E. & Newman, A. (2013). MineLib: a library of open pit mining problems.
+- Bienstock, D. and Zuckerberg, M. (2010). Solving LP relaxations of large-scale precedence constrained problems.
+  IPCO, LNCS 6080, 1-14. doi:10.1007/978-3-642-13036-6_1
+- Munoz, G. et al. (2018). A study of the Bienstock-Zuckerberg algorithm. Computational Optimization and
+  Applications, 69, 501-534. doi:10.1007/s10589-017-9946-1
+- Espinoza, D., Goycoolea, M., Moreno, E. and Newman, A. (2013). MineLib: a library of open pit mining problems.
   Annals of Operations Research, 206, 93-114. doi:10.1007/s10479-012-1258-3
-
-Full citation list in `frontend/src/data/citations.ts`.
+- Virtanen, P. et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature
+  Methods, 17, 261-272. doi:10.1038/s41592-019-0686-2

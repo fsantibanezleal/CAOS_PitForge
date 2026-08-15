@@ -30,6 +30,21 @@ OBJECTIVE_FUNCTION:
 1 -10
 2 90`;
 
+function assertExactRungsAgree(
+  value: Float64Array,
+  precStart: Int32Array,
+  precList: Int32Array,
+  label: string,
+) {
+  const dinic = solveUpitExplicit(value, precStart, precList, 'dinic');
+  const pseudoflow = solveUpitExplicit(value, precStart, precList, 'pseudoflow');
+  assert.ok(Math.abs(dinic.pitValue - pseudoflow.pitValue) <= Math.max(1e-6, Math.abs(dinic.pitValue) * 1e-12),
+    `${label}: solver values differ (${dinic.pitValue} vs ${pseudoflow.pitValue})`);
+  assert.deepEqual(pseudoflow.inPit, dinic.inPit, `${label}: block sets differ on this validated case`);
+  assert.ok(pseudoflow.pseudoflowStats && pseudoflow.pseudoflowStats.mergers >= 0);
+  return { dinic, pseudoflow };
+}
+
 test('parseBlocks reads coords + declared free columns', () => {
   const b = parseBlocks(FIX_BLOCKS, { grade: 5, tonnage: 6, density: 7 });
   assert.equal(b.n, 3);
@@ -84,6 +99,35 @@ test('solveUpitExplicit: partial pit picks only the paying branch', () => {
   assert.equal(r.pitValue, 15);
 });
 
+test('Dinic and pseudoflow agree on every hand-computable closure', () => {
+  for (const [label, values, precText] of [
+    ['profitable', [40, -10, 90], FIX_PREC],
+    ['empty', [5, -4, -4], '0 2 1 2\n1 0\n2 0'],
+    ['partial', [5, -4, -4, 20, -5], '0 2 1 2\n1 0\n2 0\n3 1 4\n4 0'],
+  ] as const) {
+    const prec = parsePrec(precText, values.length);
+    assertExactRungsAgree(new Float64Array(values), prec.precStart, prec.precList, label);
+  }
+});
+
+test('Dinic and pseudoflow agree on 250 deterministic random DAG closures', () => {
+  for (let seed = 1; seed <= 250; seed++) {
+    let state = seed >>> 0;
+    const random = () => { state = (Math.imul(state, 1_664_525) + 1_013_904_223) >>> 0; return state / 4_294_967_296; };
+    const n = 2 + Math.floor(random() * 18);
+    // Tiny deterministic offsets avoid tied optima: this test is about algorithmic equality,
+    // while the documented contract correctly permits different cuts under genuine ties.
+    const value = Float64Array.from({ length: n }, (_, i) => random() * 20 - 10 + (i + 1) * 1e-6);
+    const predecessors = Array.from({ length: n }, () => [] as number[]);
+    for (let b = 1; b < n; b++) for (let p = 0; p < b; p++) if (random() < 0.15) predecessors[b].push(p);
+    const precStart = new Int32Array(n + 1);
+    for (let b = 0; b < n; b++) precStart[b + 1] = precStart[b] + predecessors[b].length;
+    const precList = new Int32Array(precStart[n]);
+    for (let b = 0; b < n; b++) precList.set(predecessors[b], precStart[b]);
+    assertExactRungsAgree(value, precStart, precList, `random DAG ${seed}`);
+  }
+});
+
 test('buildRealEmbedding: sparse box, z flipped to the viz convention, duplicates rejected', () => {
   const inst = parseMinelib({ blocks: FIX_BLOCKS, prec: FIX_PREC, upit: FIX_UPIT }, { grade: 5 });
   const e = buildRealEmbedding(inst, 'fix');
@@ -119,6 +163,7 @@ test('newman1 reproduces the PUBLISHED UPIT optimum 26,086,899', { skip: !hasCac
   const e = buildRealEmbedding(inst, rc.name);
   assert.equal([...e.present].reduce((a, b) => a + b, 0), rc.nBlocks);
   assert.ok(e.gradeAvailable && e.tonnageAvailable);
+  assertExactRungsAgree(inst.value, inst.precStart, inst.precList, 'newman1');
 });
 
 // zuck_small + kd oracles (same pattern; ~250 ms solves, local only)
@@ -137,6 +182,7 @@ for (const id of ['zuck_small', 'kd']) {
     const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
     assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
       `pitValue ${r.pitValue} != published ${rc.publishedOptimum}`);
+    assertExactRungsAgree(inst.value, inst.precStart, inst.precList, id);
   });
 }
 
@@ -162,5 +208,6 @@ for (const tw of ['twin-porphyry-s', 'twin-vein-m', 'twin-corehalo-m']) {
     const meta = JSON.parse(readFileSync(join(dir, `${tw}.meta.json`), 'utf8'));
     assert.ok(Math.abs(r.pitValue - meta.stamped_optimum) <= 1e-6 * meta.stamped_optimum);
     assert.equal(r.nInPit, meta.stamped_n_in_pit);
+    assertExactRungsAgree(inst.value, inst.precStart, inst.precList, tw);
   });
 }

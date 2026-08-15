@@ -17,7 +17,8 @@ replay traces.
 - `pipeline/io/`, `contract.py` (**CONTRACT 1**: scenario + block-model ingestion) · `formats.py` · `schema.py`
 - `pipeline/core/`, `rng.py` · `trace.py` · `manifest.py` (**CONTRACT 2**) · `gate.py` (live/precompute gate)
 - `pipeline/model/`, `learned.py` (the 2 learned models' feature contracts, the source of truth the SPA reproduces)
-- `pipeline/stages/`, `preprocess → feature_extraction → train → infer → evaluate → export` (thin over the science)
+- `pipeline/stages/export.py`, the executable light-lane trace/manifest export
+- `pipeline/science/`, the explicit TypeScript bake/table generators and Python ONNX trainer
 - `pipeline/science/`, `bake_cases.mjs` · `gen_train.mjs` (Node + tsx, the SAME TS engine) · `train_pit.py` (torch → ONNX)
 
 ## The default lane is light

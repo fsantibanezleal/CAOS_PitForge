@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildUserModel, parseCsv, validateBlocksLive } from '../src/lib/contractLive.ts';
+import { EXAMPLE_CSV } from '../src/viz/UploadPanel.tsx';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +55,16 @@ test('mirror: duplicates flagged but accepted', () => {
   assert.match(rep.flagged[0].flags[0], /duplicate/);
 });
 
+test('mirror: negative coordinates are rejected without a supplied model box', () => {
+  const rep = validateBlocksLive([
+    R({ ix: -1, iy: 0, iz: 0, tonnage: 2700, density: 2.7, grade: 0.01 }),
+    R({ ix: 0, iy: 0, iz: -2, tonnage: 2700, density: 2.7, grade: 0.01 }),
+  ]);
+  assert.equal(rep.accepted.length, 0);
+  assert.equal(rep.rejected.length, 2);
+  assert.ok(rep.rejected.every((row) => /negative/.test(row.reason)));
+});
+
 test('mirror: the committed example passes (tests/test_contract.py::test_committed_examples...)', () => {
   const csv = readFileSync(join(HERE, '..', '..', 'data', 'examples', 'blockmodel.csv'), 'utf8');
   const rep = validateBlocksLive(parseCsv(csv));
@@ -63,9 +74,11 @@ test('mirror: the committed example passes (tests/test_contract.py::test_committ
   const um = buildUserModel(rep.accepted, 'example');
   assert.deepEqual(um.dims, { nx: 3, ny: 1, nz: 3 });
   assert.equal([...um.present].reduce((a: number, b: number) => a + b, 0), rep.accepted.length);
+  assert.equal(EXAMPLE_CSV.replace(/\r\n/g, '\n'), csv.replace(/\r\n/g, '\n'));
 });
 
 test('buildUserModel guards: empty input and oversized boxes throw', () => {
   assert.throws(() => buildUserModel([], 'x'), /no accepted blocks/);
+  assert.throws(() => buildUserModel([{ ix: -1, iy: 0, iz: 0, tonnage: 1, density: 1, grade: 0 }], 'x'), /non-negative/);
   assert.throws(() => buildUserModel([{ ix: 200, iy: 200, iz: 100, tonnage: 1, density: 1, grade: 0 }].map((r) => ({ ...r })), 'x'), /too large/);
 });
