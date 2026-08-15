@@ -1,24 +1,24 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useShellLang } from '@fasl-work/caos-app-shell';
-import { CASES, caseModel, type PitCase } from '../opt/cases.ts';
+import { CASES, caseExpectedBand, caseModel, caseName, type PitCase } from '../opt/cases.ts';
 import { blockValue, defaultRevenueFactors, isOre, nestedPitShells, solveUltimatePit } from '../opt/index.ts';
 import { idx, type EconParams } from '../opt/types.ts';
 import { SectionView, type SectionCell } from '../viz/SectionView.tsx';
 import { WhittleChart } from '../viz/WhittleChart.tsx';
 import { Gauge } from '../viz/Gauge.tsx';
 import { shellColor, viridisCss } from '../viz/colormap.ts';
-import { REAL_CASES, type RealCase } from '../opt/realCases.ts';
+import { REAL_CASES, realCaseName, type RealCase } from '../opt/realCases.ts';
 import { RealCasePanel } from '../viz/RealCasePanel.tsx';
 import { BarMini } from '../viz/BarMini.tsx';
 import { UploadPanel } from '../viz/UploadPanel.tsx';
-import { InfillPanel } from '../viz/InfillPanel.tsx';
-import { LearnedPanel } from '../viz/LearnedPanel.tsx';
 import { SchedulePanel } from '../viz/SchedulePanel.tsx';
 import type { UserModel } from '../lib/contractLive.ts';
 import { PanelBoundary } from '../viz/PanelBoundary.tsx';
 
 const PitView3D = lazy(() => import('../viz/PitView3D.tsx').then((m) => ({ default: m.PitView3D })));
+const InfillPanel = lazy(() => import('../viz/InfillPanel.tsx').then((module) => ({ default: module.InfillPanel })));
+const LearnedPanel = lazy(() => import('../viz/LearnedPanel.tsx').then((module) => ({ default: module.LearnedPanel })));
 const RFS = defaultRevenueFactors(12);
 const fM = (v: number) => `${(v / 1e6).toFixed(1)}`;
 const fMt = (v: number) => `${(v / 1e6).toFixed(2)}`;
@@ -166,14 +166,14 @@ export default function Tool() {
             <div className="pf-seg">
               {(['pit', 'grade', 'shells'] as const).map((m) => (
                 <button key={m} className={`chip ${mode3d === m ? 'on' : ''}`} onClick={() => setMode3d(m)}>
-                  {m === 'pit' ? (es ? 'solo pit' : 'pit only') : m === 'grade' ? (es ? 'orebody' : 'orebody') : (es ? 'shells' : 'shells')}
+                  {m === 'pit' ? (es ? 'sólo rajo' : 'pit only') : m === 'grade' ? (es ? 'yacimiento' : 'orebody') : (es ? 'cáscaras' : 'shells')}
                 </button>
               ))}
             </div>
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
             <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} />
+                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} es={es} />
           </Suspense>
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
@@ -202,7 +202,7 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? 'Pit anidado por factor de ingreso (RF), valor + tonelaje; click para fijar RF' : 'Nested pits by revenue factor (RF), value + tonnage; click to set RF'}</div>
-          <WhittleChart curve={shells.curve} currentRF={rf} onPickRF={setRf} />
+          <WhittleChart curve={shells.curve} currentRF={rf} onPickRF={setRf} es={es} />
           <div className="pf-cap">{es ? `RF = ${rf.toFixed(2)} · valor $${fM(pit.pitValue)} M · ${pit.nBlocks} bloques` : `RF = ${rf.toFixed(2)} · value $${fM(pit.pitValue)} M · ${pit.nBlocks} blocks`}</div>
         </div>
       ),
@@ -244,7 +244,10 @@ export default function Tool() {
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? 'Curva ley–tonelaje del modelo (tonelaje sobre ley de corte)' : 'Model grade–tonnage curve (tonnage above cutoff)'}</div>
           <BarMini values={gradeTonnage.map((g) => g.tonnes / 1e6)}
-                   labels={gradeTonnage.map((g) => `${(g.cut * 100).toFixed(1)}%`)} unit="Mt" />
+                   labels={gradeTonnage.map((g) => `${(g.cut * 100).toFixed(1)}%`)} unit="Mt"
+                   ariaLabel={es ? 'Curva interactiva de ley y tonelaje' : 'Interactive grade-tonnage curve'}
+                   valueLabel={es ? 'tonelaje sobre corte' : 'tonnage above cutoff'}
+                   interactionHint={es ? 'Enfoque el gráfico: flechas desplazan, +/− amplían y Inicio restablece.' : 'Focus the chart: arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     },
@@ -253,8 +256,12 @@ export default function Tool() {
       content: (
         <div className="pf-vizstack">
           <div className="pf-plot-t">{es ? `Histograma del valor de bloque (RF ${rf.toFixed(2)}), negativos = lastre` : `Block-value histogram (RF ${rf.toFixed(2)}), negatives = waste`}</div>
-          <BarMini values={valueHist.bins} labels={valueHist.bins.map(() => '')}
-                   unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`} />
+          <BarMini values={valueHist.bins}
+                   labels={valueHist.bins.map((_, index) => `$${fM(valueHist.lo + ((index + 0.5) / valueHist.bins.length) * (valueHist.hi - valueHist.lo))}M`)}
+                   unit="" caption={`$${fM(valueHist.lo)}M … $${fM(valueHist.hi)}M`}
+                   ariaLabel={es ? 'Histograma interactivo del valor de bloque' : 'Interactive block-value histogram'}
+                   valueLabel={es ? 'cantidad de bloques' : 'block count'}
+                   interactionHint={es ? 'Enfoque el gráfico: flechas desplazan, +/− amplían y Inicio restablece.' : 'Focus the chart: arrows pan, +/− zoom, and Home resets.'} />
         </div>
       ),
     },
@@ -264,11 +271,15 @@ export default function Tool() {
     },
     {
       id: 'infill', label: es ? 'Infill · what-if' : 'Infill · what-if',
-      content: <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />,
+      content: <Suspense fallback={<div className="pf-status" role="status">{es ? 'Cargando infill…' : 'Loading infill…'}</div>}>
+        <InfillPanel model={model} econ={econNoRF} rf={rf} iy={iy} present={present} es={es} />
+      </Suspense>,
     },
     {
       id: 'surrogate', label: es ? 'Surrogate · preview' : 'Surrogate · preview',
-      content: <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />,
+      content: <Suspense fallback={<div className="pf-status" role="status">{es ? 'Cargando surrogate…' : 'Loading surrogate…'}</div>}>
+        <LearnedPanel model={model} econ={econNoRF} iy={iy} es={es} />
+      </Suspense>,
     },
     {
       id: 'byo', label: es ? 'Modelo propio' : 'Bring your own',
@@ -318,7 +329,7 @@ export default function Tool() {
                 <div className="pf-catlabel">{es ? 'publicadas · MineLib' : 'published · MineLib'}</div>
                 <div className="pf-chips">
                   {REAL_CASES.filter((r) => !r.synthetic).map((r) => (
-                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={realCaseName(r, es)}
                             onClick={() => setRealId(r.id)}>{r.id}</button>
                   ))}
                 </div>
@@ -327,12 +338,12 @@ export default function Tool() {
                 <div className="pf-catlabel">{es ? 'gemelos sintéticos · oreblocks' : 'synthetic twins · oreblocks'}</div>
                 <div className="pf-chips">
                   {REAL_CASES.filter((r) => r.synthetic).map((r) => (
-                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={r.name}
+                    <button key={r.id} className={`chip ${realId === r.id ? 'on' : ''}`} title={realCaseName(r, es)}
                             onClick={() => setRealId(r.id)}>{r.id.replace('twin-', '')}</button>
                   ))}
                 </div>
               </div>
-              <div className="pf-cap">{realCase.name}</div>
+              <div className="pf-cap">{realCaseName(realCase, es)}</div>
               <div className="pf-cap pf-muted">{es ? realCase.provenance_es : realCase.provenance_en}</div>
             </>
           ) : (
@@ -351,7 +362,7 @@ export default function Tool() {
               </div>
               <div className="pf-chips">
                 {CASES.filter((c) => c.category === CAT_TABS[catTab].cat).map((c) => (
-                  <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={c.name}
+                  <button key={c.id} className={`chip ${!userModel && caseId === c.id ? 'on' : ''}`} title={caseName(c, es)}
                           onClick={() => { setUserModel(null); setCaseId(c.id); }}>{c.id}</button>
                 ))}
               </div>
@@ -362,8 +373,8 @@ export default function Tool() {
                 </>
               ) : (
                 <>
-                  <div className="pf-cap">{theCase.name}</div>
-                  <div className="pf-cap pf-muted">{es ? theCase.expectedBand : theCase.expectedBand}</div>
+                  <div className="pf-cap">{caseName(theCase, es)}</div>
+                  <div className="pf-cap pf-muted">{caseExpectedBand(theCase, es)}</div>
                 </>
               )}
             </>
@@ -398,7 +409,21 @@ export default function Tool() {
           ? <RealCasePanel rc={realCase} es={es} />
           : (
             <div className="pf-tabs">
-              <div className="pf-tabrow" role="tablist" aria-label={es ? 'vistas del pit' : 'pit views'}>
+              <div className="pf-tabselect">
+                <label>
+                  <span>{es ? 'Vista del análisis' : 'Analysis view'}</span>
+                  <select value={activeTab} onChange={(event) => { setActiveTab(event.target.value); setOpenMenu(null); }}>
+                    {TAB_GROUPS.filter((group) => tabs.some((tab) => group.members.includes(tab.id))).map((group) => (
+                      <optgroup key={group.id} label={es ? group.es : group.en}>
+                        {tabs.filter((tab) => group.members.includes(tab.id)).map((tab) => (
+                          <option key={tab.id} value={tab.id}>{tab.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <nav className="pf-tabrow" aria-label={es ? 'vistas del pit' : 'pit views'}>
                 {TAB_GROUPS.filter((g) => tabs.some((x) => g.members.includes(x.id))).map((g) => {
                   const mine = tabs.filter((x) => g.members.includes(x.id));
                   const activeHere = mine.some((x) => x.id === activeTab);
@@ -406,12 +431,16 @@ export default function Tool() {
                   const multi = mine.length > 1;
                   return (
                     <div key={g.id} className="pf-tabwrap"
+                         onKeyDown={(event) => { if (event.key === 'Escape') { setOpenMenu(null); event.currentTarget.querySelector('button')?.focus(); } }}
+                         onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null); }}
                          onPointerEnter={() => { if (multi) { if (closeTimer.current) clearTimeout(closeTimer.current); setOpenMenu(g.id); } }}
                          onPointerLeave={() => {
                            if (closeTimer.current) clearTimeout(closeTimer.current);
                            closeTimer.current = setTimeout(() => setOpenMenu((m) => (m === g.id ? null : m)), 240);
                          }}>
-                      <button role="tab" aria-selected={activeHere}
+                      <button aria-current={activeHere ? 'page' : undefined}
+                              aria-haspopup={multi ? 'menu' : undefined} aria-expanded={multi ? openMenu === g.id : undefined}
+                              aria-controls={multi ? `pf-menu-${g.id}` : 'pf-view-panel'}
                               className={`pf-tab ${activeHere ? 'on' : ''}`}
                               onClick={() => {
                                 if (!multi) { setActiveTab(mine[0].id); setOpenMenu(null); return; }
@@ -421,7 +450,7 @@ export default function Tool() {
                         {activeHere ? shown.label : (es ? g.es : g.en)}{multi ? <span className="pf-caret">v</span> : null}
                       </button>
                       {multi && openMenu === g.id && (
-                        <div className="pf-tabmenu" role="menu">
+                        <div className="pf-tabmenu" role="menu" id={`pf-menu-${g.id}`} aria-label={es ? g.es : g.en}>
                           {mine.map((x) => (
                             <button key={x.id} role="menuitem" className={x.id === activeTab ? 'on' : ''}
                                     onClick={() => { setActiveTab(x.id); setOpenMenu(null); }}>{x.label}</button>
@@ -431,8 +460,9 @@ export default function Tool() {
                     </div>
                   );
                 })}
-              </div>
-              <div className="pf-tabpanel">
+              </nav>
+              <div className="pf-tabpanel" id="pf-view-panel" role="region" aria-live="polite"
+                   aria-label={tabs.find((tab) => tab.id === activeTab)?.label}>
                 {(() => {
                   const cur = tabs.find((x) => x.id === activeTab) ?? tabs[0];
                   return cur ? <PanelBoundary key={`${caseId}-${cur.id}`} lang={es ? 'es' : 'en'}>{cur.content}</PanelBoundary> : null;

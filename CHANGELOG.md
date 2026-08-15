@@ -4,6 +4,28 @@ All notable changes to CAOS PitForge. Versions follow `X.XX.XXX` (display), see 
 `frontend/package.json`. The project stays in `0.x` until the epic-#18 at-bar review closes (real published
 block models are now first-class; the synthetic archetypes remain the teaching lane, stated openly).
 
+## Unreleased
+
+### Changed
+
+- Rebuilt the workbench as a responsive, single-scroll-owner instrument with desktop grouped navigation and a
+  phone-safe grouped selector that keeps every view reachable.
+- Localized canonical case names, provenance, validation anchors, chart labels, empty states, error states, and
+  loading states in English and Spanish. The browser title and document language now follow the visible locale.
+- Replaced static mini bars with keyboard-operable uPlot charts, localized summaries, exact-value tables, wheel
+  zoom, keyboard pan and zoom, and reset controls. WebGL and artifact failures remain bounded and retryable.
+- Self-hosted the pinned ONNX runtime assets from the application origin and lazy-loaded 3-D and learned panels.
+  Production chunking reduces the main application JavaScript from about 708 KB to 143 KB.
+
+### Verification
+
+- Added a 13-contract Playwright and axe-core suite covering six workbench viewports including 200% responsive
+  zoom equivalence, short-phone focus mode, keyboard navigation, both color themes, locale synchronization,
+  content reachability, horizontal overflow, WebGL degradation, artifact failure, and long prose routes. CI
+  installs Chromium and runs the same browser suite.
+- Documented the binding responsive, accessibility, runtime-asset, degraded-capability, and browser-test contract
+  in `docs/architecture/09_production-ui.md`.
+
 ## [0.12.000] · 2026-07-31
 
 ### Fixed - three routes hid more than half a page with no way to reach it

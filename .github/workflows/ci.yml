@@ -39,6 +39,10 @@ jobs:
       - run: npm ci
       - name: Engine tests (exact ultimate-pit oracle + nested-shell monotonicity)
         run: npm test
+      - name: Install browser for production UI contracts
+        run: npx playwright install --with-deps chromium
+      - name: Responsive, locale, accessibility and degraded-capability checks
+        run: npm run test:e2e
       - name: Regenerate deterministic Contract-2 artifacts
         run: |
           npm run bake

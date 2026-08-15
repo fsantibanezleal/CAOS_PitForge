@@ -60,7 +60,8 @@ python -m venv .venv-pipeline && .venv-pipeline/Scripts/pip install -r data-pipe
 
 # the SPA (the exact optimiser runs live in the browser)
 cd frontend && npm ci && npm run dev                     # http://localhost:5173
-npm test                                                 # 34 tests: engine · contracts · MineLib · infill
+npm test                                                 # 48 contracts: engine · artifacts · MineLib · infill · CPIT
+npm run test:e2e                                         # real-browser responsive · a11y · degraded-capability checks
 
 # heavy lane (local only), re-bake + retrain the learned models (torch → ONNX)
 python -m venv .venv-precompute && .venv-precompute/Scripts/pip install -r data-pipeline/requirements-precompute.txt

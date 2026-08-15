@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Callout, useShellLang } from '@fasl-work/caos-app-shell';
 import { loadCaseResults, loadLearned, loadMinelibBench, type LearnedFile, type MinelibBenchFile } from '../lib/artifacts.ts';
 import type { CaseResultsFile } from '../lib/contract.types.ts';
@@ -7,12 +7,15 @@ const fInt = (v: number) => Math.round(v).toLocaleString('en-US');
 
 export default function Benchmark() {
   const es = useShellLang() === 'es';
-  const [data, setData] = useState<CaseResultsFile | null>(null);
-  const [learned, setLearned] = useState<LearnedFile | null>(null);
-  const [minelib, setMinelib] = useState<MinelibBenchFile | null>(null);
-  useEffect(() => { loadCaseResults().then(setData).catch(() => setData(null)); }, []);
-  useEffect(() => { loadLearned().then(setLearned).catch(() => setLearned(null)); }, []);
-  useEffect(() => { loadMinelibBench().then(setMinelib).catch(() => setMinelib(null)); }, []);
+  const [data, setData] = useState<CaseResultsFile | null | undefined>(undefined);
+  const [learned, setLearned] = useState<LearnedFile | null | undefined>(undefined);
+  const [minelib, setMinelib] = useState<MinelibBenchFile | null | undefined>(undefined);
+  const loadData = useCallback(() => { setData(undefined); loadCaseResults().then(setData).catch(() => setData(null)); }, []);
+  const loadLearnedData = useCallback(() => { setLearned(undefined); loadLearned().then(setLearned).catch(() => setLearned(null)); }, []);
+  const loadMinelibData = useCallback(() => { setMinelib(undefined); loadMinelibBench().then(setMinelib).catch(() => setMinelib(null)); }, []);
+  useEffect(loadData, [loadData]);
+  useEffect(loadLearnedData, [loadLearnedData]);
+  useEffect(loadMinelibData, [loadMinelibData]);
   const u = (id: string) => data?.cases[id]?.ultimate;
 
   return (
@@ -22,7 +25,13 @@ export default function Benchmark() {
         ? 'Comparaciones cruzadas entre casos, las que no dependen de un solo caso van aquí (no en la App). Todas salen del precálculo exacto del solver.'
         : 'Cross-case comparisons, the ones that do not depend on a single case live here (not in the App). All come from the exact solver bake.'}</p>
 
-      {!data ? <p className="pf-note">{es ? 'cargando…' : 'loading…'}</p> : (
+      {data === undefined ? <div className="pf-status" role="status">{es ? 'Cargando resultados…' : 'Loading results…'}</div> : !data ? (
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Resultados no disponibles' : 'Results unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el artefacto de resultados. Las otras secciones siguen operativas.' : 'The results artifact could not be read. Other sections remain operational.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
+      ) : (
         <>
           <h2>{es ? 'Todos los casos' : 'All cases'}</h2>
           <table className="cmp-table">
@@ -59,7 +68,9 @@ export default function Benchmark() {
       )}
 
       <h2>{es ? 'MineLib real (UPIT), exacto vs óptimo publicado' : 'Real MineLib (UPIT), exact vs published optimum'}</h2>
-      {minelib ? (
+      {minelib === undefined ? (
+        <div className="pf-status" role="status">{es ? 'Cargando benchmark MineLib…' : 'Loading MineLib benchmark…'}</div>
+      ) : minelib ? (
         <>
           <table className="cmp-table">
             <thead><tr>
@@ -93,13 +104,17 @@ export default function Benchmark() {
           </Callout>
         </>
       ) : (
-        <Callout variant="honest" title={es ? 'Bake MineLib no presente' : 'MineLib bake not present'}>
-          {es ? 'Ejecutar `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` localmente (nunca en CI).' : 'Run `scripts/fetch-minelib.mjs` + `scripts/bake-minelib.mjs` locally (never in CI).'}
-        </Callout>
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Benchmark MineLib no disponible' : 'MineLib benchmark unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el resumen publicado; no se ocultan valores sustitutos.' : 'The published summary could not be read; no substitute values are shown.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadMinelibData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
       )}
 
       <h2>{es ? 'Aprendido vs clásico' : 'Learned vs classical'}</h2>
-      {learned ? (
+      {learned === undefined ? (
+        <div className="pf-status" role="status">{es ? 'Cargando evaluación aprendida…' : 'Loading learned evaluation…'}</div>
+      ) : learned ? (
         <>
           <table className="cmp-table">
             <thead><tr>
@@ -122,9 +137,11 @@ export default function Benchmark() {
           </Callout>
         </>
       ) : (
-        <Callout variant="honest" title={es ? 'Modelos no entrenados' : 'Models not trained'}>
-          {es ? 'Ejecutar `python -m pipeline.pipeline all --retrain` para entrenarlos.' : 'Run `python -m pipeline.pipeline all --retrain` to train them.'}
-        </Callout>
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Evaluación aprendida no disponible' : 'Learned evaluation unavailable'}</strong>
+          <p>{es ? 'No se pudo leer el artefacto validado; el solver exacto y los benchmarks clásicos siguen disponibles.' : 'The validated artifact could not be read; the exact solver and classical benchmarks remain available.'}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadLearnedData}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
       )}
     </article>
   );

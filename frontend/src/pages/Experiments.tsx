@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Callout, Cite, useShellLang } from '@fasl-work/caos-app-shell';
 import { type ContractCase, type CpitScheduleFile, loadContractCases, loadCpitSchedule } from '../lib/artifacts.ts';
+import { CASES, caseCategoryName, caseExpectedBand, caseName, caseValidationAnchor } from '../opt/cases.ts';
 
 const fM = (v: number) => `$${(v / 1e6).toFixed(1)}M`;
 
@@ -8,14 +9,23 @@ export default function Experiments() {
   const es = useShellLang() === 'es';
   const [cases, setCases] = useState<ContractCase[] | null>(null);
   const [contractError, setContractError] = useState<string | null>(null);
-  const [cpit, setCpit] = useState<CpitScheduleFile | null>(null);
-  useEffect(() => {
+  const [cpit, setCpit] = useState<CpitScheduleFile | null | undefined>(undefined);
+  const [cpitError, setCpitError] = useState(false);
+  const loadCases = useCallback(() => {
+    setCases(null);
+    setContractError(null);
     loadContractCases().then(setCases).catch((error: unknown) => {
       setCases([]);
       setContractError(error instanceof Error ? error.message : String(error));
     });
   }, []);
-  useEffect(() => { loadCpitSchedule().then(setCpit).catch(() => setCpit(null)); }, []);
+  const loadCpit = useCallback(() => {
+    setCpit(undefined);
+    setCpitError(false);
+    loadCpitSchedule().then(setCpit).catch(() => { setCpit(null); setCpitError(true); });
+  }, []);
+  useEffect(loadCases, [loadCases]);
+  useEffect(loadCpit, [loadCpit]);
 
   return (
     <article className="page-body prose">
@@ -24,25 +34,35 @@ export default function Experiments() {
         ? 'Cada caso es un experimento con un ancla de validación: una propiedad que el resultado debe cumplir. Todas se verifican en el precálculo (frontend/test/contract.test.ts).'
         : 'Each case is an experiment with a validation anchor: a property the result must satisfy. They are all checked in the bake (frontend/test/contract.test.ts).'}</p>
 
-      {!cases ? <p className="pf-note">{es ? 'cargando casos…' : 'loading cases…'}</p> : contractError ? (
-        <Callout variant="honest" title={es ? 'Contrato de artefactos inválido' : 'Invalid artifact contract'}>
-          {contractError}
-        </Callout>
+      {!cases ? <div className="pf-status" role="status">{es ? 'Cargando casos…' : 'Loading cases…'}</div> : contractError ? (
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Contrato de artefactos inválido' : 'Invalid artifact contract'}</strong>
+          <p>{contractError}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadCases}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
+      ) : cases.length === 0 ? (
+        <div className="pf-status" data-kind="empty">
+          <strong>{es ? 'No hay casos publicados' : 'No published cases'}</strong>
+          <p>{es ? 'El índice es válido pero no contiene casos.' : 'The index is valid but contains no cases.'}</p>
+        </div>
       ) : (
         <div className="pf-exp-grid">
-          {cases.map(({ manifest, trace }) => (
+          {cases.map(({ manifest, trace }) => {
+            const canonical = CASES.find((pitCase) => pitCase.id === trace.case_id);
+            return (
             <div key={trace.case_id} className="pf-card pf-exp">
-              <div className="pf-exp-h"><b>{trace.case_id}</b> <span>{trace.name}</span></div>
-              <div className="pf-cap pf-muted">{trace.category.split(' (')[0]}</div>
+              <div className="pf-exp-h"><b>{trace.case_id}</b> <span>{canonical ? caseName(canonical, es) : trace.name}</span></div>
+              <div className="pf-cap pf-muted">{canonical ? caseCategoryName(canonical, es) : trace.category.split(' (')[0]}</div>
               <div className="pf-kpis">
                 <div className="pf-kpi"><div className="pf-kpi-v">${(trace.ultimate.pitValue / 1e6).toFixed(0)}M</div><div className="pf-kpi-l">{es ? 'valor' : 'value'}</div></div>
                 <div className="pf-kpi"><div className="pf-kpi-v">{trace.ultimate.nBlocks}</div><div className="pf-kpi-l">{es ? 'bloques' : 'blocks'}</div></div>
                 <div className="pf-kpi"><div className="pf-kpi-v">{trace.ultimate.stripRatio.toFixed(2)}</div><div className="pf-kpi-l">strip</div></div>
               </div>
-              <div className="pf-anchor">⚓ {manifest.validation_anchor}</div>
-              <div className="pf-cap">{trace.expected_band}</div>
+              <div className="pf-anchor">⚓ {canonical ? caseValidationAnchor(canonical, es) : manifest.validation_anchor}</div>
+              <div className="pf-cap">{canonical ? caseExpectedBand(canonical, es) : trace.expected_band}</div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -57,10 +77,16 @@ export default function Experiments() {
         ? 'El experimento capstone más allá del pit último: la relajación LP del CPIT (Bienstock y Zuckerberg 2010; Chicoisne et al. 2012) da una cota superior certificada del NPV descontado; un plan de pushbacks factible se redondea y se reporta la brecha de integralidad. Ejecutado offline en '
         : 'The capstone experiment beyond the ultimate pit: the CPIT LP relaxation (Bienstock & Zuckerberg 2010; Chicoisne et al. 2012) gives a certified upper bound on the discounted NPV; a feasible pushback schedule is rounded and the integrality gap reported. Run offline in '}
         <Cite id="bienstock2010" />, <Cite id="chicoisne2012" />.</p>
-      {!cpit ? (
-        <Callout variant="honest" title={es ? 'Artefacto CPIT ausente' : 'CPIT artifact absent'}>
-          {es ? 'Ejecutar `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py` para generar data/derived/cpit-schedule.json.' : 'Run `.venv-precompute/Scripts/python.exe scripts/gen_cpit.py` to generate data/derived/cpit-schedule.json.'}
-        </Callout>
+      {cpit === undefined ? (
+        <div className="pf-status" role="status">{es ? 'Cargando el artefacto CPIT…' : 'Loading the CPIT artifact…'}</div>
+      ) : !cpit ? (
+        <div className="pf-status" data-kind="error" role="alert">
+          <strong>{es ? 'Artefacto CPIT no disponible' : 'CPIT artifact unavailable'}</strong>
+          <p>{cpitError
+            ? (es ? 'No se pudo leer el artefacto publicado. El resto de los experimentos sigue disponible.' : 'The published artifact could not be read. The remaining experiments are still available.')
+            : (es ? 'El artefacto no contiene datos.' : 'The artifact contains no data.')}</p>
+          <div className="pf-status-actions"><button className="chip" onClick={loadCpit}>{es ? 'Reintentar' : 'Retry'}</button></div>
+        </div>
       ) : (
         <>
           <table className="cmp-table">

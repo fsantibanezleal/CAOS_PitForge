@@ -5,8 +5,8 @@ import { themeColors, UPlotChart } from './UPlotChart.tsx';
 
 /** The classic Whittle nested-shell curves: pit value + ore tonnage vs the revenue factor, with the current RF
  * marked. Interactive (zoom/crosshair value readout). */
-export function WhittleChart({ curve, currentRF, onPickRF, height = 230 }: {
-  curve: WhittlePoint[]; currentRF: number; onPickRF?: (rf: number) => void; height?: number;
+export function WhittleChart({ curve, currentRF, onPickRF, height = 230, es = false }: {
+  curve: WhittlePoint[]; currentRF: number; onPickRF?: (rf: number) => void; height?: number; es?: boolean;
 }) {
   const data = useMemo<uPlot.AlignedData>(() => [
     curve.map((p) => p.rf),
@@ -39,18 +39,21 @@ export function WhittleChart({ curve, currentRF, onPickRF, height = 230 }: {
       cursor: { y: false, drag: { x: true, y: false } },
       scales: { x: { time: false }, mt: { auto: true } },
       axes: [
-        { stroke: c.subtle, grid: { stroke: c.border, width: 1 }, ticks: { stroke: c.border }, label: 'revenue factor RF' },
-        { stroke: c.subtle, grid: { stroke: c.border, width: 1 }, ticks: { stroke: c.border }, label: 'pit value ($M)' },
-        { stroke: c.subtle, side: 1, grid: { show: false }, scale: 'mt', label: 'ore (Mt)' },
+        { stroke: c.subtle, grid: { stroke: c.border, width: 1 }, ticks: { stroke: c.border }, label: es ? 'factor de ingreso RF' : 'revenue factor RF' },
+        { stroke: c.subtle, grid: { stroke: c.border, width: 1 }, ticks: { stroke: c.border }, label: es ? 'valor del rajo ($M)' : 'pit value ($M)' },
+        { stroke: c.subtle, side: 1, grid: { show: false }, scale: 'mt', label: es ? 'mineral (Mt)' : 'ore (Mt)' },
       ],
       series: [
         { label: 'RF' },
-        { label: 'value ($M)', stroke: c.accent, width: 2, points: { show: true, size: 5 } },
-        { label: 'ore (Mt)', stroke: c.good, width: 2, scale: 'mt', points: { show: true, size: 4 } },
+        { label: es ? 'valor ($M)' : 'value ($M)', stroke: c.accent, width: 2, points: { show: true, size: 5 } },
+        { label: es ? 'mineral (Mt)' : 'ore (Mt)', stroke: c.good, width: 2, scale: 'mt', points: { show: true, size: 4 } },
       ],
     } as uPlot.Options;
-  }, []);
+  }, [es]);
 
+  const summary = curve.map((point) => `RF ${point.rf.toFixed(2)}: $${(point.pitValue / 1e6).toFixed(1)}M, ${(point.oreTonnes / 1e6).toFixed(2)} Mt`).join('; ');
   return <UPlotChart data={data} build={build} plugins={[markPlugin]} height={height}
+                     ariaLabel={es ? 'Curvas interactivas de Whittle' : 'Interactive Whittle curves'} summary={summary}
+                     interactionHint={es ? 'Click fija RF; flechas desplazan, +/− amplían e Inicio restablece.' : 'Click picks RF; arrows pan, +/− zoom, and Home resets.'}
                      onClickX={onPickRF ? (x) => onPickRF(Math.max(0.05, Math.min(1, x))) : undefined} />;
 }

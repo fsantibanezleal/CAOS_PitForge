@@ -10,7 +10,7 @@ export class PanelBoundary extends Component<{ children: ReactNode; lang?: 'en' 
     if (this.state.error) {
       const es = this.props.lang === 'es';
       return (
-        <div className="pf-card" style={{ padding: '1rem', color: 'var(--color-fg-faint)' }}>
+        <div className="pf-status" data-kind="error" role="alert">
           <strong>{es ? 'Esta vista no aplica a este caso' : 'This view does not apply to this case'}</strong>
           <p style={{ marginTop: '0.4rem', fontSize: '0.85rem' }}>
             {es
@@ -18,6 +18,9 @@ export class PanelBoundary extends Component<{ children: ReactNode; lang?: 'en' 
               : 'This view could not be computed on the current datum (e.g. a block model lacking the geometry the tool needs). Pick another tab or case.'}
           </p>
           <p style={{ opacity: 0.6, fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem' }}>{this.state.error.message}</p>
+          <div className="pf-status-actions">
+            <button className="chip" onClick={() => this.setState({ error: null })}>{es ? 'Reintentar vista' : 'Retry view'}</button>
+          </div>
         </div>
       );
     }
