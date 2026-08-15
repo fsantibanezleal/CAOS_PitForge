@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use PitForge, cite the technical report and this software repository."
 title: "PitForge"
 type: software
-version: "0.12.000"
+version: "0.13.000"
 authors:
   - family-names: "Santibáñez-Leal"
     given-names: "Felipe"
