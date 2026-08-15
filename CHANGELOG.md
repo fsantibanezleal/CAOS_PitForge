@@ -6,6 +6,15 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ## Unreleased
 
+## [0.13.001] · 2026-08-15
+
+### Fixed
+
+- Direct visits to declared routes now receive real static route entry points from the Pages artifact. Previously
+  `/benchmark`, `/methodology`, and other deep links rendered through `404.html` but retained HTTP 404 status,
+  misleading uptime checks, link validators, and search crawlers. Canonical focus routes are emitted too; the 404
+  fallback remains only for unknown paths.
+
 ## [0.13.000] · 2026-08-15
 
 ### Added

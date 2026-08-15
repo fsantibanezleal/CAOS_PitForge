@@ -3,9 +3,8 @@ import { copyFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 
-// GitHub Pages has no SPA fallback: a direct hit / refresh on a client route (e.g. /methodology) returns the host
-// 404 page. Copying the built index.html to 404.html makes Pages serve the app for any unknown path so the router can
-// render deep links. Runs after the bundle is written so 404.html carries the correct hashed asset references.
+// Keep the unknown-route fallback available during the Vite build. The postbuild script additionally emits real
+// per-route index files so declared deep links return HTTP 200 instead of merely rendering through this 404 shell.
 function spaFallback(): Plugin {
   return {
     name: 'spa-404-fallback',
