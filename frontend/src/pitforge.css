@@ -51,6 +51,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .pf-plot-th { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .pf-seg { display: inline-flex; gap: 0.25rem; }
 .pf-seg .chip { padding: 0.12rem 0.55rem; font-size: 0.74rem; }
+.pf-shell-timeline { display: grid; grid-template-columns: auto auto auto minmax(180px, 1fr) auto; gap: 0.55rem; align-items: center; padding: 0.65rem 0.75rem; border: 1px solid var(--color-border); border-radius: 10px; background: color-mix(in srgb, var(--color-surface) 88%, var(--color-accent) 12%); }
+.pf-shell-timeline label { display: grid; gap: 0.18rem; min-width: 0; font-size: 0.76rem; font-weight: 650; color: var(--color-fg-subtle); }
 
 .pf-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.55rem; }
 .pf-kpi { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 9px; padding: 0.5rem 0.6rem; text-align: center; }
@@ -203,6 +205,8 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
   .pf-card, .pf-plot, .pf-bars { border-radius: 8px; }
   .cmp-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .pf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pf-shell-timeline { grid-template-columns: auto auto auto 1fr; }
+  .pf-shell-timeline .pf-cap { grid-column: 1 / -1; }
 }
 
 @media (pointer: coarse) {

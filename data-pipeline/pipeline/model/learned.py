@@ -8,7 +8,7 @@ optimiser remains the headline; these are fast approximations measured against t
    "ML interpolation competitive with geostatistics", never "beats kriging".
 
 2. pit-surrogate, an ultimate-pit INCLUSION classifier. Input: per-block features {normalised depth, block value,
-   mean neighbourhood value, distance-to-surface} → output: P(block ∈ optimal pit). Trained on the EXACT pseudoflow
+   mean neighbourhood value, distance-to-surface} → output: P(block ∈ optimal pit). Trained on the EXACT min-cut
    labels; benchmarked vs the exact solver as ground truth (AUC/accuracy). Gives an instant "likely-in-pit" heatmap
    before the exact solve; the exact min-cut is always the authority.
 """

@@ -130,3 +130,22 @@ test('desktop grouped views open and close from the keyboard', async ({ page }) 
   await expect(group).toHaveAttribute('aria-expanded', 'false');
   await expect(group).toBeFocused();
 });
+
+test('shell evolution is precomputed, paused by default, operable, and stops on a hidden tab', async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 700 });
+  await page.goto('/');
+  await page.locator('.pf-tabselect select').selectOption('pushback');
+  const timeline = page.getByRole('group', { name: 'Shell-evolution playback' });
+  await expect(timeline).toBeVisible();
+  await expect(timeline.getByRole('button', { name: 'Replay' })).toBeVisible();
+  await expect(timeline.getByRole('slider')).toHaveValue('11');
+
+  await timeline.getByRole('button', { name: 'Replay' }).click();
+  await expect(timeline.getByRole('button', { name: 'Pause' })).toBeVisible();
+  await expect(timeline.getByRole('slider')).toHaveValue('0');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(timeline.getByRole('button', { name: 'Play' })).toBeVisible();
+});

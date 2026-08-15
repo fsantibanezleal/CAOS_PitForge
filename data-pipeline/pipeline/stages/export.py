@@ -13,7 +13,7 @@ from ..core.manifest import build_case_manifest
 from ..core.trace import build_trace
 from ..io.formats import write_json
 
-_RUNTIMES = {"ts-pseudoflow", "onnxruntime-web"}
+_RUNTIMES = {"ts-mincut", "onnxruntime-web"}
 
 
 def _case_metrics(case_result: dict, learned: dict | None) -> dict:

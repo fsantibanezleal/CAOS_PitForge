@@ -65,6 +65,10 @@ export default function Tool() {
   const [rf, setRf] = useState(1);
   const [bench, setBench] = useState<number | null>(null);
   const [mode3d, setMode3d] = useState<'pit' | 'grade' | 'shells'>('pit');
+  // All exact pits are computed before playback. Animation changes this integer only:
+  // it never starts an optimisation solve from requestAnimationFrame or the timer.
+  const [shellFrame, setShellFrame] = useState(RFS.length - 1);
+  const [shellPlaying, setShellPlaying] = useState(false); // paused by default
   const [catTab, setCatTab] = useState(0); // which case-category tab is open in the sidebar
   const real = source === 'real';
   const realCase = useMemo<RealCase>(() => REAL_CASES.find((r) => r.id === realId) ?? REAL_CASES[0], [realId]);
@@ -97,6 +101,27 @@ export default function Tool() {
     if (k >= 0) setCatTab(k);
   }, [theCase]);
   useEffect(() => { setBench(null); }, [userModel]);
+  useEffect(() => { setShellPlaying(false); setShellFrame(RFS.length - 1); }, [shells]);
+  useEffect(() => {
+    if (!shellPlaying) return;
+    const onVisibility = () => { if (document.hidden) setShellPlaying(false); };
+    document.addEventListener('visibilitychange', onVisibility);
+    const timer = window.setInterval(() => {
+      if (document.hidden) { setShellPlaying(false); return; }
+      setShellFrame((frame) => {
+        if (frame >= RFS.length - 1) { setShellPlaying(false); return frame; }
+        return frame + 1;
+      });
+    }, 700);
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', onVisibility); };
+  }, [shellPlaying]);
+
+  const pickShellRf = (picked: number) => {
+    let best = 0;
+    for (let i = 1; i < RFS.length; i++) if (Math.abs(RFS[i] - picked) < Math.abs(RFS[best] - picked)) best = i;
+    setShellPlaying(false);
+    setShellFrame(best);
+  };
 
   // ---- section cell builders ------------------------------------------------------------------------------
   const cellGrade = (ix: number, iz: number): SectionCell => {
@@ -114,7 +139,7 @@ export default function Tool() {
     if (present && !present[i]) return { color: null, inPit: false, label: `(${ix},${iz}) · no block` };
     const s = shells.shellOf[i];
     return {
-      color: s < 0 ? null : shellColor(s, RFS.length),
+      color: s < 0 || s > shellFrame ? null : shellColor(s, RFS.length),
       inPit: false,
       label: s < 0 ? `(${ix},${iz}) · never mined` : `(${ix},${iz}) · RF shell ${s + 1}/${RFS.length} (RF ${RFS[s]})`,
     };
@@ -173,8 +198,14 @@ export default function Tool() {
           </div>
           <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
             <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length} present={present ?? undefined} es={es} />
+                       shellOf={shells.shellOf} nShells={RFS.length}
+                       maxShell={mode3d === 'shells' ? shellFrame : undefined}
+                       present={present ?? undefined} es={es} />
           </Suspense>
+          {mode3d === 'shells' && <ShellTimeline frame={shellFrame} playing={shellPlaying} es={es}
+            onFrame={(frame) => { setShellPlaying(false); setShellFrame(frame); }}
+            onPlay={() => { if (shellFrame >= RFS.length - 1) setShellFrame(0); setShellPlaying(true); }}
+            onPause={() => setShellPlaying(false)} />}
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
             <Kpi label={es ? 'bloques' : 'blocks'} value={`${pit.nBlocks}`} />
@@ -211,11 +242,19 @@ export default function Tool() {
       id: 'pushback', label: es ? 'Shells' : 'Shells',
       content: (
         <div className="pf-vizstack">
-          <div className="pf-plot-t">{es ? `Shells de RF anidados en la sección Y=${iy}, guía de pushbacks (shells crudos, sin agrupar ni chequear ancho mínimo de minado)` : `Nested RF shells on section Y=${iy}, a pushback guide (raw shells, not grouped or width-checked)`}</div>
+          <div className="pf-plot-t">{es ? `Evolución de shells de RF en Y=${iy}; barrido exacto precalculado antes de reproducir` : `RF-shell evolution at Y=${iy}; exact sweep precomputed before playback`}</div>
+          <WhittleChart curve={shells.curve} currentRF={RFS[shellFrame]} onPickRF={pickShellRf} es={es} />
+          <ShellTimeline frame={shellFrame} playing={shellPlaying} es={es}
+            onFrame={(frame) => { setShellPlaying(false); setShellFrame(frame); }}
+            onPlay={() => { if (shellFrame >= RFS.length - 1) setShellFrame(0); setShellPlaying(true); }}
+            onPause={() => setShellPlaying(false)} />
           <SectionView nx={model.dims.nx} nz={model.dims.nz} cell={cellShell} />
           <div className="pf-legend">
-            {RFS.map((r, k) => <span key={k}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
+            {RFS.map((r, k) => <span key={k} style={{ opacity: k <= shellFrame ? 1 : 0.3 }}><i style={{ background: shellColor(k, RFS.length) }} /> {k + 1} (RF {r})</span>)}
           </div>
+          <p className="pf-note">{es
+            ? 'La curva muestra valor no descontado del pit y tonelaje de mineral acumulados por shell. Es una guía de fases; no es un programa de producción ni un NPV calendarizado.'
+            : 'The curve shows cumulative undiscounted pit value and ore tonnage by shell. It is a phase guide, not a production schedule or calendar-discounted NPV.'}</p>
         </div>
       ),
     },
@@ -477,4 +516,25 @@ export default function Tool() {
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return <div className="pf-kpi"><div className="pf-kpi-v">{value}</div><div className="pf-kpi-l">{label}</div></div>;
+}
+
+function ShellTimeline({ frame, playing, es, onFrame, onPlay, onPause }: {
+  frame: number; playing: boolean; es: boolean;
+  onFrame: (frame: number) => void; onPlay: () => void; onPause: () => void;
+}) {
+  return <div className="pf-shell-timeline" role="group" aria-label={es ? 'Reproducción de evolución de shells' : 'Shell-evolution playback'}>
+    <button className="chip" onClick={() => onFrame(Math.max(0, frame - 1))} disabled={frame === 0}
+            aria-label={es ? 'Shell anterior' : 'Previous shell'}>←</button>
+    {playing
+      ? <button className="chip on" onClick={onPause}>{es ? 'Pausar' : 'Pause'}</button>
+      : <button className="chip" onClick={onPlay}>{frame >= RFS.length - 1 ? (es ? 'Repetir' : 'Replay') : (es ? 'Reproducir' : 'Play')}</button>}
+    <button className="chip" onClick={() => onFrame(Math.min(RFS.length - 1, frame + 1))} disabled={frame === RFS.length - 1}
+            aria-label={es ? 'Shell siguiente' : 'Next shell'}>→</button>
+    <label>
+      <span>shell {frame + 1}/{RFS.length} · RF {RFS[frame].toFixed(3)}</span>
+      <input className="range" type="range" min={0} max={RFS.length - 1} step={1} value={frame}
+             onChange={(event) => onFrame(Number(event.target.value))} />
+    </label>
+    <span className="pf-cap pf-muted">{es ? '12 pits exactos en memoria · pausa al ocultar la pestaña' : '12 exact pits in memory · pauses when the tab is hidden'}</span>
+  </div>;
 }

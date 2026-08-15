@@ -109,8 +109,10 @@ export interface MinelibBenchFile {
   license: string;
   results: {
     id: string; name: string; nBlocks: number; nPrecs: number;
-    publishedOptimum: number; ourValue: number; relError: number; match: boolean;
-    nInPit: number; parseMs: number; solveMsMedian: number;
+      publishedOptimum: number; ourValue: number; relError: number; match: boolean;
+      nInPit: number; parseMs: number; dinicMsMedian: number; pseudoflowMsMedian: number;
+      solverValueDifference: number; blockSetDifference: number; solverAgreement: boolean;
+      pseudoflowStats: { mergers: number; pushes: number; splits: number; arcScans: number };
   }[];
   excluded: { id: string; nBlocks: number; publishedOptimum: number | null; reason: string }[];
 }

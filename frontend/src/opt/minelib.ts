@@ -16,7 +16,8 @@
 // slope cone, and asserts the same value identity: pitValue = Σ positive − maxflow.
 
 import { MaxFlow } from './maxflow.ts';
-import { type BlockModel, type GridDims, idx } from './types.ts';
+import { solveClosurePseudoflow, type PseudoflowStats } from './pseudoflow.ts';
+import { type BlockModel, type ExactSolver, type GridDims, idx } from './types.ts';
 
 export interface BlocksLayout {
   /** token index (0-based, id=0 x=1 y=2 z=3) of each known free column. */
@@ -127,11 +128,18 @@ export interface ExplicitPit {
   sumPositive: number;
   maxflow: number;
   nInPit: number;
+  solver: ExactSolver;
+  pseudoflowStats?: PseudoflowStats;
 }
 
 /** Exact UPIT over explicit precedence, same Picard/Dinic machinery as the synthetic engine.
  *  Self-checks closure feasibility and the value identity before returning. */
-export function solveUpitExplicit(value: Float64Array, precStart: Int32Array, precList: Int32Array): ExplicitPit {
+export function solveUpitExplicit(
+  value: Float64Array,
+  precStart: Int32Array,
+  precList: Int32Array,
+  solver: ExactSolver = 'dinic',
+): ExplicitPit {
   const n = value.length;
   const S = n;
   const T = n + 1;
@@ -139,15 +147,26 @@ export function solveUpitExplicit(value: Float64Array, precStart: Int32Array, pr
   for (let i = 0; i < n; i++) if (value[i] > 0) sumPositive += value[i];
   const INF = sumPositive + 1;
 
-  const mf = new MaxFlow(n + 2);
-  for (let i = 0; i < n; i++) {
-    if (value[i] > 0) mf.addEdge(S, i, value[i]);
-    else if (value[i] < 0) mf.addEdge(i, T, -value[i]);
+  let maxflow: number;
+  let reachable: Uint8Array;
+  let pseudoflowStats: PseudoflowStats | undefined;
+  if (solver === 'pseudoflow') {
+    const from = new Int32Array(precList.length);
+    for (let b = 0; b < n; b++) from.fill(b, precStart[b], precStart[b + 1]);
+    const result = solveClosurePseudoflow(value, from, precList, INF);
+    maxflow = result.minCut;
+    reachable = result.selected;
+    pseudoflowStats = result.stats;
+  } else {
+    const mf = new MaxFlow(n + 2);
+    for (let i = 0; i < n; i++) {
+      if (value[i] > 0) mf.addEdge(S, i, value[i]);
+      else if (value[i] < 0) mf.addEdge(i, T, -value[i]);
+    }
+    for (let b = 0; b < n; b++) for (let e = precStart[b]; e < precStart[b + 1]; e++) mf.addEdge(b, precList[e], INF);
+    maxflow = mf.maxflow(S, T);
+    reachable = mf.minCutReachable(S);
   }
-  for (let b = 0; b < n; b++) for (let e = precStart[b]; e < precStart[b + 1]; e++) mf.addEdge(b, precList[e], INF);
-
-  const maxflow = mf.maxflow(S, T);
-  const reachable = mf.minCutReachable(S);
 
   const inPit = new Uint8Array(n);
   let pitValue = 0;
@@ -167,7 +186,7 @@ export function solveUpitExplicit(value: Float64Array, precStart: Int32Array, pr
   }
   const gap = Math.abs(pitValue - (sumPositive - maxflow));
   if (gap > Math.max(1e-6 * Math.max(1, sumPositive), 1e-3)) throw new Error(`value identity violated: gap ${gap}`);
-  return { inPit, pitValue, sumPositive, maxflow, nInPit };
+  return { inPit, pitValue, sumPositive, maxflow, nInPit, solver, pseudoflowStats };
 }
 
 export interface RealEmbedding {

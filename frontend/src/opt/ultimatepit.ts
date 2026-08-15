@@ -10,10 +10,11 @@
 
 import { blockValue, isOre, recoverableRevenue } from './econ.ts';
 import { MaxFlow } from './maxflow.ts';
+import { solveClosurePseudoflow } from './pseudoflow.ts';
 import { forEachPrecedenceArc, slopeTemplate, slopeTemplateVariable } from './precedence.ts';
-import { type BlockModel, type EconParams, nBlocks, type PitResult } from './types.ts';
+import { type BlockModel, type EconParams, type ExactSolver, nBlocks, type PitResult } from './types.ts';
 
-export function solveUltimatePit(model: BlockModel, econ: EconParams): PitResult {
+export function solveUltimatePit(model: BlockModel, econ: EconParams, solver: ExactSolver = 'dinic'): PitResult {
   const N = nBlocks(model.dims);
   const S = N;
   const T = N + 1;
@@ -28,16 +29,26 @@ export function solveUltimatePit(model: BlockModel, econ: EconParams): PitResult
   }
   const INF = sumPositive + 1;
 
-  const mf = new MaxFlow(N + 2);
-  for (let i = 0; i < N; i++) {
-    if (value[i] > 0) mf.addEdge(S, i, value[i]);
-    else if (value[i] < 0) mf.addEdge(i, T, -value[i]);
-  }
   const tmpl = econ.slopeAngles ? slopeTemplateVariable(model, econ.slopeAngles) : slopeTemplate(model, econ.slopeAngleDeg);
-  forEachPrecedenceArc(model, tmpl, (i, j) => mf.addEdge(i, j, INF));
-
-  const maxflow = mf.maxflow(S, T);
-  const reachable = mf.minCutReachable(S);
+  let maxflow: number;
+  let reachable: Uint8Array;
+  if (solver === 'pseudoflow') {
+    const from: number[] = [];
+    const to: number[] = [];
+    forEachPrecedenceArc(model, tmpl, (i, j) => { from.push(i); to.push(j); });
+    const result = solveClosurePseudoflow(value, Int32Array.from(from), Int32Array.from(to), INF);
+    maxflow = result.minCut;
+    reachable = result.selected;
+  } else {
+    const mf = new MaxFlow(N + 2);
+    for (let i = 0; i < N; i++) {
+      if (value[i] > 0) mf.addEdge(S, i, value[i]);
+      else if (value[i] < 0) mf.addEdge(i, T, -value[i]);
+    }
+    forEachPrecedenceArc(model, tmpl, (i, j) => mf.addEdge(i, j, INF));
+    maxflow = mf.maxflow(S, T);
+    reachable = mf.minCutReachable(S);
+  }
 
   const inPit = new Uint8Array(N);
   let pitValue = 0;
@@ -66,5 +77,6 @@ export function solveUltimatePit(model: BlockModel, econ: EconParams): PitResult
     nBlocks: inPit.reduce((a, b) => a + b, 0),
     maxflow,
     sumPositive,
+    solver,
   };
 }

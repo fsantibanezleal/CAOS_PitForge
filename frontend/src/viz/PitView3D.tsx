@@ -27,7 +27,7 @@ export function pitViewport(width: number, containerHeight: number, requestedHei
  * optimiser extracts (the pit) are shown solid, the rest faded, so the pit grows/shrinks as the revenue factor /
  * price / slope change. Orbit to rotate; z increases downward (the pit opens from the surface). Uses an
  * InstancedMesh so the whole ~7 000-block model renders in one draw call. */
-export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, present, es = false }: {
+export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, shellOf, nShells = 12, maxShell, present, es = false }: {
   model: BlockModel;
   inPit: Uint8Array;
   gradeMax: number;
@@ -35,6 +35,8 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
   height?: number;
   shellOf?: Int32Array;
   nShells?: number;
+  /** Shell evolution frame: draw only shells 0..maxShell. Omit to draw the full family. */
+  maxShell?: number;
   /** sparse published models: 1 where a block exists; absent cells are never drawn. */
   present?: Uint8Array;
   es?: boolean;
@@ -97,7 +99,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
           if (present && !present[i]) continue;         // sparse models: draw only existing blocks
           const out = !inPit[i];
           if (mode === 'pit' && out) continue;          // pit mode: only the extracted blocks
-          if (mode === 'shells' && (!shellOf || shellOf[i] < 0)) continue;
+          if (mode === 'shells' && (!shellOf || shellOf[i] < 0 || (maxShell !== undefined && shellOf[i] > maxShell))) continue;
           // y is up; mining z (down) maps to -y so the pit opens downward from the top.
           dummy.position.set((ix - cx) * s, -(iz - cz) * s, (iy - cy) * s);
           dummy.updateMatrix();
@@ -193,7 +195,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       renderer.dispose();
       if (renderer.domElement.parentElement === el) el.removeChild(renderer.domElement);
     };
-  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, present, supported, failure, attempt, es]);
+  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, maxShell, present, supported, failure, attempt, es]);
 
   if (!supported || failure) {
     return (
