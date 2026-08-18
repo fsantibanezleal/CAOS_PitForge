@@ -10,4 +10,5 @@
 - [08, the two data contracts](architecture/08_data-contracts.md)
 - [09, the production UI contract](architecture/09_production-ui.md)
 
-Binding decision: [ADR-0057](../../conventions/architecture/0-archetype/ADR-0057-product-repo-archetype.md).
+Binding decision: the CAOS product-repo archetype, ADR-0057 (an internal architecture decision record;
+its shape is described in [01_overview.md](architecture/01_overview.md)).

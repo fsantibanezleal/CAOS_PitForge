@@ -41,4 +41,7 @@ compact per-case trace) → `data/derived/` (committed) → the `frontend/` App 
 - **Is not:** a production mine-planning package (no scheduling/haulage, no geotechnical wall-stability beyond the
   discrete slope cone). The synthetic deposits are seeded generated fields; the optimiser is exact.
 
-[ADR-0057]: ../../../conventions/architecture/0-archetype/ADR-0057-product-repo-archetype.md
+[ADR-0057]: 01_overview.md
+
+<!-- ADR-0057 is an internal CAOS architecture decision record and is not part of this public repo.
+     This document is its public description; do not link out to the private management repo. -->
