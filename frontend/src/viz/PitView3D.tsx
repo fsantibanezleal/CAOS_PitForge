@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { useThemeStore } from '@fasl-work/caos-app-shell';
 import { viridis } from './colormap.ts';
 import type { BlockModel } from '../opt/types.ts';
 import { idx } from '../opt/types.ts';
@@ -41,6 +42,9 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
   present?: Uint8Array;
   es?: boolean;
 }) {
+  // Repaint when the theme changes: the canvas reads --color-bg once per effect run, so
+  // without this subscription it kept the previous theme's colours after a toggle.
+  const theme = useThemeStore((s) => s.theme);
   const ref = useRef<HTMLDivElement>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -195,7 +199,7 @@ export function PitView3D({ model, inPit, gradeMax, mode = 'pit', height = 360, 
       renderer.dispose();
       if (renderer.domElement.parentElement === el) el.removeChild(renderer.domElement);
     };
-  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, maxShell, present, supported, failure, attempt, es]);
+  }, [model, inPit, gradeMax, mode, height, shellOf, nShells, maxShell, present, supported, failure, attempt, es, theme]);
 
   if (!supported || failure) {
     return (

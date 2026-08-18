@@ -178,6 +178,17 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
 .pf-tabmenu button:hover { background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-accent); }
 .pf-tabmenu button.on { color: var(--color-accent); font-weight: 700; }
 .pf-tabpanel { min-width: 0; }
+
+/* ADR-0071 viz-area floor. The App's 3D view used PitView3D's default 360px height, so the
+   largest visualisation occupied 32.3% / 30.9% / 21.5% of the viewport at 1280x800 / 1600x900 /
+   2560x1440, against a binding >= 50% clause: a fixed pixel height cannot scale with the
+   viewport. The stage is now viewport-relative and PitView3D fills it (height={0}), which is the
+   same path the ADR-0070 focus route already uses. */
+.pf-stage3d { position: relative; min-width: 0; min-height: 0; overflow: hidden;
+  display: flex; flex-direction: column; height: clamp(400px, 72vh, 1100px); }
+.pf-stage3d > div:first-child { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
+.pf-stage3d > div:first-child > div:first-child { flex: 1 1 auto; min-height: 0; }
+.pf-stage3d canvas { width: 100%; height: 100%; display: block; }
 .pf-tabselect { display: none; margin-bottom: 0.8rem; }
 .pf-tabselect label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.76rem; color: var(--color-fg-subtle); }
 .pf-tabselect select { width: 100%; min-height: 44px; border: 1px solid var(--color-border); border-radius: 8px;

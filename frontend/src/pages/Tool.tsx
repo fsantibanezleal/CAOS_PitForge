@@ -196,12 +196,15 @@ export default function Tool() {
               ))}
             </div>
           </div>
-          <Suspense fallback={<div className="pf-plot" style={{ height: 360 }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
-            <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
-                       shellOf={shells.shellOf} nShells={RFS.length}
-                       maxShell={mode3d === 'shells' ? shellFrame : undefined}
-                       present={present ?? undefined} es={es} />
-          </Suspense>
+          <div className="pf-stage3d">
+            <Suspense fallback={<div className="pf-plot" style={{ height: '100%' }}>{es ? 'cargando 3D…' : 'loading 3D…'}</div>}>
+              <PitView3D model={model} inPit={pit.inPit} gradeMax={gradeMax} mode={mode3d}
+                         height={0}
+                         shellOf={shells.shellOf} nShells={RFS.length}
+                         maxShell={mode3d === 'shells' ? shellFrame : undefined}
+                         present={present ?? undefined} es={es} />
+            </Suspense>
+          </div>
           {mode3d === 'shells' && <ShellTimeline frame={shellFrame} playing={shellPlaying} es={es}
             onFrame={(frame) => { setShellPlaying(false); setShellFrame(frame); }}
             onPlay={() => { if (shellFrame >= RFS.length - 1) setShellFrame(0); setShellPlaying(true); }}
@@ -471,7 +474,7 @@ export default function Tool() {
                   return (
                     <div key={g.id} className="pf-tabwrap"
                          onKeyDown={(event) => { if (event.key === 'Escape') { setOpenMenu(null); event.currentTarget.querySelector('button')?.focus(); } }}
-                         onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null); }}
+                         onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu((m) => (m === g.id ? null : m)); }}
                          onPointerEnter={() => { if (multi) { if (closeTimer.current) clearTimeout(closeTimer.current); setOpenMenu(g.id); } }}
                          onPointerLeave={() => {
                            if (closeTimer.current) clearTimeout(closeTimer.current);
