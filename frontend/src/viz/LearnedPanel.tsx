@@ -8,7 +8,7 @@ import { viridisCss } from './colormap.ts';
 /** Learning-accelerated exact preprocessing: the ONNX inclusion classifier runs over the current
  * section on every knob change (one batched onnxruntime-web call), rendered as P(block ∈ pit) against
  * the exact pit outline + the live agreement %. Rigorous framing (dossier 2026-07-07): the learned
- * scores only order which blocks to test against provably-safe fix-in / fix-out reduction rules; the
+ * scores are an approximate preview only and never feed the exact solve; the
  * rules (not the net) guarantee exactness, and the final pit is still certified by one exact min-cut
  * pass over the reduced instance. So the learned model can never change the optimum: its value is
  * scale and speed (fewer blocks for the exact solve), never a different answer. Held-out metrics live
@@ -107,8 +107,8 @@ export function LearnedPanel({ model, econ, iy, es }: { model: BlockModel; econ:
           : (pending ? (es ? 'inferencia en curso…' : 'inference running…') : (es ? 'modelo no disponible' : 'model unavailable'))}
       </div>
       <p className="pf-cap">{es
-        ? 'Preprocesamiento exacto acelerado por aprendizaje: los puntajes aprendidos sólo ordenan qué bloques probar contra reglas de fijación demostrablemente seguras (fijar-fuera si el mejor caso del cono es <= 0; fijar-dentro si todo el cono de soporte es no negativo). Las reglas garantizan la exactitud; el min-cut exacto certifica la instancia reducida. Nunca cambia el óptimo: el valor es de escala y velocidad. Entrenado en depósitos sintéticos; métricas held-out en Benchmark.'
-        : 'Learning-accelerated exact preprocessing: the learned scores only order which blocks to test against provably-safe fixing rules (fix-out when the block\'s best-case cone value is <= 0; fix-in when its entire supporting cone is non-negative). The rules guarantee exactness; the exact min-cut certifies the reduced instance. It never changes the optimum: the value is scale and speed. Trained on synthetic deposits; held-out metrics in Benchmark.'}</p>
+        ? 'Vista previa aproximada e instantánea: el modelo predice qué bloques caen dentro del pit y su acuerdo con el solver exacto se muestra arriba. No alimenta ni acelera la resolución exacta, que corre por separado y es siempre la autoridad. Entrenado y evaluado en depósitos sintéticos; métricas held-out en Benchmark.'
+        : 'An instant approximate preview: the model predicts which blocks fall inside the pit, and its agreement with the exact solver is shown above. It does not feed or accelerate the exact solve, which runs separately and is always the authority. Trained and evaluated on synthetic deposits; held-out metrics in Benchmark.'}</p>
     </div>
   );
 }
