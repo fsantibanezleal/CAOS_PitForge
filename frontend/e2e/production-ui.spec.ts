@@ -156,7 +156,7 @@ test("a single pointer click on another group's view switches the panel (no swal
     const target = items.nth(1);
     const label = (await target.innerText()).trim();
     await target.click();                       // ONE real pointer click
-    await expect(page.locator('[role="tabpanel"]').first()).toHaveAttribute('aria-label', new RegExp(label, 'i'));
+    await expect(page.locator('.pf-tabpanel').first()).toHaveAttribute('aria-label', new RegExp(label, 'i'));
     switched = true;
   }
   expect(switched).toBe(true);
