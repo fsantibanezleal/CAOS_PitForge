@@ -134,7 +134,7 @@ test('desktop grouped views open and close from the keyboard', async ({ page }) 
 // --- Regression gates for the three UI defects found by the 2026-08-18 audit. Each one was
 // measured in a browser before the fix and is asserted here so it cannot come back silently.
 
-test('a single pointer click on another group's view switches the panel (no swallowed first click)', async ({ page }) => {
+test("a single pointer click on another group's view switches the panel (no swallowed first click)", async ({ page }) => {
   // Every .pf-tabwrap carried onBlur -> setOpenMenu(null), so a mousedown on group B's item
   // blurred group A and unmounted B's menu before mouseup. The e2e suite never caught it because
   // it opened menus with the keyboard and did every real switch through the <=720px <select>.
