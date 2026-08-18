@@ -131,6 +131,72 @@ test('desktop grouped views open and close from the keyboard', async ({ page }) 
   await expect(group).toBeFocused();
 });
 
+// --- Regression gates for the three UI defects found by the 2026-08-18 audit. Each one was
+// measured in a browser before the fix and is asserted here so it cannot come back silently.
+
+test('a single pointer click on another group's view switches the panel (no swallowed first click)', async ({ page }) => {
+  // Every .pf-tabwrap carried onBlur -> setOpenMenu(null), so a mousedown on group B's item
+  // blurred group A and unmounted B's menu before mouseup. The e2e suite never caught it because
+  // it opened menus with the keyboard and did every real switch through the <=720px <select>.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const wraps = page.locator('.pf-tabwrap');
+  const count = await wraps.count();
+  expect(count).toBeGreaterThan(1);
+
+  let switched = false;
+  for (let i = 0; i < count && !switched; i += 1) {
+    const wrap = wraps.nth(i);
+    await wrap.hover();
+    const items = wrap.getByRole('menuitem');
+    if (await items.count() < 2) continue;
+    // put focus on a DIFFERENT group first: that is the state the bug needed.
+    await wraps.nth((i + 1) % count).locator('button').first().focus();
+    await wrap.hover();
+    const target = items.nth(1);
+    const label = (await target.innerText()).trim();
+    await target.click();                       // ONE real pointer click
+    await expect(page.locator('[role="tabpanel"]').first()).toHaveAttribute('aria-label', new RegExp(label, 'i'));
+    switched = true;
+  }
+  expect(switched).toBe(true);
+});
+
+test('the largest visualisation fills at least half the viewport (ADR-0071 floor)', async ({ page }) => {
+  // Measured 32.3% / 30.9% / 21.5% before the fix: PitView3D defaulted to a fixed 360px height,
+  // which cannot scale with the viewport. The suite asserted scroll owners but never the ratio.
+  for (const size of [{ width: 1280, height: 800 }, { width: 1600, height: 900 }, { width: 2560, height: 1440 }]) {
+    await page.setViewportSize(size);
+    await page.goto('/');
+    await expect(page.locator('canvas').first()).toBeVisible();
+    await page.waitForTimeout(1200);
+    const ratio = await page.evaluate(() => {
+      const areas = Array.from(document.querySelectorAll('canvas, svg')).map((element) => {
+        const box = element.getBoundingClientRect();
+        return box.width * box.height;
+      });
+      return Math.max(0, ...areas) / (window.innerWidth * window.innerHeight);
+    });
+    expect(ratio, `viz area ratio at ${size.width}x${size.height}`).toBeGreaterThanOrEqual(0.5);
+  }
+});
+
+test('canvases repaint when the theme is toggled', async ({ page }) => {
+  // PitView3D read --color-bg once per effect run and had no theme in its deps, so a black
+  // rectangle sat on a light page until any other interaction self-healed it. Only UPlotChart
+  // subscribed to the theme store, which is why the charts repainted and the canvases did not.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const canvas = page.locator('canvas').first();
+  await expect(canvas).toBeVisible();
+  await page.waitForTimeout(1500);
+  const before = (await canvas.screenshot()).toString('base64');
+  await page.getByRole('button', { name: /dark|light|theme/i }).first().click();
+  await page.waitForTimeout(1500);
+  const after = (await canvas.screenshot()).toString('base64');
+  expect(after, 'the canvas kept the previous theme colours').not.toBe(before);
+});
+
 test('shell evolution is precomputed, paused by default, operable, and stops on a hidden tab', async ({ page }) => {
   await page.setViewportSize({ width: 640, height: 700 });
   await page.goto('/');
