@@ -226,7 +226,18 @@ def main() -> int:
               f"bound {res_n['certifiedBoundNpv']:.0f} | npv {res_n['feasibleHeuristicNpv']:.0f} | "
               f"gap {res_n['boundToFeasibleGapPct']:.2f}% | duality {res_n['controls']['dualityMatch']}")
     else:
-        print("newman1 .cpit/.prec cache absent; run frontend/scripts/fetch-minelib.mjs newman1.")
+        # A silent skip here rewrites cpit-schedule.json with ONLY the synthetic twin, deleting the
+        # 3.81% published-scenario result that the README, the app and the technical report lead
+        # with, and exits 0. Refuse instead. Pass --allow-missing-newman1 for a deliberate
+        # twin-only bake (it will not be a publishable artifact).
+        if "--allow-missing-newman1" not in sys.argv:
+            raise SystemExit(
+                "REFUSING to bake cpit-schedule.json without the newman1 published scenario.\n"
+                "  expected: newman1.cpit and newman1.prec in frontend/.minelib-cache/newman1/\n"
+                "  fix:      node frontend/scripts/fetch-minelib.mjs newman1\n"
+                "  override: --allow-missing-newman1 (produces a NON-publishable twin-only artifact)"
+            )
+        print("newman1 .cpit/.prec cache absent; --allow-missing-newman1 given, writing a twin-only artifact.")
 
     dest = ROOT / "data" / "derived" / "cpit-schedule.json"
     dest.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")

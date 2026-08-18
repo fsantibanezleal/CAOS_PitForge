@@ -157,7 +157,7 @@ test('newman1 reproduces the PUBLISHED UPIT optimum 26,086,899', { skip: !hasCac
   const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
   const ms = performance.now() - t0;
   console.log(`  newman1: pitValue=${r.pitValue} published=${rc.publishedOptimum} Δ=${r.pitValue - rc.publishedOptimum} in ${ms.toFixed(0)} ms, ${r.nInPit}/${inst.n} blocks`);
-  assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+  assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 2e-9 * rc.publishedOptimum,
     `pitValue ${r.pitValue} != published ${rc.publishedOptimum}`);
 
   const e = buildRealEmbedding(inst, rc.name);
@@ -180,7 +180,7 @@ for (const id of ['zuck_small', 'kd']) {
     assert.equal(inst.n, rc.nBlocks);
     assert.equal(inst.nPrecs, rc.nPrecs);
     const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
-    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 2e-9 * rc.publishedOptimum,
       `pitValue ${r.pitValue} != published ${rc.publishedOptimum}`);
     assertExactRungsAgree(inst.value, inst.precStart, inst.precList, id);
   });
@@ -202,11 +202,11 @@ for (const tw of ['twin-porphyry-s', 'twin-vein-m', 'twin-corehalo-m']) {
     assert.equal(inst.nPrecs, rc.nPrecs);
     const r = solveUpitExplicit(inst.value, inst.precStart, inst.precList);
     // the stamped optimum is in the registry as publishedOptimum; the TS engine must match it
-    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 1e-6 * rc.publishedOptimum,
+    assert.ok(Math.abs(r.pitValue - rc.publishedOptimum) <= 2e-9 * rc.publishedOptimum,
       `${tw}: ${r.pitValue} != stamped ${rc.publishedOptimum}`);
     // and the meta sidecar agrees
     const meta = JSON.parse(readFileSync(join(dir, `${tw}.meta.json`), 'utf8'));
-    assert.ok(Math.abs(r.pitValue - meta.stamped_optimum) <= 1e-6 * meta.stamped_optimum);
+    assert.ok(Math.abs(r.pitValue - meta.stamped_optimum) <= 2e-9 * meta.stamped_optimum);
     assert.equal(r.nInPit, meta.stamped_n_in_pit);
     assertExactRungsAgree(inst.value, inst.precStart, inst.precList, tw);
   });
