@@ -67,6 +67,24 @@ export function solveUltimatePit(model: BlockModel, econ: EconParams, solver: Ex
     }
   }
 
+  // Self-checks, on EVERY solve of this lane (not only the explicit-precedence MineLib lane).
+  // 1) the pit must be a valid closure: no block is in the pit without all of its predecessors;
+  // 2) the max-flow duality identity pitValue = sumPositive - maxflow must hold.
+  // The tolerance is RELATIVE to the instance scale, with no absolute floor: an absolute floor
+  // makes the check vacuous on an instance whose whole optimum is smaller than the floor.
+  forEachPrecedenceArc(model, tmpl, (i, j) => {
+    if (inPit[i] && !inPit[j]) {
+      throw new Error(`closure violated: block ${i} is in the pit but its predecessor ${j} is not`);
+    }
+  });
+  const identityGap = Math.abs(pitValue - (sumPositive - maxflow));
+  if (identityGap > 1e-6 * Math.max(1, Math.abs(sumPositive))) {
+    throw new Error(
+      `value identity violated: |pitValue - (sumPositive - maxflow)| = ${identityGap} ` +
+        `(pitValue ${pitValue}, sumPositive ${sumPositive}, maxflow ${maxflow}, solver ${solver})`,
+    );
+  }
+
   return {
     inPit,
     pitValue,

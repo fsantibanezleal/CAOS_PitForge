@@ -6,7 +6,8 @@ optimiser running live in the browser. Instantiated on the CAOS product-repo arc
 - **[Architecture](architecture.md)**, the archetype, the lanes, the gate, the two data contracts, determinism,
   deploy.
 - **[Frameworks](frameworks.md)**, the optimiser (min-cut/pseudoflow + Whittle), the viz stack (three.js + µPlot),
-  the learned models (torch → ONNX).
+  the learned models (torch → ONNX), and the [scheduling lane](frameworks/04_scheduling.md) (certified CPIT bound;
+  the published scenario and the synthetic twin, which must never be mixed).
 - **[Cases](cases.md)**, the 9 cases by category + their validation anchors.
 - **[Guides](guides.md)**, instantiate, run the precompute/retrain lane, bring your own block model.
 - **[Production UI contract](architecture/09_production-ui.md)**, responsive layout, accessible interaction,

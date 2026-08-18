@@ -49,7 +49,7 @@ for (const rc of REAL_CASES) {
     publishedOptimum: rc.publishedOptimum,
     ourValue: Math.round(dinic.pit.pitValue * 1000) / 1000,
     relError,
-    match: relError <= 1e-6,
+    match: relError <= 2e-9,
     nInPit: dinic.pit.nInPit,
     parseMs: Math.round(t1 - t0),
     dinicMsMedian: dinic.medianMs,

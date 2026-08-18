@@ -133,8 +133,8 @@ export default function Benchmark() {
           </table>
           <Callout variant="honest" title={es ? 'Lectura honesta' : 'Honest reading'}>
             {es
-              ? `La evaluación deja fuera una geología completa (${learned.gradeNN.evalGroup}); pares de stencil completo/disperso nunca cruzan el split. La NN supera apenas IDW y queda bajo kriging ordinario. El pit-surrogate logra AUC ${learned.pitSurrogate.auc} en la geología excluida, una aproximación útil pero no la respuesta exacta. Sólo ordena reducciones fijar-dentro/fijar-fuera demostrablemente seguras; el min-cut certifica el óptimo.`
-              : `Evaluation leaves out one complete geology (${learned.gradeNN.evalGroup}); paired full/sparse stencils never cross the split. The NN narrowly beats IDW and trails Ordinary Kriging. The pit surrogate reaches AUC ${learned.pitSurrogate.auc} on the excluded geology, useful but not exact. It only orders provably safe fix-in/fix-out reductions; the min-cut certifies the optimum.`}
+              ? `La evaluación deja fuera una geología completa (${learned.gradeNN.evalGroup}); pares de stencil completo/disperso nunca cruzan el split. La NN supera apenas IDW y queda bajo kriging ordinario. El pit-surrogate logra AUC ${learned.pitSurrogate.auc} en la geología excluida, una aproximación útil pero no la respuesta exacta. Es sólo una vista previa aproximada: no alimenta la resolución exacta, que es siempre la autoridad.`
+              : `Evaluation leaves out one complete geology (${learned.gradeNN.evalGroup}); paired full/sparse stencils never cross the split. The NN narrowly beats IDW and trails Ordinary Kriging. The pit surrogate reaches AUC ${learned.pitSurrogate.auc} on the excluded geology, useful but not exact. It is an approximate preview only: it does not feed the exact solve, which is always the authority.`}
           </Callout>
         </>
       ) : (

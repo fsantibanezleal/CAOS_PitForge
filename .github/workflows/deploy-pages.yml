@@ -24,15 +24,25 @@ jobs:
           python-version: "3.12"
       - name: Regenerate artifacts (fresh deterministic replay outputs)
         run: |
-          pip install -r data-pipeline/requirements.txt
+          pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
           python data-pipeline/run.py all
+      # A deploy used to run NO test and NO gate, and did not depend on CI, so a red build still
+      # shipped to production. Every gate below can fail the deploy.
+      - name: Offline-lane tests
+        run: pytest
+      - name: CONTRACT 2, closed artifact inventory
+        run: python scripts/check_artifacts.py
+      - name: Headline artifacts match the published figures
+        run: python scripts/check_headline_artifacts.py
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - name: Engine tests (exact ultimate-pit oracle, identity assert, shell monotonicity)
+        run: cd frontend && npm ci && npm test
       - name: Build the SPA (copy-data.mjs overlays data/derived -> public/)
-        run: cd frontend && npm ci && npm run build
+        run: cd frontend && npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist

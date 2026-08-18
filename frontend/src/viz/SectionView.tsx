@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useThemeStore } from '@fasl-work/caos-app-shell';
 
 export interface SectionCell {
   /** fill colour for the block, or null for an empty/air block. */
@@ -16,6 +17,8 @@ export function SectionView({
 }: {
   nx: number; nz: number; cell: (ix: number, iz: number) => SectionCell; height?: number; caption?: string;
 }) {
+  // Repaint on theme change: the canvas samples CSS custom properties once per effect run.
+  const theme = useThemeStore((s) => s.theme);
   const ref = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ x: number; y: number; text: string } | null>(null);
@@ -55,7 +58,7 @@ export function SectionView({
         }
       }
     }
-  }, [nx, nz, cell, height]);
+  }, [nx, nz, cell, height, theme]);
 
   const onMove = (e: React.MouseEvent) => {
     const wrap = wrapRef.current;

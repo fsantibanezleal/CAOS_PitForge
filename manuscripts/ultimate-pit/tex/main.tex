@@ -41,9 +41,9 @@ maximises total value while respecting the slopes. The problem has an exact poly
 maximum-weight closure of the precedence graph, computed as a minimum cut, and PitForge implements it to run
 \emph{live in the browser}: drag the price, revenue factor or slope and the exact pit re-solves instantly.
 This report validates the solver against ground truth and extends it to the two decisions that follow. The
-validation is the strongest kind available: on the three public MineLib instances (newman1, zuck\_small and kd,
+validation is the strongest kind available: on three of MineLib's eleven instances (newman1, zuck\_small and kd, those for which a verified public mirror exists,
 $1000$ to $14000$ blocks), the solver reproduces the \emph{published} optimum to a relative error near
-$10^{-10}$, an exact match, and solves the largest in about a quarter of a second in a browser tab. Beyond the
+$10^{-10}$, an exact match, and solves the largest of the three in about a fifth of a second. Beyond the
 single pit, the tool computes the Whittle nested pit shells, the family of optimal pits over an ascending
 revenue-factor schedule, with their value, tonnage and strip-ratio curves that guide phase and pushback design,
 and it solves two explicitly separated constrained production-scheduling scenarios. On the published
@@ -95,30 +95,32 @@ $1060$-block newman1, and about a quarter of a second for the $14153$-block kd.}
 
 The ultimate pit is the maximum-weight closed set of the precedence graph, and PitForge computes it by Picard's
 reduction to a minimum cut: a source arc to every positive-value block, a sink arc from every negative block, and
-an infinite-capacity arc for each precedence relation, after which a Dinic maximum flow gives the pit as the
-source-reachable set, with the value identity $\text{pit value} = \sum_{v_b>0} v_b - \text{maxflow}$ asserted on
-every solve so a wrong answer cannot be returned silently. The validation is against the strongest available
-reference (Fig.~\ref{fig:minelib}, Table~\ref{tab:minelib}): the three public MineLib instances, whose optima are
-published. On all three, PitForge's value matches the published optimum to a relative error near $10^{-10}$,
+an infinite-capacity arc for each precedence relation, after which a Dinic maximum flow~\cite{dinic} gives the pit as the
+source-reachable set, with the closure property and the value identity
+$\text{pit value} = \sum_{v_b>0} v_b - \text{maxflow}$ asserted on every solve of both lanes so a wrong answer
+cannot be returned silently. The validation is against the strongest available
+reference (Fig.~\ref{fig:minelib}, Table~\ref{tab:minelib}): three of MineLib's eleven instances, those with a
+verified public mirror, whose optima are published. On all three, PitForge's value matches the published optimum to a relative error near $10^{-10}$,
 $9.96\times10^{-10}$ on newman1, $1.86\times10^{-10}$ on zuck\_small, $1.30\times10^{-10}$ on kd, an exact match
-to floating-point precision. And it is fast: the $1060$-block newman1 solves in about $5$~milliseconds, and the
-$14153$-block kd in about $259$~milliseconds, both inside a browser tab, so the exact pit re-solves interactively
-as a user changes the economics. Reproducing the published optima exactly, in the browser, is the validation a pit
-optimiser needs, and it is the foundation the rest of the tool builds on.
+to floating-point precision. And it is fast: the $1060$-block newman1 solves in about $2$~milliseconds, and the
+$14153$-block kd in about $207$~milliseconds, as medians of three under Node running the same TypeScript engine
+the browser runs, so the exact pit re-solves interactively as a user changes the economics. Reproducing the
+published optima exactly is the validation a pit optimiser needs, and it is the foundation the rest of the tool builds on.
 
 \begin{table}[!t]
 \centering
 \caption{PitForge versus the published MineLib optima. The solver matches all three to relative error near
-$10^{-10}$, in milliseconds to a fraction of a second (in-browser, TypeScript Dinic min-cut).}
+$10^{-10}$, in milliseconds to a fraction of a second (Node median of three, TypeScript Dinic min-cut; an
+independent normalised-tree pseudoflow rung is reported alongside in the released artifact).}
 \label{tab:minelib}
 \footnotesize
 \begin{tabular}{@{}l r r r r@{}}
 \toprule
 Instance & blocks & published optimum & rel. error & solve (ms) \\
 \midrule
-newman1    & $1060$  & $2.6087\times10^{7}$ & $1.0\times10^{-9}$  & $5$ \\
-zuck\_small & $9400$  & $1.4227\times10^{9}$ & $1.9\times10^{-10}$ & $237$ \\
-kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ & $259$ \\
+newman1    & $1060$  & $2.6087\times10^{7}$ & $1.0\times10^{-9}$  & $1.9$ \\
+zuck\_small & $9400$  & $1.4227\times10^{9}$ & $1.9\times10^{-10}$ & $111.2$ \\
+kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ & $207.1$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -219,6 +221,10 @@ doi:10.1287/opre.1120.1050.
 
 \bibitem{newman} A.~M. Newman, E.~Rubio, R.~Caro, A.~Weintraub, and K.~Eurek, ``A review of operations research
 in mine planning,'' \emph{Interfaces}, vol.~40, no.~3, pp.~222--245, 2010. doi:10.1287/inte.1090.0492.
+
+\bibitem{dinic} E.~A. Dinic, ``Algorithm for solution of a problem of maximum flow in networks with power
+estimation,'' \emph{Soviet Mathematics Doklady}, vol.~11, pp.~1277--1280, 1970. (Pre-DOI translation; no open
+landing page.)
 
 \end{thebibliography}
 
