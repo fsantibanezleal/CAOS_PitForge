@@ -69,6 +69,22 @@ test('max-flow value identity holds (pitValue = ΣpositiveValue − maxflow)', (
   assert.ok(Math.abs(pit.pitValue - (pit.sumPositive - pit.maxflow)) < 1e-3, 'value identity');
 });
 
+test('the pit is a genuine closure: every predecessor of every mined block is mined', () => {
+  // The engine asserts closure in O(1) (maxflow <= sumPositive, i.e. no INF precedence arc was
+  // cut). The exhaustive arc-by-arc proof of the same property lives here, where its cost does
+  // not reach a user dragging a slider.
+  for (const archetype of ['porphyry', 'vein', 'coreHalo', 'layered'] as const) {
+    const model = makeDeposit({ archetype, dims: { nx: 16, ny: 16, nz: 8 }, seed: 11, peakGrade: 0.035 });
+    const econ = { price: 6000, recovery: 0.88, miningCost: 2.5, processingCost: 9, slopeAngleDeg: 45 };
+    const pit = solveUltimatePit(model, econ);
+    let violations = 0;
+    fepa(model, st(model, econ.slopeAngleDeg), (i, j) => {
+      if (pit.inPit[i] && !pit.inPit[j]) violations += 1;
+    });
+    assert.equal(violations, 0, `${archetype}: ${violations} blocks mined without a predecessor`);
+  }
+});
+
 test('nested shells are monotone: pit grows with the revenue factor', () => {
   const model = makeDeposit({ archetype: 'coreHalo', dims: { nx: 14, ny: 14, nz: 7 }, seed: 3, peakGrade: 0.04 });
   const econ: EconParams = { price: 6000, recovery: 0.88, miningCost: 2.5, processingCost: 9, slopeAngleDeg: 45 };
