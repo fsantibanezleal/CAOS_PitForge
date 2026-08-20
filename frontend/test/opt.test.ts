@@ -14,6 +14,7 @@ import {
   nestedPitShells,
   defaultRevenueFactors,
   solveUltimatePit,
+  effectiveSlopeAngleDeg,
 } from '../src/opt/index.ts';
 
 // A 5×1×3 vertical slice with all-waste grade except one block we set by hand. Cubic 10 m blocks, tonnage 1 (so
@@ -67,6 +68,24 @@ test('max-flow value identity holds (pitValue = ΣpositiveValue − maxflow)', (
   const pit = solveUltimatePit(model, { price: 6000, recovery: 0.88, miningCost: 2.5, processingCost: 9, slopeAngleDeg: 45 });
   assert.ok(pit.nBlocks > 0, 'a porphyry at these prices should open a pit');
   assert.ok(Math.abs(pit.pitValue - (pit.sumPositive - pit.maxflow)) < 1e-3, 'value identity');
+});
+
+test('the slope template quantises the wall, and effectiveSlopeAngleDeg reports what is really mined', () => {
+  // The reduced one-bench template rounds the horizontal reach to whole blocks, so the mined wall stands at
+  // atan(dz/(dx*r)), not at the nominal angle. On 10 m cubic blocks the whole 18-75 deg range collapses onto a
+  // handful of radii. This is a real limit of the method and is asserted here so no label or doc can quietly
+  // claim the nominal angle is the mined one again.
+  const model = makeDeposit({ archetype: 'porphyry', dims: { nx: 12, ny: 12, nz: 6 }, seed: 5, peakGrade: 0.03 });
+  assert.ok(Math.abs(effectiveSlopeAngleDeg(model, 45) - 45) < 1e-9, '45 deg is exact on cubic blocks (r = 1)');
+  assert.ok(Math.abs(effectiveSlopeAngleDeg(model, 30) - 26.565) < 0.01, 'nominal 30 deg actually mines 26.57');
+  assert.ok(Math.abs(effectiveSlopeAngleDeg(model, 18) - 18.435) < 0.01, 'nominal 18 deg actually mines 18.43');
+  // everything from 34 deg upward collapses onto the same 45 deg wall
+  for (const deg of [34, 40, 50, 60, 70]) {
+    assert.ok(Math.abs(effectiveSlopeAngleDeg(model, deg) - 45) < 1e-9, `${deg} deg collapses to 45`);
+  }
+  const distinct = new Set<number>();
+  for (let deg = 18; deg <= 75; deg += 1) distinct.add(Math.round(effectiveSlopeAngleDeg(model, deg) * 100));
+  assert.ok(distinct.size <= 5, `the 58 nominal degrees collapse onto few walls, got ${distinct.size}`);
 });
 
 test('the pit is a genuine closure: every predecessor of every mined block is mined', () => {

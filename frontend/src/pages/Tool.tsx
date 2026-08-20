@@ -2,7 +2,9 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useShellLang } from '@fasl-work/caos-app-shell';
 import { CASES, caseExpectedBand, caseModel, caseName, type PitCase } from '../opt/cases.ts';
-import { blockValue, defaultRevenueFactors, isOre, nestedPitShells, solveUltimatePit } from '../opt/index.ts';
+import { blockValue, defaultRevenueFactors, isOre, nestedPitShells, solveUltimatePit,
+  effectiveSlopeAngleDeg,
+} from '../opt/index.ts';
 import { idx, type EconParams } from '../opt/types.ts';
 import { SectionView, type SectionCell } from '../viz/SectionView.tsx';
 import { WhittleChart } from '../viz/WhittleChart.tsx';
@@ -437,6 +439,13 @@ export default function Tool() {
           </label>
           <label className={`pf-ctl ${real ? 'off' : ''}`} title={real ? lockTip : undefined}>
             {es ? 'talud°' : 'slope°'}: {real ? (es ? 'de la instancia' : 'from the instance') : slopeDeg}
+            {!real && Math.abs(effectiveSlopeAngleDeg(model, slopeDeg) - slopeDeg) > 0.5 && (
+              <span className="pf-eff" title={es
+                ? 'La plantilla de precedencia redondea el alcance a bloques enteros, así que la pared minada se para en este ángulo, no en el nominal.'
+                : 'The precedence template rounds the reach to whole blocks, so the mined wall stands at this angle, not the nominal one.'}>
+                {' '}({es ? 'minado' : 'mined'} {effectiveSlopeAngleDeg(model, slopeDeg).toFixed(1)}°)
+              </span>
+            )}
             <input className="range" type="range" min={18} max={75} step={1} value={slopeDeg} disabled={real}
                    onChange={(e) => setSlope(+e.target.value)} />
           </label>
