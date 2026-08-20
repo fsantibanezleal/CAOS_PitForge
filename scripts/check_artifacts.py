@@ -14,6 +14,21 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _norm_version(value):
+    """Compare the padded display form (0.13.001) and the semver manifest form (0.13.1) as equal.
+
+    conventions/versioning.md splits them deliberately; comparing raw strings makes the two rules
+    mutually unsatisfiable. See scripts/check_version_coherence.py for the same normalisation.
+    """
+    if value is None:
+        return None
+    parts = str(value).strip().lstrip("v").split(".")
+    try:
+        return ".".join(str(int(part)) for part in parts)
+    except ValueError:
+        return str(value).strip()
+
+
 def _json(path: Path, errors: list[str]) -> Any | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -71,7 +86,7 @@ def validate(root: Path = ROOT) -> list[str]:
 
     package = _json(root / "frontend" / "package.json", errors)
     product_version = package.get("version") if isinstance(package, dict) else None
-    if product_version and index.get("engine_version") != product_version:
+    if product_version and _norm_version(index.get("engine_version")) != _norm_version(product_version):
         errors.append(f"index engine_version={index.get('engine_version')!r}, product={product_version!r}")
 
     shared_signature: str | None = None
@@ -88,7 +103,7 @@ def validate(root: Path = ROOT) -> list[str]:
             errors.append(f"{case_id}: manifest schema drift: {manifest.get('schema')!r}")
         if manifest.get("case_id") != case_id:
             errors.append(f"{case_id}: manifest identity is {manifest.get('case_id')!r}")
-        if manifest.get("engine", {}).get("version") != product_version:
+        if _norm_version(manifest.get("engine", {}).get("version")) != _norm_version(product_version):
             errors.append(f"{case_id}: engine version does not match product {product_version!r}")
 
         artifact = manifest.get("artifact")

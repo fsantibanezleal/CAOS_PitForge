@@ -20,6 +20,10 @@ the set of blocks to extract that **maximises total value subject to slope const
 (UPL)**, and its family of **nested pit shells** by revenue factor (the Whittle parameterisation, used for phase /
 pushback design). The exact optimiser runs **live in the browser**; drag the revenue factor, price or slope and the
 pit re-solves exactly, instantly.
+One honest caveat on the slope: the reduced one-bench precedence template rounds the wall's horizontal reach to
+a whole number of blocks, so the angle actually mined is `atan(dz/(dx*r))`. On 10 m cubic blocks a nominal
+30 deg mines a 26.6 deg wall, and everything from 34 deg up mines 45 deg. The app shows the mined angle next to
+the slider whenever it differs from the nominal one.
 
 This is a CAOS/Faena mining web-app instantiated on the **product-repo archetype** ([ADR-0057](docs/architecture/01_overview.md)).
 

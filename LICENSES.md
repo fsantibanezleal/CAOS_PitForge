@@ -14,6 +14,7 @@ PitForge itself is MIT ([LICENSE](LICENSE)). It builds on these components, each
 | [onnxruntime-web](https://onnxruntime.ai) | MIT | live in-browser inference of the learned models |
 | [KaTeX](https://katex.org) | MIT | equation rendering in the doc pages |
 | [lucide-react](https://lucide.dev) | ISC | icons |
+| [zustand](https://github.com/pmndrs/zustand) | MIT | state store; a peer dependency of the app shell and the theme store the 3-D and section canvases subscribe to |
 
 ## Offline / build
 
@@ -26,6 +27,8 @@ PitForge itself is MIT ([LICENSE](LICENSE)). It builds on these components, each
 | [ONNX](https://onnx.ai) | Apache-2.0 | model export/validation |
 | [Vite](https://vitejs.dev) + [tsx](https://github.com/privatenumber/tsx) + [TypeScript](https://www.typescriptlang.org) | MIT / Apache-2.0 | build + the Node bake |
 | [ruff](https://docs.astral.sh/ruff/) + [pytest](https://pytest.org) | MIT | lint + test |
+| [Playwright](https://playwright.dev) | Apache-2.0 | the real-browser production-UI contracts |
+| [axe-core](https://github.com/dequelabs/axe-core) (via `@axe-core/playwright`) | **MPL-2.0** | accessibility assertions in the e2e suite; a weak-copyleft licence distinct from the rest of this table, declared for that reason |
 
 ## Data and publications
 

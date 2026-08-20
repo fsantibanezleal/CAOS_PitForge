@@ -4,8 +4,17 @@
 // cone above it (the cone whose wall is at θ) must already be gone. On a regular grid we encode this with arcs to the
 // blocks one bench ABOVE (z−1): for a vertical step dz, the wall may move horizontally by dz/tan(θ). Converted to
 // block counts that is rx = round(dz/(dx·tanθ)), ry = round(dz/(dy·tanθ)). Adding arcs only to the (2rx+1)×(2ry+1)
-// box at z−1 and letting TRANSITIVITY climb the levels reproduces the full cone exactly, the standard reduced
-// precedence pattern (e.g. θ≈45° with cubic blocks gives rx=ry=1, the classic 9-point template).
+// box at z−1 and letting TRANSITIVITY climb the levels is the standard reduced precedence pattern (e.g. θ≈45° with
+// cubic blocks gives rx=ry=1, the classic 9-point template).
+//
+// HONEST LIMIT, and it is not small. Because the radius is ROUNDED to a whole number of blocks, the wall this
+// template actually enforces stands at atan(dz/(dx·rx)), not at θ. It reproduces the nominal cone exactly ONLY when
+// dz/(dx·tanθ) is already an integer. On the shipped 10 m cubic blocks, the whole 18–75° range collapses onto four
+// radii (r = 3, 2, 1, 0→clamped to 1), so 55 of those 58 nominal degrees differ from their effective angle by more
+// than half a degree: nominal 30° mines a 26.57° wall, and every nominal angle from 34° upward mines 45.00°.
+// `effectiveSlopeAngleDeg` below returns the angle actually enforced; the UI shows it next to the slider, and the
+// case labels quote it, so nobody reads a nominal number as the mined geometry. Emitting multi-bench arcs would
+// remove the quantisation at the cost of a much denser graph; that trade is not made here.
 //
 // Returns, for each block, the list of overlying blocks it depends on at the immediately-higher bench.
 
@@ -30,6 +39,19 @@ export function slopeTemplate(model: BlockModel, slopeAngleDeg: number): Precede
     for (let dj = -ry; dj <= ry; dj++) offsets.push([di, dj]);
   }
   return { rx, ry, offsets };
+}
+
+/**
+ * The wall angle this template ACTUALLY enforces, in degrees.
+ *
+ * The reduced one-bench template rounds the horizontal reach to a whole number of blocks, so the mined wall stands
+ * at atan(dz/(dx*rx)) rather than at the nominal angle. Use this wherever an angle is shown to a user or written
+ * into a case label: a nominal 30 degrees on 10 m cubic blocks mines a 26.57 degree wall.
+ */
+export function effectiveSlopeAngleDeg(model: BlockModel, slopeAngleDeg: number): number {
+  const t = Math.tan((slopeAngleDeg * Math.PI) / 180);
+  const rx = Math.max(1, Math.round(model.block.dz / (model.block.dx * t)));
+  return (Math.atan(model.block.dz / (model.block.dx * rx)) * 180) / Math.PI;
 }
 
 /**
