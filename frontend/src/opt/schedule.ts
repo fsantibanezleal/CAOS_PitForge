@@ -11,7 +11,7 @@
 // equals the exact solveUltimatePit set block-for-block. That is the negative control tying this lane to the
 // proven optimum. Never mine a block outside the ultimate pit (it can only lower the total value).
 
-import { forEachPrecedenceArc, slopeTemplate } from './precedence.ts';
+import { forEachPrecedenceArc, slopeTemplate, slopeTemplateVariable } from './precedence.ts';
 import { solveUltimatePit } from './ultimatepit.ts';
 import { blockValue } from './econ.ts';
 import { type BlockModel, type EconParams, nBlocks } from './types.ts';
@@ -86,7 +86,13 @@ function precedenceGraph(model: BlockModel, econ: EconParams): { predCount: Int3
   const predCount = new Int32Array(N);
   const succ: number[][] = Array.from({ length: N }, () => []);
   // forEachPrecedenceArc emits (i, j): block i depends on the overlying block j (j mined before i).
-  forEachPrecedenceArc(model, slopeTemplate(model, econ.slopeAngleDeg), (i, j) => {
+  // Honour anisotropic slopes exactly as ultimatepit.ts does. This used to call slopeTemplate
+  // unconditionally, so with econ.slopeAngles set the scheduler built a DIFFERENT precedence graph
+  // from the pit solver: measured on a four-angle case that left 164 ultimate-pit blocks unmined,
+  // put NPV 9.5% low and broke the documented duality control. Latent only because no UI path sets
+  // slopeAngles today, which is exactly why it needed fixing before one does.
+  const tmpl = econ.slopeAngles ? slopeTemplateVariable(model, econ.slopeAngles) : slopeTemplate(model, econ.slopeAngleDeg);
+  forEachPrecedenceArc(model, tmpl, (i, j) => {
     predCount[i]++;
     succ[j].push(i);
   });

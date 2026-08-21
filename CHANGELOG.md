@@ -17,6 +17,18 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ## [0.13.000] · 2026-08-15
 
+### Changed
+
+- **The learned-model evaluation split changed, and both headline metrics moved with it.** The previous
+  random-row split let paired full/sparse stencil rows cross it (80.1% of held-out rows had their twin in
+  training), so the reported numbers were inflated by leakage. Replaced with a grouped leave-one-geology-out
+  split and both ONNX graphs re-exported. `gradeNN.r2_vs_holdout` moved 0.9613 → **0.8757** (against ordinary
+  kriging 0.9333 and IDW 0.8591, i.e. the network TRAILS kriging rather than tying it) and the pit surrogate
+  moved AUC 0.9811 → **0.9123**, now reported against a random-classifier reference of 0.5 rather than against
+  0.7642, which was never an AUC baseline but a majority-class accuracy. The smaller figures are the honest
+  ones. (Entry added 2026-08-20: the original 0.13.000 entry recorded the pseudoflow, shell, CPIT, licensing
+  and UI work and said nothing about the change that moved the two numbers every external surface quoted.)
+
 ### Added
 
 - Added an independent, closure-specialised implementation of Hochbaum's normalised-tree pseudoflow phase one
@@ -44,7 +56,7 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 - Replaced static mini bars with keyboard-operable uPlot charts, localized summaries, exact-value tables, wheel
   zoom, keyboard pan and zoom, and reset controls. WebGL and artifact failures remain bounded and retryable.
 - Self-hosted the pinned ONNX runtime assets from the application origin and lazy-loaded 3-D and learned panels.
-  Production chunking reduces the main application JavaScript from about 708 KB to 143 KB.
+  Production chunking reduces the main application JavaScript to about 155 KB raw (52 KB gzipped), measured on the built bundle. (Corrected 2026-08-20: this line previously claimed 143 KB, which no measurement of the shipped bundle reproduces.)
 
 ### Verification
 

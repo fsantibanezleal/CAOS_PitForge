@@ -31,6 +31,24 @@ test('DUALITY control: rate 0 + infinite capacity mines exactly the ultimate pit
   assert.ok(Math.abs(sched.npv - upl.pitValue) < 1e-3, 'undiscounted NPV == ultimate-pit value');
 });
 
+test('DUALITY control holds under ANISOTROPIC slopes too (the scheduler must use the same graph)', () => {
+  // Regression for a latent bug found by the 2026-08-18 audit: schedule.ts called slopeTemplate
+  // unconditionally while ultimatepit.ts switched to slopeTemplateVariable whenever econ.slopeAngles
+  // was set, so the two built DIFFERENT precedence graphs. Measured before the fix: 164 ultimate-pit
+  // blocks were never mined, NPV came out 9.5% low, and this very duality control was broken. It was
+  // invisible only because no UI path sets slopeAngles yet.
+  const model = makeDeposit({ archetype: 'porphyry', dims: { nx: 16, ny: 16, nz: 8 }, seed: 7, peakGrade: 0.03 });
+  const anisotropic: EconParams = { ...ECON, slopeAngles: { north: 30, south: 60, east: 45, west: 38 } };
+  const upl = solveUltimatePit(model, anisotropic);
+  const sched = greedySchedule(model, anisotropic, { periods: 1, discountRatePerPeriod: 0, capacityFraction: Infinity });
+  assert.ok(upl.nBlocks > 0, 'the anisotropic case should still open a pit');
+  assert.equal(sched.minedBlocks, upl.nBlocks, 'the scheduler must mine exactly the ultimate pit');
+  for (let i = 0; i < model.dims.nx * model.dims.ny * model.dims.nz; i++) {
+    assert.equal(sched.periodOfBlock[i] >= 0, !!upl.inPit[i], `block ${i} mined-status must match the UPL`);
+  }
+  assert.ok(Math.abs(sched.npv - upl.pitValue) < 1e-3, 'undiscounted NPV == ultimate-pit value');
+});
+
 test('DUALITY holds across several periods too (all UPL blocks mined by the final period, rate 0)', () => {
   const model = makeDeposit({ archetype: 'coreHalo', dims: { nx: 14, ny: 14, nz: 7 }, seed: 3, peakGrade: 0.04 });
   const upl = solveUltimatePit(model, ECON);

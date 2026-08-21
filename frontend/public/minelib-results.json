@@ -1,8 +1,15 @@
 {
-  "schema": "pitforge.minelib-bench/v2",
-  "bakedAt": "2026-08-15T18:57:08.033Z",
+  "schema": "pitforge.minelib-bench/v3",
+  "bakedAt": "2026-08-21T00:49:28.744Z",
   "engine": "solveUpitExplicit (Picard maximum closure; Dinic and Hochbaum normalised-tree pseudoflow rungs; TypeScript, Node)",
   "license": "MineLib CC BY-SA 3.0 Unported; only attributed summary numbers are committed by project policy",
+  "timingEnvironment": {
+    "note": "Machine-dependent. Same-machine repeat runs vary by 2-5x; treat these as scale, not as a benchmark.",
+    "node": "v24.14.1",
+    "platform": "win32/x64",
+    "cpus": 32,
+    "cpuModel": "Intel(R) Core(TM) i9-14900HX"
+  },
   "results": [
     {
       "id": "newman1",
@@ -14,9 +21,9 @@
       "relError": 9.95515035759146e-10,
       "match": true,
       "nInPit": 1059,
-      "parseMs": 3,
-      "dinicMsMedian": 1.9,
-      "pseudoflowMsMedian": 8.3,
+      "parseMs": 12,
+      "dinicMsMedian": 7.3,
+      "pseudoflowMsMedian": 34.3,
       "solverValueDifference": 0,
       "blockSetDifference": 0,
       "solverAgreement": true,
@@ -37,9 +44,9 @@
       "relError": 1.8629025682866078e-10,
       "match": true,
       "nInPit": 9399,
-      "parseMs": 17,
-      "dinicMsMedian": 111.2,
-      "pseudoflowMsMedian": 11630,
+      "parseMs": 91,
+      "dinicMsMedian": 564.6,
+      "pseudoflowMsMedian": 28021.6,
       "solverValueDifference": 0,
       "blockSetDifference": 0,
       "solverAgreement": true,
@@ -60,9 +67,9 @@
       "relError": 1.304997057408205e-10,
       "match": true,
       "nInPit": 12154,
-      "parseMs": 55,
-      "dinicMsMedian": 207.1,
-      "pseudoflowMsMedian": 12217,
+      "parseMs": 315,
+      "dinicMsMedian": 831,
+      "pseudoflowMsMedian": 26436.6,
       "solverValueDifference": 0,
       "blockSetDifference": 0,
       "solverAgreement": true,
@@ -71,6 +78,75 @@
         "pushes": 79792,
         "splits": 4786,
         "arcScans": 1188770464
+      }
+    },
+    {
+      "id": "twin-porphyry-s",
+      "name": "Synthetic twin · porphyry (16×16×8)",
+      "nBlocks": 2048,
+      "nPrecs": 14812,
+      "publishedOptimum": 126908453.74,
+      "ourValue": 126908453.74,
+      "relError": 1.880544523610741e-12,
+      "match": true,
+      "nInPit": 1337,
+      "parseMs": 30,
+      "dinicMsMedian": 6,
+      "pseudoflowMsMedian": 137.3,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 627,
+        "pushes": 1667,
+        "splits": 59,
+        "arcScans": 6521197
+      }
+    },
+    {
+      "id": "twin-vein-m",
+      "name": "Synthetic twin · vein (20×20×10)",
+      "nBlocks": 4000,
+      "nPrecs": 30276,
+      "publishedOptimum": 213735284.68,
+      "ourValue": 213735284.698,
+      "relError": 8.350983477016866e-11,
+      "match": true,
+      "nInPit": 2561,
+      "parseMs": 23,
+      "dinicMsMedian": 18.1,
+      "pseudoflowMsMedian": 549.6,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 1587,
+        "pushes": 9900,
+        "splits": 94,
+        "arcScans": 24507730
+      }
+    },
+    {
+      "id": "twin-corehalo-m",
+      "name": "Synthetic twin · core+halo (22×22×10)",
+      "nBlocks": 4840,
+      "nPrecs": 36864,
+      "publishedOptimum": 65696305.79,
+      "ourValue": 65696305.784,
+      "relError": 9.254232175070734e-11,
+      "match": true,
+      "nInPit": 2521,
+      "parseMs": 23,
+      "dinicMsMedian": 20.1,
+      "pseudoflowMsMedian": 1357.8,
+      "solverValueDifference": 0,
+      "blockSetDifference": 0,
+      "solverAgreement": true,
+      "pseudoflowStats": {
+        "mergers": 2628,
+        "pushes": 15494,
+        "splits": 759,
+        "arcScans": 61225537
       }
     }
   ],
@@ -90,8 +166,38 @@
     {
       "id": "mclaughlin",
       "nBlocks": 2140342,
-      "publishedOptimum": null,
+      "publishedOptimum": 1495886962,
       "reason": "no .prec on any verified mirror; 73M-arc scale untested for this Dinic, offline-infeasible for now"
+    },
+    {
+      "id": "zuck_medium",
+      "nBlocks": 29277,
+      "publishedOptimum": null,
+      "reason": "not attempted: no verified public mirror located by this project"
+    },
+    {
+      "id": "p4hd",
+      "nBlocks": 40947,
+      "publishedOptimum": null,
+      "reason": "not attempted: no verified public mirror located by this project"
+    },
+    {
+      "id": "w23",
+      "nBlocks": 74260,
+      "publishedOptimum": null,
+      "reason": "not attempted: no verified public mirror located by this project"
+    },
+    {
+      "id": "zuck_large",
+      "nBlocks": 96821,
+      "publishedOptimum": null,
+      "reason": "not attempted: no verified public mirror located by this project"
+    },
+    {
+      "id": "sm2",
+      "nBlocks": 99014,
+      "publishedOptimum": null,
+      "reason": "not attempted: no verified public mirror located by this project"
     }
   ]
 }
