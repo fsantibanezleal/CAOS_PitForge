@@ -75,6 +75,27 @@ def validate(root: Path = ROOT) -> list[str]:
     if index.get("n_cases") != len(entries):
         errors.append(f"index n_cases={index.get('n_cases')} but contains {len(entries)} entries")
 
+    # DECLARED vs SHIPPED. Everything above compares the index against itself, so removing a case
+    # from index.json AND deleting its folder used to print "CONTRACT 2 OK: 8 cases" and exit 0.
+    # The authority is the case registry in code, not whatever happens to be on disk.
+    try:
+        sys.path.insert(0, str(ROOT / "data-pipeline"))
+        from pipeline.registry import list_cases  # noqa: PLC0415
+
+        declared = {case.id for case in list_cases()}
+        if declared != expected:
+            only_declared = sorted(declared - expected)
+            only_shipped = sorted(expected - declared)
+            if only_declared:
+                errors.append(
+                    f"DECLARED but not shipped: {only_declared} "
+                    "(the registry declares these cases; the artifact does not carry them)"
+                )
+            if only_shipped:
+                errors.append(f"SHIPPED but not declared in the registry: {only_shipped}")
+    except ImportError as exc:  # pragma: no cover - the registry must be importable
+        errors.append(f"could not import the case registry to check DECLARED vs SHIPPED: {exc}")
+
     actual_manifests = {p.stem for p in manifests.glob("*.json") if p.name != "index.json"}
     actual_traces = {p.parent.name for p in derived.glob("*/trace.json") if p.parent.name != "manifests"}
     if actual_manifests != expected:

@@ -102,25 +102,28 @@ cannot be returned silently. The validation is against the strongest available
 reference (Fig.~\ref{fig:minelib}, Table~\ref{tab:minelib}): three of MineLib's eleven instances, those with a
 verified public mirror, whose optima are published. On all three, PitForge's value matches the published optimum to a relative error near $10^{-10}$,
 $9.96\times10^{-10}$ on newman1, $1.86\times10^{-10}$ on zuck\_small, $1.30\times10^{-10}$ on kd, an exact match
-to floating-point precision. And it is fast: the $1060$-block newman1 solves in about $2$~milliseconds, and the
-$14153$-block kd in about $207$~milliseconds, as medians of three under Node running the same TypeScript engine
-the browser runs, so the exact pit re-solves interactively as a user changes the economics. Reproducing the
+to floating-point precision. And it is fast: the $1060$-block newman1 solves in milliseconds and the
+$14153$-block kd in a fraction of a second under Node, running the same TypeScript engine the browser runs, so the
+exact pit re-solves interactively as a user changes the economics. Those times are machine-dependent (repeat runs on
+one laptop varied by a factor of several), so the released artifact records its measurement environment and no
+decimal figure is quoted here; what is stable within a run is that the independent pseudoflow rung is one to two
+orders of magnitude slower on the two larger instances. Reproducing the
 published optima exactly is the validation a pit optimiser needs, and it is the foundation the rest of the tool builds on.
 
 \begin{table}[!t]
 \centering
 \caption{PitForge versus the published MineLib optima. The solver matches all three to relative error near
-$10^{-10}$, in milliseconds to a fraction of a second (Node median of three, TypeScript Dinic min-cut; an
-independent normalised-tree pseudoflow rung is reported alongside in the released artifact).}
+$10^{-10}$. Solve times are omitted from this table because they are machine-dependent; the released artifact
+records them together with the environment they were measured in.}
 \label{tab:minelib}
 \footnotesize
-\begin{tabular}{@{}l r r r r@{}}
+\begin{tabular}{@{}l r r r@{}}
 \toprule
-Instance & blocks & published optimum & rel. error & solve (ms) \\
+Instance & blocks & published optimum & rel. error \\
 \midrule
-newman1    & $1060$  & $2.6087\times10^{7}$ & $1.0\times10^{-9}$  & $1.9$ \\
-zuck\_small & $9400$  & $1.4227\times10^{9}$ & $1.9\times10^{-10}$ & $111.2$ \\
-kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ & $207.1$ \\
+newman1    & $1060$  & $2.6087\times10^{7}$ & $1.0\times10^{-9}$ \\
+zuck\_small & $9400$  & $1.4227\times10^{9}$ & $1.9\times10^{-10}$ \\
+kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
