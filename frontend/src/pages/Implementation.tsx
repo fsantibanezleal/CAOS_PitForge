@@ -11,7 +11,7 @@ export default function Implementation() {
 
       <Tabs ariaLabel={es ? 'implementación' : 'implementation'} tabs={[
         {
-          id: 'lanes', label: es ? 'Lanes' : 'Lanes',
+          id: 'lanes', label: es ? 'Vías' : 'Lanes',
           content: (
             <div className="pf-doc-sec">
               <ul className="pf-list">

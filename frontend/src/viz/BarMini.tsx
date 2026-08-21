@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import uPlot from 'uplot';
 import { themeColors, UPlotChart } from './UPlotChart.tsx';
+import { useShellLang } from '@fasl-work/caos-app-shell';
 
 /** Responsive interactive bars for grade-tonnage and value histograms, with a text data fallback. */
 export function BarMini({
@@ -14,6 +15,7 @@ export function BarMini({
   valueLabel: string;
   interactionHint?: string;
 }) {
+  const es = useShellLang() === 'es';
   const data = useMemo<uPlot.AlignedData>(() => [values.map((_, index) => index), values], [values]);
   const summary = useMemo(() => values.map((value, index) => {
     const label = labels[index] || String(index + 1);
@@ -55,7 +57,7 @@ export function BarMini({
   }, [labels, unit, valueLabel, values.length]);
 
   if (values.length === 0) {
-    return <div className="pf-status" data-kind="empty">{ariaLabel}: no data.</div>;
+    return <div className="pf-status" data-kind="empty">{ariaLabel}: {es ? 'sin datos.' : 'no data.'}</div>;
   }
 
   return (

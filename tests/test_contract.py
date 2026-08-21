@@ -65,3 +65,22 @@ def test_committed_examples_pass_contract():
     assert rep_s.ok and not rep_s.rejected, f"scenarios.csv should pass Contract 1: {rep_s.summary()}"
     rep_b = validate_blocks(read_csv_rows(root / "blockmodel.csv"))
     assert rep_b.ok and not rep_b.rejected, f"blockmodel.csv should pass Contract 1: {rep_b.summary()}"
+
+
+def test_block_contract_rejects_a_non_integer_index_rather_than_truncating():
+    """Four documents promise bad records are "never silently coerced".
+
+    The parser used int(float(...)), which silently turned ix='2.7' into block 2: a data error the
+    uploader never saw, landing their tonnage in the wrong cell. Reject it with a reason instead.
+    """
+    rows = [
+        {"ix": 0, "iy": 0, "iz": 0, "tonnage": 2700, "density": 2.7, "grade": 0.01},    # good
+        {"ix": "2.7", "iy": 0, "iz": 0, "tonnage": 2700, "density": 2.7, "grade": 0.01},  # reject
+        {"ix": 1, "iy": "0.5", "iz": 0, "tonnage": 2700, "density": 2.7, "grade": 0.01},  # reject
+        {"ix": "3.0", "iy": 0, "iz": 0, "tonnage": 2700, "density": 2.7, "grade": 0.01},  # 3.0 IS whole -> accept
+    ]
+    rep = validate_blocks(rows, dims=(24, 24, 12))
+    assert len(rep.rejected) == 2, f"expected two non-integer rejections, got {rep.rejected}"
+    assert all("non-integer block index" in r["reason"] for r in rep.rejected)
+    assert len(rep.accepted) == 2
+    assert [b["ix"] for b in rep.accepted] == [0, 3]

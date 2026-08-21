@@ -2,7 +2,7 @@
 
 Each case (`data-pipeline/pipeline/cases/pit_cases.py`, mirrored in `frontend/src/opt/cases.ts`) declares a
 **category**, its parameters, an **expected band** (what a domain reader should see), a **validation anchor** (a
-property the result must satisfy, checked in `frontend/test/contract.test.ts`), and a real|synthetic flag. The **App
+property the result must satisfy, checked in [`frontend/test/case-anchors.test.ts`](../../frontend/test/case-anchors.test.ts)), and a real|synthetic flag. The **App
 shows one selected case**; **Experiments/Benchmark show cross-case summaries** (never mixed into the App).
 
 ## The 9-case matrix
@@ -22,3 +22,8 @@ shows one selected case**; **Experiments/Benchmark show cross-case summaries** (
 The archetypes vary the **geology**; the economic + slope cases reuse the porphyry geology and vary the **decision**,
 so the cross-case comparisons isolate one axis at a time. `CTRL` is the exactness anchor, its optimum is computable
 by hand, so any regression in the solver is caught immediately.
+
+<!-- Corrected 2026-08-21: this line previously pointed at contract.test.ts, which checks trace
+     schema parsing, not the anchors. A02's overhang anchor and A04's halo anchor were tested
+     nowhere, and E01/E02's subset/superset anchors were compared only as block COUNTS, which is
+     strictly weaker than set inclusion. case-anchors.test.ts now checks them as stated. -->

@@ -115,7 +115,17 @@ def validate_blocks(raw_rows: list[dict[str, Any]], *, dims: tuple[int, int, int
             rejected.append({"row": i, "reason": f"missing/empty columns: {missing}"})
             continue
         try:
-            ix, iy, iz = int(float(row["ix"])), int(float(row["iy"])), int(float(row["iz"]))
+            # Indices are INTEGERS. int(float(...)) silently truncated '2.7' to 2, while four
+            # documents promise bad records are "never silently coerced". Reject instead: a block
+            # index that is not whole is a data error the uploader needs to see, not a rounding.
+            ix_f, iy_f, iz_f = float(row["ix"]), float(row["iy"]), float(row["iz"])
+            if any(not float(v).is_integer() for v in (ix_f, iy_f, iz_f)):
+                rejected.append({
+                    "row": i,
+                    "reason": f"non-integer block index (ix={row['ix']}, iy={row['iy']}, iz={row['iz']})",
+                })
+                continue
+            ix, iy, iz = int(ix_f), int(iy_f), int(iz_f)
             tonnage = float(row["tonnage"])
             density = float(row["density"])
             grade = float(row["grade"])
