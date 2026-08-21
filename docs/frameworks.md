@@ -10,3 +10,6 @@ The research-chosen methods + libraries PitForge actually uses (each one is used
 - [04, the scheduling lane](frameworks/04_scheduling.md), the CPIT LP relaxation (scipy HiGHS) with a certified
   NPV upper bound, the published `newman1.cpit` scenario versus the self-authored synthetic twin, and the rule
   that the two gaps must never be mixed.
+- [05, the MineLib lane](frameworks/05_minelib.md), the published benchmark instances the exact optimiser is
+  validated against, the CC BY-SA 3.0 licence posture and why the bytes are still not committed, the eleven
+  instances and the eight not solved here, and where each claim is verified.
