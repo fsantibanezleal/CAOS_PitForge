@@ -54,9 +54,15 @@ export function validateBlocksLive(rawRows: Record<string, string>[], dims?: [nu
     }
     if (nonNumeric) { rejected.push({ row: i, reason: 'non-numeric ix/iy/iz/tonnage/density/grade' }); return; }
     const [ixF, iyF, izF, tonnage, density, grade] = nums;
-    const ix = Math.trunc(ixF);
-    const iy = Math.trunc(iyF);
-    const iz = Math.trunc(izF);
+    // Indices are INTEGERS. Math.trunc silently accepted '2.7' as 2, while the data contract
+    // documents promise bad records are never silently coerced. Reject instead.
+    if (![ixF, iyF, izF].every((v) => Number.isInteger(v))) {
+      rejected.push({ row: i, reason: `non-integer block index (ix=${ixF}, iy=${iyF}, iz=${izF})` });
+      return;
+    }
+    const ix = ixF;
+    const iy = iyF;
+    const iz = izF;
 
     const reasons: string[] = [];
     if ([tonnage, density, grade].some(bad)) reasons.push('NaN/Inf value');

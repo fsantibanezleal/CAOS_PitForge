@@ -45,6 +45,20 @@ test('mirror: never coerces, non-numeric, NaN/Inf, missing, out-of-box, density'
   assert.match(rep.rejected[5].reason, /NaN\/Inf/);
 });
 
+test('mirror: a non-integer block index is REJECTED, not truncated (mirrors test_contract.py)', () => {
+  // Math.trunc silently accepted ix='2.7' as block 2, while the data-contract documents promise
+  // bad records are never silently coerced. A whole-valued 3.0 is still a valid index.
+  const rep = validateBlocksLive([
+    R({ ix: 0, iy: 0, iz: 0, tonnage: 2700, density: 2.7, grade: 0.01 }),      // good
+    R({ ix: '2.7', iy: 0, iz: 0, tonnage: 2700, density: 2.7, grade: 0.01 }),  // reject
+    R({ ix: 1, iy: '0.5', iz: 0, tonnage: 2700, density: 2.7, grade: 0.01 }),  // reject
+    R({ ix: '3.0', iy: 0, iz: 0, tonnage: 2700, density: 2.7, grade: 0.01 }),  // 3.0 is whole -> accept
+  ], [24, 24, 12]);
+  assert.equal(rep.rejected.length, 2);
+  for (const r of rep.rejected) assert.match(r.reason, /non-integer block index/);
+  assert.equal(rep.accepted.length, 2);
+});
+
 test('mirror: duplicates flagged but accepted', () => {
   const rep = validateBlocksLive([
     R({ ix: 1, iy: 1, iz: 1, tonnage: 2700, density: 2.7, grade: 0.01 }),

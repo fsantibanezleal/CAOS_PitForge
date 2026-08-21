@@ -42,7 +42,7 @@ const CAT_TABS = [
  *  sub-views are revealed from the same tab. */
 const TAB_GROUPS: { id: string; en: string; es: string; members: string[] }[] = [
   { id: 'pit',      en: 'Pit',        es: 'Rajo',      members: ['pit3d', 'section', 'summary'] },
-  { id: 'shells',   en: 'Shells',     es: 'Shells',    members: ['whittle', 'pushback'] },
+  { id: 'shells',   en: 'Shells',     es: 'Cáscaras',  members: ['whittle', 'pushback'] },
   { id: 'deposit',  en: 'Deposit',    es: 'Yacimiento',members: ['gt', 'hist'] },
   { id: 'schedule', en: 'Schedule',   es: 'Programa',  members: ['schedule'] },
   { id: 'learned',  en: 'Learned',    es: 'Aprendido', members: ['infill', 'surrogate'] },
@@ -214,7 +214,7 @@ export default function Tool() {
           <div className="pf-kpis">
             <Kpi label={es ? 'valor del pit' : 'pit value'} value={`$${fM(pit.pitValue)} M`} />
             <Kpi label={es ? 'bloques' : 'blocks'} value={`${pit.nBlocks}`} />
-            <Kpi label="strip" value={pit.stripRatio.toFixed(2)} />
+            <Kpi label={es ? 'descarga' : 'strip'} value={pit.stripRatio.toFixed(2)} />
             <Kpi label={es ? 'mineral' : 'ore'} value={`${fMt(pit.oreTonnes)} Mt`} />
           </div>
         </div>
@@ -451,7 +451,7 @@ export default function Tool() {
           </label>
           {real
             ? <p className="pf-cap pf-muted">{es ? 'bloqueados: la instancia trae precedencia y valores publicados' : 'locked: the instance ships published precedence and values'}</p>
-            : <button className="chip" onClick={() => { setPriceMul(1); setSlope(null); setRf(1); }}>{es ? 'reset' : 'reset'}</button>}
+            : <button className="chip" onClick={() => { setPriceMul(1); setSlope(null); setRf(1); }}>{es ? 'reiniciar' : 'reset'}</button>}
         </div>
       </aside>
 

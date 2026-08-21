@@ -13,7 +13,7 @@
     "build": "tsc --noEmit && vite build",
     "postbuild": "node spa-404.mjs",
     "preview": "vite preview",
-    "test": "node --import tsx --test test/opt.test.ts test/contract.test.ts test/realcases.test.ts test/minelib.test.ts test/contract-live.test.ts test/infill.test.ts test/schedule.test.ts",
+    "test": "node --import tsx --test \"test/*.test.ts\"",
     "test:e2e": "playwright test",
     "bake": "node --import tsx ../data-pipeline/pipeline/science/bake_cases.mjs",
     "benchmark": "node --import tsx scripts/benchmark-cases.mjs",
