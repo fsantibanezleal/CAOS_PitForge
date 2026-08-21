@@ -18,7 +18,7 @@ jobs:
       - name: Install (offline lane + dev + editable pkg)
         run: pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
       - name: Lint
-        run: ruff check data-pipeline tests
+        run: ruff check data-pipeline tests scripts frontend/scripts manuscripts
       - name: Tests
         run: pytest
       - name: CONTRACT 2, closed artifact inventory

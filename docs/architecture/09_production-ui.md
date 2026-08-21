@@ -50,5 +50,22 @@ localization, both themes, accessible output, keyboard navigation, WebGL degrada
 200% responsive zoom equivalence, and long prose routes. CI installs a pinned Playwright browser before running
 the same suite.
 
+Four gates were added on 2026-08-18/21, each for a defect that had reached production and that the suite as it
+then stood could not see:
+
+- **First-click on a grouped tab.** Every `.pf-tabwrap` closed *any* open menu on blur, so a click on another
+  group's item was swallowed. The suite missed it because it opened menus with the keyboard and did every real
+  switch through the `<=720px` `<select>`. The gate now performs one real pointer click and asserts the panel's
+  `aria-label` changed.
+- **The ADR-0071 viz-area floor.** Measured 32.3% / 30.9% / 21.5% of the viewport at the three prescribed
+  widths against a binding `>= 50%` clause, because the 3-D view carried a fixed 360 px height. The suite
+  asserted scroll owners and overflow but never the ratio; it does now.
+- **Theme repaint of the canvases.** `PitView3D` and `SectionView` sampled CSS custom properties once per
+  effect run with no theme in their dependencies, so a black rectangle sat on a light page until some other
+  interaction healed it. The gate compares a canvas screenshot across a theme toggle.
+- **Text hidden under a later panel** in the architecture diagrams. The gate measures SCREEN geometry
+  (`getBoundingClientRect`), not `getBBox`, because these diagrams contain nested `<svg viewBox>` islands
+  whose inner coordinate system produces false positives.
+
 The ONNX runtime files and Playwright reports are generated locally or in CI and are ignored; only source,
 lockfile, and deterministic scientific artifacts belong in the public repository.

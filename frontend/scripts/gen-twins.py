@@ -11,7 +11,8 @@ The registry (src/opt/realCases.ts) pins each twin's nBlocks/nPrecs/stampedOptim
 reproduces the stamped optimum to rel ~3e-11 (guarded by test/minelib.test.ts + realcases.test.ts).
 """
 
-import sys, json
+import json
+import sys
 from pathlib import Path
 from oreblocks import make_twin
 OUT = Path(sys.argv[1])

@@ -39,18 +39,27 @@ def check_file(path: Path) -> None:
 
 
 def check_every_doc_is_reachable() -> None:
-    """Any docs/**/NN_*.md must be linked from at least one other document."""
+    """Every document must be linked from at least one OTHER document.
+
+    The first version of this check had the guard backwards: a document referenced nowhere took an
+    early `continue` and was never flagged, so the one condition it existed to catch was the one it
+    silently skipped. Count references in other files directly instead.
+    """
     docs = sorted(p for p in DOCS.rglob("*.md"))
-    corpus = "\n".join(p.read_text(encoding="utf-8") for p in docs) + (ROOT / "README.md").read_text(encoding="utf-8")
+    sources = docs + [ROOT / "README.md"]
     for doc in docs:
-        if doc.name == "README.md":
-            continue
-        if doc.name not in corpus.replace(doc.name + "\n", ""):
-            continue
-        # count references excluding the file's own body
-        others = corpus.count(doc.name) - doc.read_text(encoding="utf-8").count(doc.name)
-        if others <= 0:
-            errors.append(f"{doc.relative_to(ROOT)} is not linked from any index or document")
+        if doc.name == "README.md" and doc.parent == DOCS:
+            continue  # the wiki index is the root of the tree, nothing needs to link it
+        referenced_by = [
+            src.relative_to(ROOT)
+            for src in sources
+            if src != doc and doc.name in src.read_text(encoding="utf-8")
+        ]
+        if not referenced_by:
+            errors.append(
+                f"{doc.relative_to(ROOT)} is not linked from any index or document "
+                "(an unreachable document is an unpublished one)"
+            )
 
 
 def main() -> int:

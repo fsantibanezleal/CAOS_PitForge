@@ -12,7 +12,6 @@ Optima, with Whittle Nested Shells and Scheduling"*, concept DOI
 ~1e-10 in-browser; adds Whittle nested shells and two explicitly separated scheduling scenarios. The published
 `newman1.cpit` scenario has a 3.81% PitForge feasible-to-bound gap; the non-comparable synthetic twin has 11.29%.
 
-[![CI](https://github.com/fsantibanezleal/CAOS_PitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/fsantibanezleal/CAOS_PitForge/actions)
 **Live:** https://pitforge.fasl-work.com
 
 PitForge solves the classic open-pit mine-design problem: given a block model with a per-block economic value, find

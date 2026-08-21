@@ -90,9 +90,9 @@ export default function Benchmark() {
               ))}
               {minelib.excluded.map((x) => (
                 <tr key={x.id} className="pf-muted">
-                  <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>, </td>
+                  <td>{x.id}</td><td>{fInt(x.nBlocks)}</td><td>{es ? 'sin contar' : 'not counted'}</td>
                   <td>{es ? 'no precalculado' : 'not baked'}</td>
-                  <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : ', '}</td>
+                  <td>{x.publishedOptimum != null ? fInt(x.publishedOptimum) : (es ? 'no publicado' : 'not published')}</td>
                   <td colSpan={4}>{x.reason}</td>
                 </tr>
               ))}

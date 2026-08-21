@@ -53,7 +53,8 @@ def fig_minelib():
     a1.bar(x, rel, color="#1b6ca8", edgecolor=INK, linewidth=0.6, width=0.6, zorder=3)
     a1.axhline(1e-6, color="#b23a48", linewidth=1.1, linestyle="--", label="exact-match threshold ($10^{-6}$)")
     a1.set_yscale("log")
-    a1.set_xticks(x); a1.set_xticklabels(ids, fontsize=8.2)
+    a1.set_xticks(x)
+    a1.set_xticklabels(ids, fontsize=8.2)
     a1.set_ylabel("rel. error vs published optimum")
     a1.set_ylim(1e-11, 1e-5)
     a1.set_title("(a) reproduces the published\nMineLib optima exactly", fontsize=8.6)
@@ -69,8 +70,8 @@ def fig_minelib():
     for x0, y0, i in zip(nb, ms, ids):
         a2.annotate(f"{i}\n{y0:.0f} ms", (x0, y0), textcoords="offset points", xytext=(5, -12), fontsize=7.0)
     a2.set_xlabel("blocks in the instance")
-    a2.set_ylabel("exact solve time (ms, median)")
-    a2.set_title("(b) exact solve, in-browser,\nsub-second to 14k blocks", fontsize=8.6)
+    a2.set_ylabel("exact solve time (ms, median of 3, Node)")
+    a2.set_title("(b) exact solve time, Node,\nmedian of 3, one machine", fontsize=8.6)
     a2.grid(True, color=GRID, linewidth=0.7)
     a2.set_axisbelow(True)
     for s in ("top", "right"):
@@ -83,23 +84,30 @@ def fig_minelib():
 
 def fig_whittle():
     d = _load()
-    curve = [p for p in d["curve"] if p["pitValue"] and p["pitValue"] > 0]
+    # A pit value of exactly 0 is a real result, the empty pit, not a missing point: at the lowest
+    # revenue factor no block pays for itself. Keep it, so the value curve starts where it truly starts.
+    curve = [p for p in d["curve"] if p["pitValue"] is not None and p["pitValue"] >= 0]
     rf = [p["rf"] for p in curve]
     val = [p["pitValue"] / 1e6 for p in curve]
-    strip = [p["stripRatio"] for p in curve]
+    # Strip ratio is waste/ore and is undefined when the pit is empty, so that series omits those
+    # points rather than drawing a 0 that would read as "no waste" instead of "no pit".
+    stripped = [p for p in curve if p["pitValue"] > 0]
+    rf_strip = [p["rf"] for p in stripped]
+    strip = [p["stripRatio"] for p in stripped]
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(7.0, 3.0))
 
     # (a) Whittle nested shells: value + strip ratio vs revenue factor
     a1.plot(rf, val, "o-", color="#1b6ca8", linewidth=1.8, markersize=5, label="pit value")
-    a1.set_xlabel("revenue factor"); a1.set_ylabel("ultimate-pit value (M\\$)", color="#1b6ca8")
+    a1.set_xlabel("revenue factor")
+    a1.set_ylabel("ultimate-pit value (M\\$)", color="#1b6ca8")
     a1.tick_params(axis="y", labelcolor="#1b6ca8")
-    a1.set_title(f"(a) Whittle nested pit shells\n({d['shell_case']})", fontsize=8.2)
+    a1.set_title(f"(a) Whittle nested pit shells\n{d['shell_case']}", fontsize=8.2)
     a1.grid(True, color=GRID, linewidth=0.7)
     a1.set_axisbelow(True)
     for s in ("top",):
         a1.spines[s].set_visible(False)
     ax2 = a1.twinx()
-    ax2.plot(rf, strip, "s--", color="#e07a3f", linewidth=1.3, markersize=4, label="strip ratio")
+    ax2.plot(rf_strip, strip, "s--", color="#e07a3f", linewidth=1.3, markersize=4, label="strip ratio")
     ax2.set_ylabel("strip ratio (waste/ore)", color="#e07a3f")
     ax2.tick_params(axis="y", labelcolor="#e07a3f")
     ax2.spines["top"].set_visible(False)
@@ -115,7 +123,7 @@ def fig_whittle():
                 fontsize=8.6, fontweight="bold")
     a2.set_ylabel("NPV (M\\$)")
     a2.set_ylim(0, max(vals) * 1.2)
-    a2.set_title(f"(b) constrained scheduling:\n{gap:.1f}% optimality gap", fontsize=8.2)
+    a2.set_title(f"(b) constrained scheduling, synthetic twin:\n{gap:.1f}% optimality gap", fontsize=8.2)
     a2.grid(axis="y", color=GRID, linewidth=0.7, zorder=0)
     a2.set_axisbelow(True)
     for s in ("top", "right"):
