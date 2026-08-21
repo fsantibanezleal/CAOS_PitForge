@@ -88,8 +88,12 @@ where they remain.
 \includegraphics[width=0.99\columnwidth]{fig-minelib.pdf}
 \caption{Validation on the public MineLib instances. \textbf{(a)} The solver reproduces the \emph{published}
 optimum of newman1, zuck\_small and kd to a relative error near $10^{-10}$, far below any exact-match threshold.
-\textbf{(b)} The exact solve is fast enough to run interactively in a browser: about $5$~ms for the
-$1060$-block newman1, and about a quarter of a second for the $14153$-block kd.}
+\textbf{(b)} Exact solve time against instance size, measured under Node on one machine as the median of
+three runs: milliseconds for the $1060$-block newman1, a fraction of a second for the $14153$-block kd. These
+are timings of one environment, not a property of the method, and repeat runs on the same laptop varied by a
+factor of several; the artifact records the environment alongside them. The browser lane solves the same
+fetched instances live and displays its own measured time, which is why the solve is interactive at these
+sizes, but the figure plots the Node measurements.}
 \label{fig:minelib}
 \end{figure}
 
@@ -135,7 +139,9 @@ kd         & $14153$ & $6.5220\times10^{8}$ & $1.3\times10^{-10}$ \\
 \includegraphics[width=0.99\columnwidth]{fig-whittle.pdf}
 \caption{Beyond the single pit. \textbf{(a)} The Whittle nested pit shells: solving the ultimate pit over an
 ascending revenue factor gives a family of nested pits whose value rises and whose strip ratio falls as the pit
-grows, the value-tonnage-strip curves that phase and pushback design read. \textbf{(b)} A constrained production
+grows, the value-tonnage-strip curves that phase and pushback design read. The first shell is empty, no block
+pays for itself at that revenue factor, so the value curve starts at zero and the strip-ratio series, which is
+waste over ore and therefore undefined without ore, starts at the second shell. \textbf{(b)} A constrained production
 schedule for the separate PitForge-authored synthetic twin over eight periods at 10\% discount and one movement
 limit: the certified upper-bound net present value ($104.6$M) and the independent feasible greedy schedule ($92.8$M),
 whose 11.29\% gap is reported against that scenario's relaxation bound. It is not the published

@@ -19,8 +19,11 @@ one published **CPIT** scenario (see [04, scheduling](04_scheduling.md)).
 MineLib is published under **CC BY-SA 3.0 Unported**. That licence would permit redistribution with
 attribution. PitForge still keeps the instance bytes **out of git**, and that is a project data-minimisation
 choice, not a licence restriction. Only attributed summary numbers are committed. Saying this accurately
-matters: earlier revisions of this repository claimed an "academic-download grant" that does not exist, and
-the reference-integrity gate now bans that phrasing.
+matters: earlier revisions of this repository described the instances as downloadable only under a
+restricted academic arrangement, which is not a thing that exists for MineLib. The reference-integrity gate
+bans that phrasing by exact substring, which is also why this paragraph paraphrases it instead of quoting
+it: the gate cannot tell an assertion from a refutation, and a dumb matcher with no false negatives is worth
+more here than a clever one.
 
 Practically:
 
@@ -56,10 +59,10 @@ MineLib publishes **eleven** UPIT instances. Three are solved above; the other e
 artifact's `excluded` array, each with a reason, so the artifact never implies the library is smaller than it
 is:
 
-- `marvin` — ships with commercial Whittle software; no verified public mirror.
-- `mclaughlin_limit`, `mclaughlin` — no verified public mirror; `mclaughlin` is 2.14 M blocks and roughly 73 M
+- `marvin`: ships with commercial Whittle software; no verified public mirror.
+- `mclaughlin_limit` and `mclaughlin`: no verified public mirror; `mclaughlin` is 2.14 M blocks and roughly 73 M
   arcs, untested at that scale for this Dinic engine.
-- `zuck_medium`, `p4hd`, `w23`, `zuck_large`, `sm2` — not attempted: no verified public mirror located by this
+- `zuck_medium`, `p4hd`, `w23`, `zuck_large` and `sm2`: not attempted, no verified public mirror located by this
   project. No optimum is asserted for an instance we have not solved.
 
 Undercounting the exclusions loses credit for no reason, which is why the count is gated (see below).
@@ -82,7 +85,7 @@ why.
 | what | where |
 |---|---|
 | the optima reproduce, `<= 2e-9` | `frontend/test/minelib.test.ts` (skips without the cache) |
-| the tests actually RUN | `.github/workflows/minelib-oracle.yml` — fetches the instances and **fails if any oracle test reports skipped**, on a schedule and on every release tag |
+| the tests actually RUN | `.github/workflows/minelib-oracle.yml`, which fetches the instances and **fails if any oracle test reports skipped**, on a schedule and on every release tag |
 | the artifact is present and internally consistent | `scripts/check_headline_artifacts.py`, in CI and before every deploy |
 | the bake ships everything it declares | `frontend/scripts/bake-minelib.mjs` raises rather than writing a partial artifact |
 
