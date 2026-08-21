@@ -1,0 +1,45 @@
+name: MineLib oracle
+
+# The product's headline claim is that its exact optimiser reproduces three PUBLISHED MineLib optima
+# to <= 2e-9. That claim was verified NOWHERE in CI: the oracle tests are gated on a gitignored
+# .minelib-cache (`skip: !hasCache`), no workflow ever fetched it, and a skipped test is a green test.
+# This job fetches the instances and FAILS if the oracle tests do not actually run.
+#
+# It is scheduled + manual rather than per-push because it depends on third-party mirrors; a mirror
+# outage must not block ordinary development, but it must not silently pass either.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'      # Mondays, 06:17 UTC
+  workflow_dispatch:
+  push:
+    tags: ['v*']              # every release
+
+jobs:
+  oracle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: cd frontend && npm ci
+      - name: Fetch the published MineLib instances
+        run: cd frontend && node scripts/fetch-minelib.mjs newman1 zuck_small kd
+      - name: Run the engine tests and capture the summary
+        run: cd frontend && npm test 2>&1 | tee ../oracle-run.log
+      - name: Fail if any oracle test was SKIPPED
+        # A skipped oracle is exactly the failure mode this job exists to close.
+        run: |
+          skipped=$(grep -E '^\s*[a-z]*\s*skipped\s+[0-9]+' -o ../oracle-run.log | grep -oE '[0-9]+' | tail -1)
+          echo "reported skipped: ${skipped:-unknown}"
+          if [ "${skipped:-0}" != "0" ]; then
+            echo "::error::MineLib oracle tests were skipped; the published-optima claim is unverified."
+            exit 1
+          fi
+          grep -q "reproduces the PUBLISHED UPIT optimum" ../oracle-run.log \
+            || { echo "::error::the oracle test did not run at all"; exit 1; }
+      - name: Assert the committed artifact still matches the claim
+        run: python scripts/check_headline_artifacts.py
