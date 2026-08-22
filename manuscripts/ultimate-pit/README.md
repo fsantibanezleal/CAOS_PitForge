@@ -23,6 +23,16 @@ claim the deposited PDF makes, not a presentation tidy-up:
    truthiness. The empty pit is a real result, so the value curve now starts at zero; the strip-ratio series
    still starts at the second shell, since waste-over-ore is undefined with no ore. The caption says both.
 3. That figure title nested parentheses, because the case name already carries its own.
+4. **The figure data was a hand-copied snapshot that nothing regenerated.** `data/pf.json` still held
+   the solve times of a superseded generation (5.2 / 237.3 / 259.3 ms against a shipped 7.3 / 564.6 /
+   831.0), while `make_figs.py` claimed in its own docstring to read "the COMMITTED artifacts". It now
+   actually reads `data/derived/{minelib-results,case-results,cpit-schedule}.json` and writes `pf.json`
+   back as a provenance snapshot, so the figures cannot drift from what the app serves. Only the
+   machine-dependent timings had moved; the relative errors, which are properties of the algorithm, were
+   identical to the last digit.
+5. **Figure 2(b) showed one scheduling scenario and disclaimed the other in prose.** Conflating the two
+   was the defect v2.0 existed to fix, so the panel now plots both, each against its own bound and
+   labelled with its own gap: 3.81% on the published `newman1.cpit`, 11.29% on the synthetic twin.
 
 `main.pdf` is NOT rebuilt here: it is the deposited artifact and is not silently overwritten. Item 1 is the
 reason to cut a v2.1 rather than let the source drift. Rebuilding, versioning, and publishing that version is

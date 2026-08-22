@@ -1,4 +1,12 @@
 {
+ "provenance": "derived by make_figs.py from data/derived/{minelib-results,case-results,cpit-schedule}.json; do not hand-edit",
+ "timingEnvironment": {
+  "note": "Machine-dependent. Same-machine repeat runs vary by 2-5x; treat these as scale, not as a benchmark.",
+  "node": "v24.14.1",
+  "platform": "win32/x64",
+  "cpus": 32,
+  "cpuModel": "Intel(R) Core(TM) i9-14900HX"
+ },
  "minelib": [
   {
    "id": "newman1",
@@ -6,7 +14,7 @@
    "published": 26086899,
    "ours": 26086899.026,
    "relError": 9.95515035759146e-10,
-   "solveMs": 5.2
+   "solveMs": 7.3
   },
   {
    "id": "zuck_small",
@@ -14,7 +22,7 @@
    "published": 1422726898,
    "ours": 1422726897.735,
    "relError": 1.8629025682866078e-10,
-   "solveMs": 237.3
+   "solveMs": 564.6
   },
   {
    "id": "kd",
@@ -22,7 +30,7 @@
    "published": 652195037,
    "ours": 652195036.915,
    "relError": 1.304997057408205e-10,
-   "solveMs": 259.3
+   "solveMs": 831
   }
  ],
  "shell_case": "Porphyry copper (disseminated shell)",
@@ -32,6 +40,7 @@
    "pitValue": 0,
    "oreTonnes": 0,
    "wasteTonnes": 0,
+   "metalTonnes": 0,
    "stripRatio": 0,
    "nBlocks": 0
   },
@@ -40,6 +49,7 @@
    "pitValue": 31607648,
    "oreTonnes": 4546800,
    "wasteTonnes": 4549500,
+   "metalTonnes": 63386.3,
    "stripRatio": 1.001,
    "nBlocks": 3369
   },
@@ -48,6 +58,7 @@
    "pitValue": 82656773,
    "oreTonnes": 5740200,
    "wasteTonnes": 4706100,
+   "metalTonnes": 71304.1,
    "stripRatio": 0.82,
    "nBlocks": 3869
   },
@@ -56,6 +67,7 @@
    "pitValue": 137848168,
    "oreTonnes": 6555600,
    "wasteTonnes": 4681800,
+   "metalTonnes": 75055.7,
    "stripRatio": 0.714,
    "nBlocks": 4162
   },
@@ -64,6 +76,7 @@
    "pitValue": 195199680,
    "oreTonnes": 7068600,
    "wasteTonnes": 4673700,
+   "metalTonnes": 76784.7,
    "stripRatio": 0.661,
    "nBlocks": 4349
   },
@@ -72,6 +85,7 @@
    "pitValue": 252864404,
    "oreTonnes": 7319700,
    "wasteTonnes": 4687200,
+   "metalTonnes": 77502,
    "stripRatio": 0.64,
    "nBlocks": 4447
   },
@@ -80,6 +94,7 @@
    "pitValue": 310945745,
    "oreTonnes": 7541100,
    "wasteTonnes": 4679100,
+   "metalTonnes": 78019.1,
    "stripRatio": 0.62,
    "nBlocks": 4526
   },
@@ -88,6 +103,7 @@
    "pitValue": 370028941,
    "oreTonnes": 7708500,
    "wasteTonnes": 4635900,
+   "metalTonnes": 78338.6,
    "stripRatio": 0.601,
    "nBlocks": 4572
   },
@@ -96,6 +112,7 @@
    "pitValue": 428618354,
    "oreTonnes": 7846200,
    "wasteTonnes": 4527900,
+   "metalTonnes": 78543.6,
    "stripRatio": 0.577,
    "nBlocks": 4583
   },
@@ -104,6 +121,7 @@
    "pitValue": 487452506,
    "oreTonnes": 8235000,
    "wasteTonnes": 4179600,
+   "metalTonnes": 79045.5,
    "stripRatio": 0.508,
    "nBlocks": 4598
   },
@@ -112,6 +130,7 @@
    "pitValue": 547465743,
    "oreTonnes": 8834400,
    "wasteTonnes": 3685500,
+   "metalTonnes": 79761.9,
    "stripRatio": 0.417,
    "nBlocks": 4637
   },
@@ -120,14 +139,27 @@
    "pitValue": 607311065,
    "oreTonnes": 9482400,
    "wasteTonnes": 3148200,
+   "metalTonnes": 80469.9,
    "stripRatio": 0.332,
    "nBlocks": 4678
   }
  ],
- "cpit": {
-  "uplValue": 126908453.7397613,
-  "boundNpv": 104612788.49868713,
-  "schedNpv": 92806606.17904061,
-  "periods": 8
+ "cpit_scenarios": {
+  "twin-porphyry-s": {
+   "periods": 8,
+   "rate": 0.1,
+   "boundNpv": 104612788.49868713,
+   "schedNpv": 92806606.17904061,
+   "gapPct": 11.285601396424576,
+   "uplValue": 126908453.7397613
+  },
+  "newman1": {
+   "periods": 6,
+   "rate": 0.08,
+   "boundNpv": 24486184.091111057,
+   "schedNpv": 23553244.588465657,
+   "gapPct": 3.8100648887307598,
+   "uplValue": 26086899.025969997
+  }
  }
 }

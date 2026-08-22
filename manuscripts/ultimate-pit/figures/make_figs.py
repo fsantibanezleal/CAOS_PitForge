@@ -35,8 +35,60 @@ plt.rcParams.update({
 })
 
 
+DERIVED = HERE.parents[2] / "data" / "derived"
+
+# The three MineLib instances the report validates against. The rest of the eleven are excluded
+# with reasons, recorded in docs/frameworks/05_minelib.md, not silently dropped.
+VALIDATED = ("newman1", "zuck_small", "kd")
+SHELL_CASE = "A01"
+
+
 def _load():
-    return json.loads((DATA / "pf.json").read_text(encoding="utf-8"))
+    """Derive the figure inputs from the SHIPPED artifacts, then snapshot them to pf.json.
+
+    pf.json used to be hand-copied, and drifted a whole generation of solve times behind the
+    product while this docstring claimed otherwise. Reading data/derived/ directly is what makes
+    the claim true: the figures cannot now disagree with what the app serves.
+    """
+    ml = json.loads((DERIVED / "minelib-results.json").read_text(encoding="utf-8"))
+    cases = json.loads((DERIVED / "case-results.json").read_text(encoding="utf-8"))
+    cpit = json.loads((DERIVED / "cpit-schedule.json").read_text(encoding="utf-8"))
+
+    by_id = {r["id"]: r for r in ml["results"]}
+    missing = [i for i in VALIDATED if i not in by_id]
+    if missing:
+        raise SystemExit(f"minelib-results.json is missing validated instances: {missing}")
+
+    minelib = [{
+        "id": i,
+        "nBlocks": by_id[i]["nBlocks"],
+        "published": by_id[i]["publishedOptimum"],
+        "ours": by_id[i]["ourValue"],
+        "relError": by_id[i]["relError"],
+        "solveMs": by_id[i]["dinicMsMedian"],
+    } for i in VALIDATED]
+
+    case = cases["cases"][SHELL_CASE]
+    scen = {k: {
+        "periods": v["periods"],
+        "rate": v["discountRatePerPeriod"],
+        "boundNpv": v["certifiedBoundNpv"],
+        "schedNpv": v["feasibleHeuristicNpv"],
+        "gapPct": v["boundToFeasibleGapPct"],
+        "uplValue": v["uplValue"],
+    } for k, v in cpit["cases"].items()}
+
+    d = {
+        "provenance": "derived by make_figs.py from data/derived/{minelib-results,case-results,"
+                      "cpit-schedule}.json; do not hand-edit",
+        "timingEnvironment": ml.get("timingEnvironment"),
+        "minelib": minelib,
+        "shell_case": case["name"],
+        "curve": case["curve"],
+        "cpit_scenarios": scen,
+    }
+    (DATA / "pf.json").write_text(json.dumps(d, indent=1) + "\n", encoding="utf-8")
+    return d
 
 
 def fig_minelib():
@@ -112,18 +164,30 @@ def fig_whittle():
     ax2.tick_params(axis="y", labelcolor="#e07a3f")
     ax2.spines["top"].set_visible(False)
 
-    # (b) CPIT scheduling: certified bound vs achievable schedule NPV
-    cpit = d["cpit"]
-    labels = ["certified\nupper bound", "feasible\nschedule"]
-    vals = [cpit["boundNpv"] / 1e6, cpit["schedNpv"] / 1e6]
-    gap = 100 * (1 - cpit["schedNpv"] / cpit["boundNpv"])
-    bars = a2.bar(labels, vals, color=["#7d99b0", "#3fa34d"], edgecolor=INK, linewidth=0.6, width=0.58, zorder=3)
-    for b, v in zip(bars, vals):
-        a2.text(b.get_x() + b.get_width() / 2, v + 1, f"{v:.0f}M", ha="center", va="bottom",
-                fontsize=8.6, fontweight="bold")
+    # (b) CPIT scheduling, BOTH scenarios side by side. They have different denominators and are
+    # not comparable; showing only one, unlabelled, is what the v2.0 correction had to undo.
+    scen = d["cpit_scenarios"]
+    order = [k for k in ("newman1", "twin-porphyry-s") if k in scen]
+    titles = {"newman1": "newman1\n(published)", "twin-porphyry-s": "twin\n(synthetic)"}
+    xs = np.arange(len(order))
+    w = 0.34
+    bounds = [scen[k]["boundNpv"] / 1e6 for k in order]
+    scheds = [scen[k]["schedNpv"] / 1e6 for k in order]
+    a2.bar(xs - w / 2, bounds, width=w, color="#7d99b0", edgecolor=INK, linewidth=0.6, zorder=3,
+           label="certified bound")
+    a2.bar(xs + w / 2, scheds, width=w, color="#3fa34d", edgecolor=INK, linewidth=0.6, zorder=3,
+           label="feasible schedule")
+    top = max(bounds)
+    for i, k in enumerate(order):
+        a2.text(xs[i], max(bounds[i], scheds[i]) + top * 0.04,
+                f"{scen[k]['gapPct']:.2f}% gap", ha="center", va="bottom",
+                fontsize=7.6, fontweight="bold")
+    a2.set_xticks(xs)
+    a2.set_xticklabels([titles[k] for k in order], fontsize=8.0)
     a2.set_ylabel("NPV (M\\$)")
-    a2.set_ylim(0, max(vals) * 1.2)
-    a2.set_title(f"(b) constrained scheduling, synthetic twin:\n{gap:.1f}% optimality gap", fontsize=8.2)
+    a2.set_ylim(0, top * 1.28)
+    a2.legend(fontsize=7.0, frameon=True, facecolor="white", edgecolor=GRID, loc="upper left")
+    a2.set_title("(b) constrained scheduling,\neach scenario against its own bound", fontsize=8.2)
     a2.grid(axis="y", color=GRID, linewidth=0.7, zorder=0)
     a2.set_axisbelow(True)
     for s in ("top", "right"):
