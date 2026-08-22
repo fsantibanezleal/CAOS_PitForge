@@ -15,6 +15,8 @@ v_i = max( RF · revenue_i − processingCost · tonnage_i , 0 ) − miningCost 
 
 ## Ultimate pit = maximum closure = minimum cut
 
+![The Picard reduction: block values and the slope cone become an s-t network whose minimum cut is the optimal pit](assets/max-closure-min-cut.svg)
+
 A pit is a **closure** of the block-precedence digraph (if a block is in, all its slope-predecessors are in).
 Maximising `Σ_{i∈P} v_i` over closures `P` is a minimum *s–t* cut (Picard 1976):
 

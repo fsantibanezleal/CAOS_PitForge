@@ -4,6 +4,8 @@ PitForge’s offline lane is **two-language** (like ChancaDEM / DispatchLab): th
 engine the browser runs, driven from Node via `tsx`; Python only orchestrates + reshapes. This avoids ever
 re-implementing the optimiser in Python.
 
+![What runs offline, what is committed, and what runs live in the browser](assets/offline-online-split.svg)
+
 ## The executable programs
 
 | Program | What |
