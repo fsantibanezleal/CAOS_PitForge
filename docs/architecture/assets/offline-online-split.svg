@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 402" width="880" role="img"
+     aria-label="The two-language precompute pipeline and what it ships. The heavy lane runs locally: the same TypeScript engine the browser runs is driven from Node to bake exact pits and Whittle curves, torch trains the two learned models and exports them to ONNX, and Python reshapes everything into traces and manifests. Only the committed artifacts cross into the repository. CI runs the light lane, which needs neither torch nor Node and is a pure function of those artifacts. In the browser the exact optimiser and both ONNX models run live, while the CPIT schedule is rendered from JSON and is never solved live.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #1a1a2e; --muted: #5b6472; --line: #b9c0cb; --panel: #eef1f6;
+      --heavy: #e07a3f; --light: #1b6ca8; --live: #3fa34d; --stat: #7d5ba6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink: #e6edf3; --muted: #9aa6b2; --line: #444c56; --panel: #21262d;
+              --heavy: #f0883e; --light: #58a6ff; --live: #56d364; --stat: #bc8cff; }
+    }
+    text { fill: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .ttl { font-size: 14px; font-weight: 600; }
+    .hd  { font-size: 11px; font-weight: 600; }
+    .lb  { font-size: 9.5px; }
+    .sm  { font-size: 8.5px; fill: var(--muted); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 9px; }
+    .frame { fill: none; stroke: var(--line); stroke-width: 1.1; }
+    .box { fill: var(--panel); stroke: var(--ink); stroke-width: 0.9; }
+    .flow { stroke: var(--muted); stroke-width: 1.2; fill: none; }
+  </style>
+  <defs>
+    <marker id="f" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="440" y="22" text-anchor="middle">What is computed offline, what is committed, and what actually runs in your browser</text>
+
+  <!-- ================= HEAVY LANE ================= -->
+  <rect class="frame" x="16" y="40" width="272" height="200" rx="6"/>
+  <rect x="16" y="40" width="272" height="22" rx="6" fill="var(--heavy)" fill-opacity="0.16" stroke="none"/>
+  <text class="hd" x="28" y="56">Heavy lane, local only</text>
+  <text class="sm" x="196" y="56">--retrain</text>
+
+  <rect class="box" x="30" y="76" width="244" height="30" rx="4"/>
+  <text class="mono" x="40" y="90">science/bake_cases.mjs</text>
+  <text class="sm" x="40" y="101">Node drives the SAME TypeScript engine the browser runs</text>
+
+  <rect class="box" x="30" y="114" width="244" height="30" rx="4"/>
+  <text class="mono" x="40" y="128">science/gen_train.mjs</text>
+  <text class="sm" x="40" y="139">grouped training tables, git-ignored, regenerable</text>
+
+  <rect class="box" x="30" y="152" width="244" height="30" rx="4"/>
+  <text class="mono" x="40" y="166">science/train_pit.py</text>
+  <text class="sm" x="40" y="177">torch, leave-one-geology-out, exports ONNX</text>
+
+  <text class="sm" x="30" y="200">The optimiser is never re-implemented in Python.</text>
+  <text class="sm" x="30" y="213">That is the whole point of the two-language split:</text>
+  <text class="sm" x="30" y="226">one engine, exercised offline and in the browser.</text>
+
+  <path class="flow" marker-end="url(#f)" d="M288 140 L316 140"/>
+
+  <!-- ================= COMMITTED ================= -->
+  <rect class="frame" x="324" y="40" width="232" height="200" rx="6"/>
+  <rect x="324" y="40" width="232" height="22" rx="6" fill="var(--stat)" fill-opacity="0.16" stroke="none"/>
+  <text class="hd" x="336" y="56">Committed to the repo</text>
+
+  <rect class="box" x="336" y="76" width="208" height="26" rx="4"/>
+  <text class="mono" x="345" y="93">case-results.json</text>
+  <rect class="box" x="336" y="108" width="208" height="26" rx="4"/>
+  <text class="mono" x="345" y="125">minelib-results.json</text>
+  <rect class="box" x="336" y="140" width="208" height="26" rx="4"/>
+  <text class="mono" x="345" y="157">cpit-schedule.json</text>
+  <rect class="box" x="336" y="172" width="208" height="26" rx="4"/>
+  <text class="mono" x="345" y="189">grade-nn.onnx, pit-surrogate.onnx</text>
+
+  <text class="sm" x="336" y="216">These are the heavy lane's real outputs. Every</text>
+  <text class="sm" x="336" y="229">published number is read from one of them.</text>
+
+  <path class="flow" marker-end="url(#f)" d="M556 140 L584 140"/>
+
+  <!-- ================= BROWSER ================= -->
+  <rect class="frame" x="592" y="40" width="272" height="200" rx="6"/>
+  <rect x="592" y="40" width="272" height="22" rx="6" fill="var(--live)" fill-opacity="0.16" stroke="none"/>
+  <text class="hd" x="604" y="56">In the browser</text>
+
+  <rect class="box" x="604" y="76" width="248" height="30" rx="4"/>
+  <text class="lb" x="614" y="90">Exact optimiser, LIVE</text>
+  <text class="sm" x="614" y="101">Dinic min-cut, every solve, on your machine</text>
+
+  <rect class="box" x="604" y="114" width="248" height="30" rx="4"/>
+  <text class="lb" x="614" y="128">Both ONNX models, LIVE</text>
+  <text class="sm" x="614" y="139">onnxruntime-web, single-threaded wasm</text>
+
+  <rect class="box" x="604" y="152" width="248" height="30" rx="4"/>
+  <text class="lb" x="614" y="166">CPIT schedule, RENDERED</text>
+  <text class="sm" x="614" y="177">read from JSON, never solved live, and it says so</text>
+
+  <text class="sm" x="604" y="200">The app reads the artifacts at run time, so when</text>
+  <text class="sm" x="604" y="213">an artifact moves the app moves with it. Prose</text>
+  <text class="sm" x="604" y="226">does not, which is why prose is what goes stale.</text>
+
+  <!-- ================= LIGHT LANE ================= -->
+  <rect class="frame" x="16" y="252" width="848" height="98" rx="6"/>
+  <rect x="16" y="252" width="848" height="22" rx="6" fill="var(--light)" fill-opacity="0.16" stroke="none"/>
+  <text class="hd" x="28" y="268">Light lane, the default, and the only lane CI runs</text>
+  <text class="sm" x="330" y="268">python data-pipeline/run.py all</text>
+
+  <text class="sm" x="28" y="290">Reshapes the committed artifacts into the per-case replay traces and manifests. It needs neither torch nor Node, so continuous integration</text>
+  <text class="sm" x="28" y="303">never retrains and never depends on a GPU, a model download, or a network fetch.</text>
+  <text class="sm" x="28" y="322">It is a pure function of the committed artifacts: re-running it is byte-identical, because the manifest carries no wall-clock. That is what makes</text>
+  <text class="sm" x="28" y="335">the replay contract checkable rather than merely claimed.</text>
+
+  <text class="sm" x="16" y="372">The two MineLib lanes differ: the benchmark table is baked offline under Node, while the in-app real-case panel fetches an instance and solves it live,</text>
+  <text class="sm" x="16" y="385">showing its own measured time. Solve times are machine-dependent and vary several-fold between runs; relative errors are not, and do not.</text>
+</svg>

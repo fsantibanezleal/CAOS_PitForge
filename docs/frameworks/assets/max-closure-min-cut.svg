@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 372" width="880" role="img"
+     aria-label="The Picard 1976 reduction. A pit is a closure of the block-precedence graph. Maximising the sum of block values over closures becomes a minimum s-t cut: a source arc of capacity v for each positive block, a sink arc of capacity minus v for each negative block, and precedence arcs at infinite capacity so no optimal cut ever severs one. The blocks on the source side of the cut are the optimal pit, and the pit value equals the sum of positive values minus the max flow.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #1a1a2e; --muted: #5b6472; --line: #b9c0cb; --panel: #e9edf3;
+      --ore: #1b6ca8; --waste: #e07a3f; --cut: #b23a48; --pit: #1b6ca8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink: #e6edf3; --muted: #9aa6b2; --line: #444c56; --panel: #21262d;
+              --ore: #58a6ff; --waste: #f0883e; --cut: #f85149; --pit: #58a6ff; }
+    }
+    text { fill: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .ttl { font-size: 14px; font-weight: 600; }
+    .hd  { font-size: 11px; font-weight: 600; }
+    .lb  { font-size: 9.5px; }
+    .sm  { font-size: 8.5px; fill: var(--muted); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 9.5px; }
+    .frame { fill: none; stroke: var(--line); stroke-width: 1.1; }
+    .cell  { fill: none; stroke: var(--line); stroke-width: 0.9; }
+    .node  { fill: var(--panel); stroke: var(--ink); stroke-width: 1.1; }
+    .arc   { stroke: var(--muted); stroke-width: 1.1; fill: none; }
+    .prec  { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+    .cutln { stroke: var(--cut); stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arI" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="var(--ink)"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="440" y="22" text-anchor="middle">The exact ultimate pit: maximum closure solved as a minimum cut (Picard 1976)</text>
+
+  <!-- ============ Panel 1: blocks and slopes ============ -->
+  <rect class="frame" x="16" y="40" width="262" height="272" rx="6"/>
+  <text class="hd" x="147" y="60" text-anchor="middle">1. Blocks carry a value, slopes carry a rule</text>
+
+  <!-- section grid, 5 x 3 -->
+  <g>
+    <rect class="cell" x="47" y="82"  width="40" height="34"/><text class="lb" x="67" y="104" text-anchor="middle">-3</text>
+    <rect class="cell" x="87" y="82"  width="40" height="34"/><text class="lb" x="107" y="104" text-anchor="middle">-3</text>
+    <rect class="cell" x="127" y="82" width="40" height="34"/><text class="lb" x="147" y="104" text-anchor="middle">-3</text>
+    <rect class="cell" x="167" y="82" width="40" height="34"/><text class="lb" x="187" y="104" text-anchor="middle">-3</text>
+    <rect class="cell" x="207" y="82" width="40" height="34"/><text class="lb" x="227" y="104" text-anchor="middle">-3</text>
+
+    <rect class="cell" x="47" y="116"  width="40" height="34"/><text class="lb" x="67" y="138" text-anchor="middle">-4</text>
+    <rect class="cell" x="87" y="116"  width="40" height="34" fill="var(--ore)" fill-opacity="0.18"/><text class="lb" x="107" y="138" text-anchor="middle">+6</text>
+    <rect class="cell" x="127" y="116" width="40" height="34" fill="var(--ore)" fill-opacity="0.18"/><text class="lb" x="147" y="138" text-anchor="middle">+9</text>
+    <rect class="cell" x="167" y="116" width="40" height="34"/><text class="lb" x="187" y="138" text-anchor="middle">-4</text>
+    <rect class="cell" x="207" y="116" width="40" height="34"/><text class="lb" x="227" y="138" text-anchor="middle">-4</text>
+
+    <rect class="cell" x="47" y="150"  width="40" height="34"/><text class="lb" x="67" y="172" text-anchor="middle">-5</text>
+    <rect class="cell" x="87" y="150"  width="40" height="34"/><text class="lb" x="107" y="172" text-anchor="middle">-5</text>
+    <rect class="cell" x="127" y="150" width="40" height="34" fill="var(--ore)" fill-opacity="0.18"/><text class="lb" x="147" y="172" text-anchor="middle">+7</text>
+    <rect class="cell" x="167" y="150" width="40" height="34"/><text class="lb" x="187" y="172" text-anchor="middle">-5</text>
+    <rect class="cell" x="207" y="150" width="40" height="34"/><text class="lb" x="227" y="172" text-anchor="middle">-5</text>
+  </g>
+
+  <!-- the slope cone above the deepest ore block -->
+  <path class="prec" marker-end="url(#arI)" d="M141 152 L95 120"/>
+  <path class="prec" marker-end="url(#arI)" d="M153 152 L199 120"/>
+  <text class="sm" x="147" y="202" text-anchor="middle">to mine +7, every block above it must be in the pit too</text>
+  <text class="sm" x="147" y="215" text-anchor="middle">that is the closure constraint; the slope angle sets its width</text>
+
+  <text class="mono" x="30" y="240">v = max(RF*rev - proc*t, 0) - mine*t</text>
+  <text class="sm" x="30" y="256">Revenue factor RF scales revenue only.</text>
+  <text class="sm" x="30" y="269">Lowering it shrinks the pit, which is how</text>
+  <text class="sm" x="30" y="282">the nested Whittle shells are generated.</text>
+  <text class="sm" x="30" y="299">Values here are illustrative, not a case.</text>
+
+  <!-- ============ Panel 2: the network ============ -->
+  <rect class="frame" x="292" y="40" width="286" height="272" rx="6"/>
+  <text class="hd" x="435" y="60" text-anchor="middle">2. Three kinds of arc, and only three</text>
+
+  <!-- s and t -->
+  <circle class="node" cx="322" cy="170" r="15"/><text class="lb" x="322" y="174" text-anchor="middle">s</text>
+  <circle class="node" cx="548" cy="170" r="15"/><text class="lb" x="548" y="174" text-anchor="middle">t</text>
+
+  <!-- block nodes -->
+  <circle class="node" cx="435" cy="108" r="16"/><text class="lb" x="435" y="112" text-anchor="middle">+9</text>
+  <circle class="node" cx="435" cy="170" r="16"/><text class="lb" x="435" y="174" text-anchor="middle">+7</text>
+  <circle class="node" cx="435" cy="232" r="16"/><text class="lb" x="435" y="236" text-anchor="middle">-4</text>
+
+  <!-- source arcs to positive blocks -->
+  <path class="arc" marker-end="url(#ar)" d="M336 162 C370 130 392 114 417 108"/>
+  <path class="arc" marker-end="url(#ar)" d="M337 170 L417 170"/>
+  <text class="sm" x="352" y="162">cap = v</text>
+
+  <!-- sink arc from the negative block -->
+  <path class="arc" marker-end="url(#ar)" d="M451 232 C490 232 515 200 536 182"/>
+  <text class="sm" x="470" y="252">cap = -v</text>
+
+  <!-- precedence arc at infinite capacity -->
+  <path class="prec" marker-end="url(#arI)" d="M435 154 L435 126"/>
+  <text class="sm" x="446" y="142">inf</text>
+  <path class="prec" marker-end="url(#arI)" d="M435 216 L435 190"/>
+  <text class="sm" x="446" y="206">inf</text>
+
+  <text class="sm" x="306" y="278">A precedence arc has infinite capacity, so no</text>
+  <text class="sm" x="306" y="291">optimal cut can ever sever one. That single</text>
+  <text class="sm" x="306" y="304">choice is what makes the cut a valid pit.</text>
+
+  <!-- ============ Panel 3: the cut ============ -->
+  <rect class="frame" x="592" y="40" width="272" height="272" rx="6"/>
+  <text class="hd" x="728" y="60" text-anchor="middle">3. The source side is the pit</text>
+
+  <rect x="606" y="76" width="104" height="150" rx="6" fill="var(--pit)" fill-opacity="0.13" stroke="none"/>
+  <text class="sm" x="658" y="94" text-anchor="middle">source side</text>
+
+  <circle class="node" cx="650" cy="126" r="15"/><text class="lb" x="650" y="130" text-anchor="middle">+9</text>
+  <circle class="node" cx="650" cy="186" r="15"/><text class="lb" x="650" y="190" text-anchor="middle">+7</text>
+  <circle class="node" cx="800" cy="156" r="15"/><text class="lb" x="800" y="160" text-anchor="middle">-4</text>
+
+  <path class="cutln" d="M726 74 L726 232"/>
+  <text class="sm" x="736" y="88" fill="var(--cut)">min cut</text>
+  <text class="sm" x="790" y="196" text-anchor="middle">sink side,</text>
+  <text class="sm" x="790" y="208" text-anchor="middle">left in the ground</text>
+
+  <text class="mono" x="606" y="256">pitValue = sum(v &gt; 0) - maxflow</text>
+  <text class="sm" x="606" y="274">Asserted on every solve, in the browser and</text>
+  <text class="sm" x="606" y="287">in the benchmark lane. A wrong answer cannot</text>
+  <text class="sm" x="606" y="300">pass quietly, because the dual has to agree.</text>
+
+  <!-- footer -->
+  <text class="sm" x="16" y="336">The constraint matrix of a closure problem is totally unimodular, so the LP relaxation is already integral: no branching is needed and the answer is exact, not near-optimal.</text>
+  <text class="sm" x="16" y="352">PitForge ships two independent exact rungs over this construction, Dinic as the live default and a normalised-tree pseudoflow following Hochbaum (2008) beside it.</text>
+</svg>
