@@ -28,6 +28,9 @@ jobs:
 
       - name: Doc diagrams are theme-adaptive, labelled and referenced
         run: python scripts/check_doc_diagrams.py
+
+      - name: Architecture diagrams are bilingual (ADR-0058)
+        run: python scripts/check_arch_i18n.py
       - name: Headline artifacts match the published figures
         # The two artifacts carrying the public headline numbers (the published-scenario CPIT gap
         # and the reproduced MineLib optima) were covered by no gate at all; deleting both left the

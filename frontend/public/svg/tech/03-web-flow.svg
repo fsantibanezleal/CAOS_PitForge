@@ -15,7 +15,10 @@
     .arch-svg .flow-hi { stroke: var(--color-accent); stroke-width: 1.7; }
     .arch-svg .lbl { fill: var(--color-fg-subtle); font-size: 9.5px; }
     .arch-svg .pg { fill: var(--color-accent); font-size: 10px; font-weight: 600; }
-  </style>
+      /* Standalone default: English. The shell overrides this with a higher-specificity
+       [data-arch-lang="es"] rule when the modal is in Spanish. */
+    svg .l-es { display: none; }
+</style>
   <defs>
     <marker id="wf-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L8,4 L0,8 z" fill="var(--color-fg-faint)"/>
@@ -25,93 +28,130 @@
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">Web-app flow, the App page recomputes live</text>
-  <text class="sub" x="22" y="47">no round-trip to a server: the engine + inference run in the browser on every control change</text>
+  <text class="ttl l-en" x="22" y="30">Web-app flow, the App page recomputes live</text>
+  <text class="ttl l-es" x="22" y="30">Flujo de la app web: la página App recalcula en vivo</text>
+  <text class="sub l-en" x="22" y="47">no round-trip to a server: the engine + inference run in the browser on every control change</text>
+  <text class="sub l-es" x="22" y="47">sin ida y vuelta a un servidor: el motor y la inferencia corren en el navegador con cada cambio de control</text>
 
   <!-- input -->
   <rect class="bx bx-hi" x="14" y="70" width="190" height="120" rx="10"/>
-  <text class="it" x="28" y="92">Inputs</text>
-  <text class="mu" x="28" y="110">• case selector (built-in)</text>
-  <text class="mu" x="28" y="126">• drop your own data</text>
-  <text class="mu" x="28" y="142">• sliders / toggles</text>
-  <text class="cd mono" x="28" y="166">Tool.tsx · cases.ts</text>
-  <text class="mu" x="28" y="182">every page reacts to the case</text>
+  <text class="it l-en" x="28" y="92">Inputs</text>
+  <text class="it l-es" x="28" y="92">Entradas</text>
+  <text class="mu l-en" x="28" y="110">• case selector (built-in)</text>
+  <text class="mu l-es" x="28" y="110">• selector de caso (incluido)</text>
+  <text class="mu l-en" x="28" y="126">• drop your own data</text>
+  <text class="mu l-es" x="28" y="126">• suelta tus propios datos</text>
+  <text class="mu l-en" x="28" y="142">• sliders / toggles</text>
+  <text class="mu l-es" x="28" y="142">• deslizadores / interruptores</text>
+  <text class="cd mono l-neutral" x="28" y="166">Tool.tsx · cases.ts</text>
+  <text class="mu l-en" x="28" y="182">every page reacts to the case</text>
+  <text class="mu l-es" x="28" y="182">cada página reacciona al caso</text>
 
   <!-- engine -->
   <rect class="bx bx-hi" x="244" y="70" width="200" height="120" rx="10"/>
-  <text class="it" x="258" y="92">Live engine (TS)</text>
-  <text class="mu" x="258" y="110">re-run, no server call</text>
-  <text class="cd mono" x="258" y="130">src/&lt;domain&gt;/*.ts</text>
-  <text class="mu" x="258" y="150">+ onnxruntime-web inference</text>
-  <text class="cd mono" x="258" y="170">src/lib/ort.ts</text>
-  <text class="mu" x="258" y="186">classical baseline ⇄ learned toggle</text>
+  <text class="it l-en" x="258" y="92">Live engine (TS)</text>
+  <text class="it l-es" x="258" y="92">Motor en vivo (TS)</text>
+  <text class="mu l-en" x="258" y="110">re-run, no server call</text>
+  <text class="mu l-es" x="258" y="110">se recalcula, sin llamada al servidor</text>
+  <text class="cd mono l-neutral" x="258" y="130">src/&lt;domain&gt;/*.ts</text>
+  <text class="mu l-en" x="258" y="150">+ onnxruntime-web inference</text>
+  <text class="mu l-es" x="258" y="150">+ inferencia onnxruntime-web</text>
+  <text class="cd mono l-neutral" x="258" y="170">src/lib/ort.ts</text>
+  <text class="mu l-en" x="258" y="186">classical baseline ⇄ learned toggle</text>
+  <text class="mu l-es" x="258" y="186">base clásica ⇄ modelo aprendido</text>
 
   <!-- viz -->
   <rect class="bx bx-good" x="484" y="70" width="200" height="120" rx="10"/>
-  <text class="it" x="498" y="92">Interactive viz</text>
-  <text class="mu" x="498" y="110">reads values back, reacts</text>
-  <text class="cd mono" x="498" y="130">viz/*.tsx · uPlot · three</text>
-  <text class="mu" x="498" y="150">overlays, charts, gauges</text>
-  <text class="mu" x="498" y="170">hover = value readout</text>
-  <text class="mu" x="498" y="186">marks OOD / uncertain live</text>
+  <text class="it l-en" x="498" y="92">Interactive viz</text>
+  <text class="it l-es" x="498" y="92">Visualización interactiva</text>
+  <text class="mu l-en" x="498" y="110">reads values back, reacts</text>
+  <text class="mu l-es" x="498" y="110">lee los valores de vuelta y reacciona</text>
+  <text class="cd mono l-neutral" x="498" y="130">viz/*.tsx · uPlot · three</text>
+  <text class="mu l-en" x="498" y="150">overlays, charts, gauges</text>
+  <text class="mu l-es" x="498" y="150">capas, gráficos, indicadores</text>
+  <text class="mu l-en" x="498" y="170">hover = value readout</text>
+  <text class="mu l-es" x="498" y="170">al pasar el cursor = lectura de valor</text>
+  <text class="mu l-en" x="498" y="186">marks OOD / uncertain live</text>
+  <text class="mu l-es" x="498" y="186">marca fuera de dominio / incierto en vivo</text>
 
   <!-- baked data feeds engine -->
   <rect class="bx" x="724" y="70" width="162" height="120" rx="10"/>
-  <text class="it" x="738" y="92">Baked artifacts</text>
-  <text class="cd mono" x="738" y="112">/case-results.json</text>
-  <text class="cd mono" x="738" y="128">/data/manifests</text>
-  <text class="cd mono" x="738" y="144">/*.onnx</text>
-  <text class="mu" x="738" y="166">overlaid by</text>
-  <text class="cd mono" x="738" y="180">copy-data.mjs</text>
+  <text class="it l-en" x="738" y="92">Baked artifacts</text>
+  <text class="it l-es" x="738" y="92">Artefactos precalculados</text>
+  <text class="cd mono l-neutral" x="738" y="112">/case-results.json</text>
+  <text class="cd mono l-neutral" x="738" y="128">/data/manifests</text>
+  <text class="cd mono l-neutral" x="738" y="144">/*.onnx</text>
+  <text class="mu l-en" x="738" y="166">overlaid by</text>
+  <text class="mu l-es" x="738" y="166">superpuestos por</text>
+  <text class="cd mono l-neutral" x="738" y="180">copy-data.mjs</text>
 
   <path class="flow-hi" d="M204,130 H242" marker-end="url(#wf-arrow-hi)"/>
   <path class="flow-hi" d="M444,130 H482" marker-end="url(#wf-arrow-hi)"/>
   <path class="flow" d="M724,130 H686" marker-end="url(#wf-arrow)"/>
-  <text class="lbl" x="700" y="122">seeds + models</text>
+  <text class="lbl l-en" x="700" y="122">seeds + models</text>
+  <text class="lbl l-es" x="700" y="122">semillas + modelos</text>
 
   <!-- 6 pages -->
   <rect class="grp" x="14" y="214" width="872" height="120" rx="10"/>
-  <text class="pg" x="28" y="234">Six sibling pages, identical across every product (ADR-0057)</text>
+  <text class="pg l-en" x="28" y="234">Six sibling pages, identical across every product (ADR-0057)</text>
+  <text class="pg l-es" x="28" y="234">Seis páginas hermanas, idénticas en cada producto (ADR-0057)</text>
   <rect class="bx bx-hi" x="28" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="40" y="266">App / Tool</text>
-  <text class="mu" x="40" y="282">live engine + controls</text>
-  <text class="cd mono" x="40" y="300">pages/Tool.tsx</text>
+  <text class="it l-en" x="40" y="266">App / Tool</text>
+  <text class="it l-es" x="40" y="266">App / Herramienta</text>
+  <text class="mu l-en" x="40" y="282">live engine + controls</text>
+  <text class="mu l-es" x="40" y="282">motor en vivo + controles</text>
+  <text class="cd mono l-neutral" x="40" y="300">pages/Tool.tsx</text>
   <rect class="bx" x="172" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="184" y="266">Introduction</text>
-  <text class="mu" x="184" y="282">problem + context</text>
-  <text class="cd mono" x="184" y="300">Introduction.tsx</text>
+  <text class="it l-en" x="184" y="266">Introduction</text>
+  <text class="it l-es" x="184" y="266">Introducción</text>
+  <text class="mu l-en" x="184" y="282">problem + context</text>
+  <text class="mu l-es" x="184" y="282">problema + contexto</text>
+  <text class="cd mono l-neutral" x="184" y="300">Introduction.tsx</text>
   <rect class="bx" x="316" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="328" y="266">Methodology</text>
-  <text class="mu" x="328" y="282">method tabs + eqs</text>
-  <text class="cd mono" x="328" y="300">Methodology.tsx</text>
+  <text class="it l-en" x="328" y="266">Methodology</text>
+  <text class="it l-es" x="328" y="266">Metodología</text>
+  <text class="mu l-en" x="328" y="282">method tabs + eqs</text>
+  <text class="mu l-es" x="328" y="282">métodos + ecuaciones</text>
+  <text class="cd mono l-neutral" x="328" y="300">Methodology.tsx</text>
   <rect class="bx" x="460" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="472" y="266">Implementation</text>
-  <text class="mu" x="472" y="282">pipeline + contracts</text>
-  <text class="cd mono" x="472" y="300">Implementation.tsx</text>
+  <text class="it l-en" x="472" y="266">Implementation</text>
+  <text class="it l-es" x="472" y="266">Implementación</text>
+  <text class="mu l-en" x="472" y="282">pipeline + contracts</text>
+  <text class="mu l-es" x="472" y="282">pipeline + contratos</text>
+  <text class="cd mono l-neutral" x="472" y="300">Implementation.tsx</text>
   <rect class="bx" x="604" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="616" y="266">Experiments</text>
-  <text class="mu" x="616" y="282">per-case results</text>
-  <text class="cd mono" x="616" y="300">Experiments.tsx</text>
+  <text class="it l-en" x="616" y="266">Experiments</text>
+  <text class="it l-es" x="616" y="266">Experimentos</text>
+  <text class="mu l-en" x="616" y="282">per-case results</text>
+  <text class="mu l-es" x="616" y="282">resultados por caso</text>
+  <text class="cd mono l-neutral" x="616" y="300">Experiments.tsx</text>
   <rect class="bx bx-good" x="748" y="246" width="126" height="72" rx="7"/>
-  <text class="it" x="760" y="266">Benchmark</text>
-  <text class="mu" x="760" y="282">cross-case + real data</text>
-  <text class="cd mono" x="760" y="300">Benchmark.tsx</text>
+  <text class="it l-en" x="760" y="266">Benchmark</text>
+  <text class="it l-es" x="760" y="266">Comparativa</text>
+  <text class="mu l-en" x="760" y="282">cross-case + real data</text>
+  <text class="mu l-es" x="760" y="282">entre casos + datos reales</text>
+  <text class="cd mono l-neutral" x="760" y="300">Benchmark.tsx</text>
 
   <!-- build/deploy -->
   <rect class="grp" x="14" y="352" width="872" height="100" rx="10"/>
-  <text class="pg" x="28" y="372">Build &amp; deploy, typed mirror gates, static output, GitHub Pages</text>
+  <text class="pg l-en" x="28" y="372">Build &amp; deploy, typed mirror gates, static output, GitHub Pages</text>
+  <text class="pg l-es" x="28" y="372">Build y despliegue: espejo tipado como gate, salida estática, GitHub Pages</text>
   <rect class="bx bx-good" x="28" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="40" y="404">Contract-type mirror</text>
-  <text class="cd mono" x="40" y="422">src/lib/contract.types.ts</text>
+  <text class="it l-en" x="40" y="404">Contract-type mirror</text>
+  <text class="it l-es" x="40" y="404">Espejo de tipos del contrato</text>
+  <text class="cd mono l-neutral" x="40" y="422">src/lib/contract.types.ts</text>
   <rect class="bx" x="248" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="260" y="404">copy-data overlay</text>
-  <text class="cd mono" x="260" y="422">predev / prebuild hook</text>
+  <text class="it l-en" x="260" y="404">copy-data overlay</text>
+  <text class="it l-es" x="260" y="404">superposición copy-data</text>
+  <text class="cd mono l-en" x="260" y="422">predev / prebuild hook</text>
+  <text class="cd mono l-es" x="260" y="422">hook predev / prebuild</text>
   <rect class="bx" x="468" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="480" y="404">vite build (tsc strict)</text>
-  <text class="cd mono" x="480" y="422">frontend/dist</text>
+  <text class="it l-en" x="480" y="404">vite build (tsc strict)</text>
+  <text class="it l-es" x="480" y="404">vite build (tsc estricto)</text>
+  <text class="cd mono l-neutral" x="480" y="422">frontend/dist</text>
   <rect class="bx bx-hi" x="688" y="384" width="186" height="54" rx="7"/>
-  <text class="it" x="700" y="404">GitHub Pages</text>
-  <text class="cd mono" x="700" y="422">&lt;slug&gt;.fasl-work.com</text>
+  <text class="it l-neutral" x="700" y="404">GitHub Pages</text>
+  <text class="cd mono l-neutral" x="700" y="422">&lt;slug&gt;.fasl-work.com</text>
   <path class="flow" d="M228,411 H246" marker-end="url(#wf-arrow)"/>
   <path class="flow" d="M448,411 H466" marker-end="url(#wf-arrow)"/>
   <path class="flow" d="M668,411 H686" marker-end="url(#wf-arrow)"/>

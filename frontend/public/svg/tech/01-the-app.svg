@@ -15,29 +15,42 @@
     .arch-svg .waste { fill: var(--color-fg-faint); opacity: 0.3; }
     .arch-svg .pit { fill: none; stroke: var(--color-accent); stroke-width: 1.8; }
     .arch-svg .blk { stroke: var(--color-border); stroke-width: 0.5; fill: none; }
-  </style>
+      /* Standalone default: English. The shell overrides this with a higher-specificity
+       [data-arch-lang="es"] rule when the modal is in Spanish. */
+    svg .l-es { display: none; }
+</style>
   <defs>
     <marker id="ta-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L8,4 L0,8 z" fill="var(--color-fg-faint)"/>
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">PitForge, what is the most valuable pit you can dig?</text>
-  <text class="sub" x="22" y="47">an open-pit planning product: from a block model + economics + a slope constraint, compute the EXACT ultimate pit (Lerchs–Grossmann) + the Whittle nested shells</text>
+  <text class="ttl l-en" x="22" y="30">PitForge, what is the most valuable pit you can dig?</text>
+  <text class="ttl l-es" x="22" y="30">PitForge, ¿cuál es el rajo más valioso que puedes excavar?</text>
+  <text class="sub l-en" x="22" y="47">an open-pit planning product: from a block model + economics + a slope constraint, compute the EXACT ultimate pit (Lerchs–Grossmann) + the Whittle nested shells</text>
+  <text class="sub l-es" x="22" y="47">un producto de planificación de rajo abierto: desde un modelo de bloques + economía + una restricción de talud, calcula el pit final EXACTO (Lerchs–Grossmann) + las cáscaras anidadas de Whittle</text>
 
   <!-- 1. The question -->
   <rect class="bx bx-hi" x="20" y="74" width="196" height="150" rx="11"/>
-  <text class="it" x="34" y="98">The question</text>
-  <text class="mu" x="34" y="118">Which blocks should</text>
-  <text class="mu" x="34" y="134">be mined so total</text>
-  <text class="mu" x="34" y="150">value is maximal,</text>
-  <text class="mu" x="34" y="166">respecting the wall</text>
-  <text class="mu" x="34" y="182">slope?</text>
-  <text class="cd mono" x="34" y="206">econ × slope × oracle</text>
+  <text class="it l-en" x="34" y="98">The question</text>
+  <text class="it l-es" x="34" y="98">La pregunta</text>
+  <text class="mu l-en" x="34" y="118">Which blocks should</text>
+  <text class="mu l-en" x="34" y="134">be mined so total</text>
+  <text class="mu l-en" x="34" y="150">value is maximal,</text>
+  <text class="mu l-en" x="34" y="166">respecting the wall</text>
+  <text class="mu l-en" x="34" y="182">slope?</text>
+  <text class="mu l-es" x="34" y="118">¿Qué bloques deben</text>
+  <text class="mu l-es" x="34" y="134">extraerse para que el</text>
+  <text class="mu l-es" x="34" y="150">valor total sea máximo,</text>
+  <text class="mu l-es" x="34" y="166">respetando el talud</text>
+  <text class="mu l-es" x="34" y="182">del banco?</text>
+  <text class="cd mono l-en" x="34" y="206">econ × slope × oracle</text>
+  <text class="cd mono l-es" x="34" y="206">econ × talud × oráculo</text>
 
   <!-- 2. The block model -->
   <rect class="bx" x="244" y="74" width="196" height="150" rx="11"/>
-  <text class="it" x="258" y="98">The block model</text>
+  <text class="it l-en" x="258" y="98">The block model</text>
+  <text class="it l-es" x="258" y="98">El modelo de bloques</text>
   <g transform="translate(266,116)">
     <rect class="ore" x="40" y="40" width="48" height="36"/>
     <rect class="ore" x="56" y="24" width="20" height="16"/>
@@ -49,25 +62,35 @@
       <line x1="0" y1="0" x2="0" y2="84"/><line x1="38" y1="0" x2="38" y2="84"/><line x1="76" y1="0" x2="76" y2="84"/><line x1="114" y1="0" x2="114" y2="84"/><line x1="152" y1="0" x2="152" y2="84"/>
     </g>
   </g>
-  <text class="mu" x="258" y="216">ore (green) in waste; grade per block</text>
+  <text class="mu l-en" x="258" y="216">ore (green) in waste; grade per block</text>
+  <text class="mu l-es" x="258" y="216">mineral (verde) en lastre; ley por bloque</text>
 
   <!-- 3. The method -->
   <rect class="bx bx-hi" x="468" y="74" width="196" height="150" rx="11"/>
-  <text class="it" x="482" y="98">The method</text>
-  <text class="mu" x="482" y="118">• block value (econ)</text>
-  <text class="mu" x="482" y="134">• slope precedence</text>
-  <text class="mu" x="482" y="150">• max-flow / min-cut</text>
-  <text class="mu" x="482" y="166">  = EXACT pit (LG)</text>
-  <text class="mu" x="482" y="182">• Whittle shells</text>
-  <text class="cd mono" x="482" y="206">opt/ultimatepit.ts · *.onnx</text>
+  <text class="it l-en" x="482" y="98">The method</text>
+  <text class="it l-es" x="482" y="98">El método</text>
+  <text class="mu l-en" x="482" y="118">• block value (econ)</text>
+  <text class="mu l-en" x="482" y="134">• slope precedence</text>
+  <text class="mu l-en" x="482" y="150">• max-flow / min-cut</text>
+  <text class="mu l-en" x="482" y="166">  = EXACT pit (LG)</text>
+  <text class="mu l-en" x="482" y="182">• Whittle shells</text>
+  <text class="mu l-es" x="482" y="118">• valor de bloque (econ)</text>
+  <text class="mu l-es" x="482" y="134">• precedencia de talud</text>
+  <text class="mu l-es" x="482" y="150">• flujo máximo / corte mínimo</text>
+  <text class="mu l-es" x="482" y="166">  = pit EXACTO (LG)</text>
+  <text class="mu l-es" x="482" y="182">• cáscaras de Whittle</text>
+  <text class="cd mono l-neutral" x="482" y="206">opt/ultimatepit.ts · *.onnx</text>
 
   <!-- 4. The value -->
   <rect class="bx bx-good" x="692" y="74" width="188" height="150" rx="11"/>
-  <text class="it" x="706" y="98">The value</text>
+  <text class="it l-en" x="706" y="98">The value</text>
+  <text class="it l-es" x="706" y="98">El valor</text>
   <rect class="waste" x="710" y="120" width="160" height="64"/>
   <path class="pit" d="M712,184 L744,134 L838,134 L868,184"/>
-  <text class="mu" x="760" y="154" style="font-size:8.5px">ultimate pit</text>
-  <text class="cd mono" x="706" y="206">tonnes · grade · NPV</text>
+  <text class="mu l-en" x="760" y="154" style="font-size:8.5px">ultimate pit</text>
+  <text class="mu l-es" x="760" y="154" style="font-size:8.5px">pit final</text>
+  <text class="cd mono l-en" x="706" y="206">tonnes · grade · NPV</text>
+  <text class="cd mono l-es" x="706" y="206">toneladas · ley · VAN</text>
 
   <path class="flow" d="M216,149 H242" marker-end="url(#ta-arrow)"/>
   <path class="flow" d="M440,149 H466" marker-end="url(#ta-arrow)"/>
@@ -75,11 +98,18 @@
 
   <!-- bottom band -->
   <rect class="bx" x="20" y="252" width="860" height="184" rx="11"/>
-  <text class="it" x="36" y="278">It is a real system, not a demo:</text>
-  <text class="mu" x="36" y="302">• the ultimate-pit optimiser (frontend/src/opt/) recomputes the EXACT Lerchs–Grossmann pit live when you change the price, cost or slope;</text>
-  <text class="mu" x="36" y="324">• the pit is the minimum cut of a max-flow network built from the block values + the slope precedence arcs, exact, not a heuristic;</text>
-  <text class="mu" x="36" y="346">• the Whittle nested shells (by revenue factor) trace the value-vs-tonnage curve; a grade-NN estimates block grades and a pit-surrogate predicts the pit, both ONNX, client-side;</text>
-  <text class="mu" x="36" y="368">• an inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor);</text>
-  <text class="mu" x="36" y="390">• Contract 1 accepts your own block model; six documented pages; every number sourced or labelled synthetic.</text>
-  <text class="cd mono" x="36" y="418">block model + econ + slope  →  max-flow / min-cut (Lerchs–Grossmann)  →  ultimate pit + Whittle shells · tonnes · grade · NPV</text>
+  <text class="it l-en" x="36" y="278">It is a real system, not a demo:</text>
+  <text class="it l-es" x="36" y="278">Es un sistema real, no una demostración:</text>
+  <text class="mu l-en" x="36" y="302">• the ultimate-pit optimiser (frontend/src/opt/) recomputes the EXACT Lerchs–Grossmann pit live when you change the price, cost or slope;</text>
+  <text class="mu l-en" x="36" y="324">• the pit is the minimum cut of a max-flow network built from the block values + the slope precedence arcs, exact, not a heuristic;</text>
+  <text class="mu l-en" x="36" y="346">• the Whittle nested shells (by revenue factor) trace the value-vs-tonnage curve; a grade-NN estimates block grades and a pit-surrogate predicts the pit, both ONNX, client-side;</text>
+  <text class="mu l-en" x="36" y="368">• an inverted-pyramid oracle case has a hand-computable optimal pit (a closed-form correctness anchor);</text>
+  <text class="mu l-en" x="36" y="390">• Contract 1 accepts your own block model; six documented pages; every number sourced or labelled synthetic.</text>
+  <text class="mu l-es" x="36" y="302">• el optimizador de pit final (frontend/src/opt/) recalcula el pit EXACTO de Lerchs–Grossmann en vivo al cambiar precio, costo o talud;</text>
+  <text class="mu l-es" x="36" y="324">• el pit es el corte mínimo de una red de flujo máximo construida con los valores de bloque + los arcos de precedencia de talud: exacto, no heurístico;</text>
+  <text class="mu l-es" x="36" y="346">• las cáscaras anidadas de Whittle (por factor de ingreso) trazan la curva valor-tonelaje; una red de leyes estima la ley y un surrogate predice el pit, ambos ONNX, en el cliente;</text>
+  <text class="mu l-es" x="36" y="368">• un caso oráculo de pirámide invertida tiene pit óptimo calculable a mano (un ancla de corrección en forma cerrada);</text>
+  <text class="mu l-es" x="36" y="390">• el Contrato 1 acepta tu propio modelo de bloques; seis páginas documentadas; cada número con fuente o rotulado como sintético.</text>
+  <text class="cd mono l-en" x="36" y="418">block model + econ + slope  →  max-flow / min-cut (Lerchs–Grossmann)  →  ultimate pit + Whittle shells · tonnes · grade · NPV</text>
+  <text class="cd mono l-es" x="36" y="418">modelo de bloques + econ + talud  →  flujo máximo / corte mínimo (Lerchs–Grossmann)  →  pit final + cáscaras de Whittle · toneladas · ley · VAN</text>
 </svg>
