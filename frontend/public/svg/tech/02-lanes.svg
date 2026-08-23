@@ -30,92 +30,132 @@
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">Three lanes, what runs WHERE</text>
-  <text class="sub" x="22" y="47">the same TypeScript engine runs in the browser AND under Node; Python only bakes &amp; trains offline</text>
+  <text class="ttl l-en" x="22" y="30">Three lanes, what runs WHERE</text>
+  <text class="ttl l-es" x="22" y="30">Tres carriles: qué corre DÓNDE</text>
+  <text class="sub l-en" x="22" y="47">the same TypeScript engine runs in the browser AND under Node; Python only bakes &amp; trains offline</text>
+  <text class="sub l-es" x="22" y="47">el mismo motor TypeScript corre en el navegador Y bajo Node; Python solo precalcula y entrena offline</text>
 
   <!-- ===== WEB lane ===== -->
   <rect class="bx bx-web" x="14" y="66" width="290" height="392" rx="11"/>
-  <text class="lnt lnt-web" x="30" y="92">WEB · live, in the browser</text>
-  <text class="sub" x="30" y="108">no server, static GitHub Pages</text>
+  <text class="lnt lnt-web l-en" x="30" y="92">WEB · live, in the browser</text>
+  <text class="lnt lnt-web l-es" x="30" y="92">WEB · en vivo, en el navegador</text>
+  <text class="sub l-en" x="30" y="108">no server, static GitHub Pages</text>
+  <text class="sub l-es" x="30" y="108">sin servidor, GitHub Pages estático</text>
 
   <rect class="bx" x="30" y="122" width="258" height="58" rx="7"/>
-  <text class="it" x="42" y="142">Deterministic engine (TS)</text>
-  <text class="cd mono" x="42" y="158">frontend/src/&lt;domain&gt;/</text>
-  <text class="mu" x="42" y="172">re-runs on every control change</text>
+  <text class="it l-en" x="42" y="142">Deterministic engine (TS)</text>
+  <text class="it l-es" x="42" y="142">Motor determinista (TS)</text>
+  <text class="cd mono l-neutral" x="42" y="158">frontend/src/&lt;domain&gt;/</text>
+  <text class="mu l-en" x="42" y="172">re-runs on every control change</text>
+  <text class="mu l-es" x="42" y="172">se recalcula con cada cambio de control</text>
 
   <rect class="bx" x="30" y="190" width="258" height="58" rx="7"/>
-  <text class="it" x="42" y="210">In-browser inference</text>
-  <text class="cd mono" x="42" y="226">onnxruntime-web · WASM</text>
-  <text class="mu" x="42" y="240">*.onnx loaded from /public, numThreads=1</text>
+  <text class="it l-en" x="42" y="210">In-browser inference</text>
+  <text class="it l-es" x="42" y="210">Inferencia en el navegador</text>
+  <text class="cd mono l-neutral" x="42" y="226">onnxruntime-web · WASM</text>
+  <text class="mu l-en" x="42" y="240">*.onnx loaded from /public, numThreads=1</text>
+  <text class="mu l-es" x="42" y="240">*.onnx cargado desde /public, numThreads=1</text>
 
   <rect class="bx" x="30" y="258" width="258" height="58" rx="7"/>
-  <text class="it" x="42" y="278">6-page SPA + live viz</text>
-  <text class="cd mono" x="42" y="294">caos-app-shell · uPlot · three</text>
-  <text class="mu" x="42" y="308">App reacts to the case selector</text>
+  <text class="it l-en" x="42" y="278">6-page SPA + live viz</text>
+  <text class="it l-es" x="42" y="278">SPA de 6 páginas + visualización en vivo</text>
+  <text class="cd mono l-neutral" x="42" y="294">caos-app-shell · uPlot · three</text>
+  <text class="mu l-en" x="42" y="308">App reacts to the case selector</text>
+  <text class="mu l-es" x="42" y="308">La App reacciona al selector de caso</text>
 
   <rect class="bx" x="30" y="326" width="258" height="58" rx="7"/>
-  <text class="it" x="42" y="346">Loads baked artifacts</text>
-  <text class="cd mono" x="42" y="362">/case-results.json · /data/manifests</text>
-  <text class="mu" x="42" y="376">read-only, never recomputes the bake</text>
-  <text class="mu" x="30" y="406">User: pick a case OR drop your own data</text>
-  <text class="mu" x="30" y="420">→ engine + inference run client-side, live</text>
+  <text class="it l-en" x="42" y="346">Loads baked artifacts</text>
+  <text class="it l-es" x="42" y="346">Carga los artefactos precalculados</text>
+  <text class="cd mono l-neutral" x="42" y="362">/case-results.json · /data/manifests</text>
+  <text class="mu l-en" x="42" y="376">read-only, never recomputes the bake</text>
+  <text class="mu l-es" x="42" y="376">solo lectura, nunca recalcula el precalculo</text>
+  <text class="mu l-en" x="30" y="406">User: pick a case OR drop your own data</text>
+  <text class="mu l-es" x="30" y="406">Usuario: elige un caso O suelta tus propios datos</text>
+  <text class="mu l-en" x="30" y="420">→ engine + inference run client-side, live</text>
+  <text class="mu l-es" x="30" y="420">→ motor + inferencia corren en el cliente, en vivo</text>
 
   <!-- ===== COMPUTE lane ===== -->
   <rect class="bx bx-comp" x="318" y="66" width="290" height="392" rx="11"/>
-  <text class="lnt lnt-comp" x="334" y="92">OFFLINE · compute (your machine)</text>
-  <text class="sub" x="334" y="108">Python, isolated .venv, never in the browser</text>
+  <text class="lnt lnt-comp l-en" x="334" y="92">OFFLINE · compute (your machine)</text>
+  <text class="lnt lnt-comp l-es" x="334" y="92">OFFLINE · cómputo (tu máquina)</text>
+  <text class="sub l-en" x="334" y="108">Python, isolated .venv, never in the browser</text>
+  <text class="sub l-es" x="334" y="108">Python, .venv aislado, nunca en el navegador</text>
 
   <rect class="bx" x="334" y="122" width="258" height="58" rx="7"/>
-  <text class="it" x="346" y="142">Precompute / bake pipeline</text>
-  <text class="cd mono" x="346" y="158">data-pipeline/&lt;pkg&gt;/pipeline.py</text>
-  <text class="mu" x="346" y="172">numpy-light default · staged · gated</text>
+  <text class="it l-en" x="346" y="142">Precompute / bake pipeline</text>
+  <text class="it l-es" x="346" y="142">Pipeline de precalculo</text>
+  <text class="cd mono l-neutral" x="346" y="158">data-pipeline/&lt;pkg&gt;/pipeline.py</text>
+  <text class="mu l-en" x="346" y="172">numpy-light default · staged · gated</text>
+  <text class="mu l-es" x="346" y="172">numpy-light por defecto · por etapas · con gates</text>
 
   <rect class="bx" x="334" y="190" width="258" height="58" rx="7"/>
-  <text class="it" x="346" y="210">Model training (heavy lane)</text>
-  <text class="cd mono" x="346" y="226">--retrain · .venv-precompute · torch</text>
-  <text class="mu" x="346" y="240">exports torch → ONNX, never ships the venv</text>
+  <text class="it l-en" x="346" y="210">Model training (heavy lane)</text>
+  <text class="it l-es" x="346" y="210">Entrenamiento de modelos (carril pesado)</text>
+  <text class="cd mono l-neutral" x="346" y="226">--retrain · .venv-precompute · torch</text>
+  <text class="mu l-en" x="346" y="240">exports torch → ONNX, never ships the venv</text>
+  <text class="mu l-es" x="346" y="240">exporta torch → ONNX, nunca publica el venv</text>
 
   <rect class="bx" x="334" y="258" width="258" height="58" rx="7"/>
-  <text class="it" x="346" y="278">Two-language bake (parity)</text>
-  <text class="cd mono" x="346" y="294">science/bake_cases.mjs · tsx</text>
-  <text class="mu" x="346" y="308">Node runs the SAME TS engine</text>
+  <text class="it l-en" x="346" y="278">Two-language bake (parity)</text>
+  <text class="it l-es" x="346" y="278">Precalculo en dos lenguajes (paridad)</text>
+  <text class="cd mono l-neutral" x="346" y="294">science/bake_cases.mjs · tsx</text>
+  <text class="mu l-en" x="346" y="308">Node runs the SAME TS engine</text>
+  <text class="mu l-es" x="346" y="308">Node corre el MISMO motor TS</text>
 
   <rect class="bx" x="334" y="326" width="258" height="58" rx="7"/>
-  <text class="it" x="346" y="346">Writes canonical artifacts</text>
-  <text class="cd mono" x="346" y="362">data/derived/ + manifests + trace</text>
-  <text class="mu" x="346" y="376">deterministic, git-clean after re-run</text>
-  <text class="mu" x="334" y="406">Run once per data/model change; the</text>
-  <text class="mu" x="334" y="420">artifacts are committed, the venvs are not</text>
+  <text class="it l-en" x="346" y="346">Writes canonical artifacts</text>
+  <text class="it l-es" x="346" y="346">Escribe los artefactos canónicos</text>
+  <text class="cd mono l-neutral" x="346" y="362">data/derived/ + manifests + trace</text>
+  <text class="mu l-en" x="346" y="376">deterministic, git-clean after re-run</text>
+  <text class="mu l-es" x="346" y="376">determinista, git limpio tras re-ejecutar</text>
+  <text class="mu l-en" x="334" y="406">Run once per data/model change; the</text>
+  <text class="mu l-es" x="334" y="406">Se corre una vez por cambio de datos o modelo;</text>
+  <text class="mu l-en" x="334" y="420">artifacts are committed, the venvs are not</text>
+  <text class="mu l-es" x="334" y="420">los artefactos se versionan, los venvs no</text>
 
   <!-- ===== REPLAY lane ===== -->
   <rect class="bx bx-rep" x="622" y="66" width="264" height="392" rx="11"/>
-  <text class="lnt lnt-rep" x="638" y="92">REPLAY · committed bridge</text>
-  <text class="sub" x="638" y="108">the contract between compute &amp; web</text>
+  <text class="lnt lnt-rep l-en" x="638" y="92">REPLAY · committed bridge</text>
+  <text class="lnt lnt-rep l-es" x="638" y="92">REPLAY · puente versionado</text>
+  <text class="sub l-en" x="638" y="108">the contract between compute &amp; web</text>
+  <text class="sub l-es" x="638" y="108">el contrato entre cómputo y web</text>
 
   <rect class="bx" x="638" y="122" width="232" height="64" rx="7"/>
-  <text class="it" x="650" y="142">Canonical artifacts</text>
-  <text class="cd mono" x="650" y="158">data/derived/*.json + *.onnx</text>
-  <text class="mu" x="650" y="174">small, reviewable, versioned in git</text>
+  <text class="it l-en" x="650" y="142">Canonical artifacts</text>
+  <text class="it l-es" x="650" y="142">Artefactos canónicos</text>
+  <text class="cd mono l-neutral" x="650" y="158">data/derived/*.json + *.onnx</text>
+  <text class="mu l-en" x="650" y="174">small, reviewable, versioned in git</text>
+  <text class="mu l-es" x="650" y="174">pequeños, revisables, versionados en git</text>
 
   <rect class="bx" x="638" y="196" width="232" height="64" rx="7"/>
-  <text class="it" x="650" y="216">Overlay into the SPA</text>
-  <text class="cd mono" x="650" y="232">frontend/copy-data.mjs</text>
-  <text class="mu" x="650" y="248">copies derived → frontend/public</text>
+  <text class="it l-en" x="650" y="216">Overlay into the SPA</text>
+  <text class="it l-es" x="650" y="216">Superposición en la SPA</text>
+  <text class="cd mono l-neutral" x="650" y="232">frontend/copy-data.mjs</text>
+  <text class="mu l-en" x="650" y="248">copies derived → frontend/public</text>
+  <text class="mu l-es" x="650" y="248">copia derived → frontend/public</text>
 
   <rect class="bx" x="638" y="270" width="232" height="64" rx="7"/>
-  <text class="it" x="650" y="290">Typed mirror gates the build</text>
-  <text class="cd mono" x="650" y="306">frontend/src/lib/contract.types.ts</text>
-  <text class="mu" x="650" y="322">tsc fails if web ≠ pipeline shape</text>
+  <text class="it l-en" x="650" y="290">Typed mirror gates the build</text>
+  <text class="it l-es" x="650" y="290">El espejo tipado controla el build</text>
+  <text class="cd mono l-neutral" x="650" y="306">frontend/src/lib/contract.types.ts</text>
+  <text class="mu l-en" x="650" y="322">tsc fails if web ≠ pipeline shape</text>
+  <text class="mu l-es" x="650" y="322">tsc falla si la forma web ≠ pipeline</text>
 
-  <text class="mu" x="638" y="356">Replay = how the live app shows real,</text>
-  <text class="mu" x="638" y="370">reproducible results with no backend.</text>
-  <text class="mu" x="638" y="392">If a model is pending, the app still</text>
-  <text class="mu" x="638" y="406">runs the classical baseline; the toggle</text>
-  <text class="mu" x="638" y="420">turns on once the ONNX exists.</text>
+  <text class="mu l-en" x="638" y="356">Replay = how the live app shows real,</text>
+  <text class="mu l-es" x="638" y="356">Replay = cómo la app en vivo muestra resultados</text>
+  <text class="mu l-en" x="638" y="370">reproducible results with no backend.</text>
+  <text class="mu l-es" x="638" y="370">reales y reproducibles sin backend.</text>
+  <text class="mu l-en" x="638" y="392">If a model is pending, the app still</text>
+  <text class="mu l-es" x="638" y="392">Si un modelo está pendiente, la app igual</text>
+  <text class="mu l-en" x="638" y="406">runs the classical baseline; the toggle</text>
+  <text class="mu l-es" x="638" y="406">corre la base clásica; el interruptor se</text>
+  <text class="mu l-en" x="638" y="420">turns on once the ONNX exists.</text>
+  <text class="mu l-es" x="638" y="420">activa cuando el ONNX existe.</text>
 
   <!-- flows compute -> replay -> web -->
   <path class="flow" d="M608,355 H636" marker-end="url(#ln-arrow)"/>
   <path class="flow" d="M636,300 H612 Q300,300 304,300" />
   <path class="flow" d="M620,228 H306" marker-end="url(#ln-arrow)"/>
-  <text class="lbl" x="430" y="222">artifacts overlaid → loaded live</text>
+  <text class="lbl l-en" x="430" y="222">artifacts overlaid → loaded live</text>
+  <text class="lbl l-es" x="430" y="222">artefactos superpuestos → cargados en vivo</text>
 </svg>

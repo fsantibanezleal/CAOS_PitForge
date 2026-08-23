@@ -22,73 +22,106 @@
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">The design, two data contracts + the lane gate</text>
-  <text class="sub" x="22" y="47">a contract is a validated schema; everything in and out of the pipeline passes one, so the app is bring-your-own-data</text>
+  <text class="ttl l-en" x="22" y="30">The design, two data contracts + the lane gate</text>
+  <text class="ttl l-es" x="22" y="30">El diseño: dos contratos de datos + el gate de carril</text>
+  <text class="sub l-en" x="22" y="47">a contract is a validated schema; everything in and out of the pipeline passes one, so the app is bring-your-own-data</text>
+  <text class="sub l-es" x="22" y="47">un contrato es un esquema validado; todo lo que entra y sale del pipeline pasa por uno, por eso la app acepta tus propios datos</text>
 
   <!-- Contract 1: ingestion -->
   <rect class="bx bx-in" x="14" y="68" width="252" height="220" rx="11"/>
-  <text class="it" x="30" y="92" style="font-weight:700">Contract 1 · Ingestion</text>
-  <text class="cd mono" x="30" y="108">io/schema.py · io/contract.py</text>
-  <text class="mu" x="30" y="128">what a valid INPUT case looks like:</text>
+  <text class="it l-en" x="30" y="92" style="font-weight:700">Contract 1 · Ingestion</text>
+  <text class="it l-es" x="30" y="92" style="font-weight:700">Contrato 1 · Ingesta</text>
+  <text class="cd mono l-neutral" x="30" y="108">io/schema.py · io/contract.py</text>
+  <text class="mu l-en" x="30" y="128">what a valid INPUT case looks like:</text>
+  <text class="mu l-es" x="30" y="128">cómo se ve un caso de ENTRADA válido:</text>
   <rect class="bx" x="30" y="138" width="220" height="40" rx="6"/>
-  <text class="it" x="42" y="156">field names + dtypes + units</text>
-  <text class="mu" x="42" y="170">domain quantities, not pixels</text>
+  <text class="it l-en" x="42" y="156">field names + dtypes + units</text>
+  <text class="it l-es" x="42" y="156">nombres de campo + tipos + unidades</text>
+  <text class="mu l-en" x="42" y="170">domain quantities, not pixels</text>
+  <text class="mu l-es" x="42" y="170">cantidades del dominio, no píxeles</text>
   <rect class="bx" x="30" y="184" width="220" height="40" rx="6"/>
-  <text class="it" x="42" y="202">range / NaN / outlier guards</text>
-  <text class="mu" x="42" y="216">rejects malformed cases early</text>
+  <text class="it l-en" x="42" y="202">range / NaN / outlier guards</text>
+  <text class="it l-es" x="42" y="202">guardas de rango / NaN / atípicos</text>
+  <text class="mu l-en" x="42" y="216">rejects malformed cases early</text>
+  <text class="mu l-es" x="42" y="216">rechaza casos malformados temprano</text>
   <rect class="bx" x="30" y="230" width="220" height="44" rx="6"/>
-  <text class="it" x="42" y="248">accepts built-in OR your data</text>
-  <text class="key mono" x="42" y="264">data/examples/*.csv</text>
+  <text class="it l-en" x="42" y="248">accepts built-in OR your data</text>
+  <text class="it l-es" x="42" y="248">acepta los incluidos O tus datos</text>
+  <text class="key mono l-neutral" x="42" y="264">data/examples/*.csv</text>
 
   <!-- Pipeline + gate -->
   <rect class="bx bx-gate" x="324" y="68" width="252" height="220" rx="11"/>
-  <text class="it" x="340" y="92" style="font-weight:700">Pipeline + lane gate</text>
-  <text class="cd mono" x="340" y="108">core/gate.py · pipeline.py</text>
+  <text class="it l-en" x="340" y="92" style="font-weight:700">Pipeline + lane gate</text>
+  <text class="it l-es" x="340" y="92" style="font-weight:700">Pipeline + gate de carril</text>
+  <text class="cd mono l-neutral" x="340" y="108">core/gate.py · pipeline.py</text>
   <rect class="bx" x="340" y="124" width="220" height="42" rx="6"/>
-  <text class="it" x="352" y="142">staged, deterministic</text>
-  <text class="cd mono" x="352" y="158">stages/*.py · core/trace.py</text>
+  <text class="it l-en" x="352" y="142">staged, deterministic</text>
+  <text class="it l-es" x="352" y="142">por etapas, determinista</text>
+  <text class="cd mono l-neutral" x="352" y="158">stages/*.py · core/trace.py</text>
   <rect class="bx" x="340" y="172" width="220" height="42" rx="6"/>
-  <text class="it" x="352" y="190">lane gate: default vs retrain</text>
-  <text class="mu" x="352" y="206">numpy-light unless --retrain</text>
+  <text class="it l-en" x="352" y="190">lane gate: default vs retrain</text>
+  <text class="it l-es" x="352" y="190">gate de carril: por defecto contra retrain</text>
+  <text class="mu l-en" x="352" y="206">numpy-light unless --retrain</text>
+  <text class="mu l-es" x="352" y="206">numpy-light salvo --retrain</text>
   <rect class="bx" x="340" y="220" width="220" height="54" rx="6"/>
-  <text class="it" x="352" y="238">manifest = provenance</text>
-  <text class="cd mono" x="352" y="254">core/manifest.py</text>
-  <text class="mu" x="352" y="268">seeds, inputs, hashes, reproducible</text>
+  <text class="it l-en" x="352" y="238">manifest = provenance</text>
+  <text class="it l-es" x="352" y="238">manifiesto = procedencia</text>
+  <text class="cd mono l-neutral" x="352" y="254">core/manifest.py</text>
+  <text class="mu l-en" x="352" y="268">seeds, inputs, hashes, reproducible</text>
+  <text class="mu l-es" x="352" y="268">semillas, entradas, hashes, reproducible</text>
 
   <!-- Contract 2: artifact -->
   <rect class="bx bx-out" x="634" y="68" width="252" height="220" rx="11"/>
-  <text class="it" x="650" y="92" style="font-weight:700">Contract 2 · Artifact</text>
-  <text class="cd mono" x="650" y="108">data/derived/ · manifests</text>
-  <text class="mu" x="650" y="128">what a valid OUTPUT looks like:</text>
+  <text class="it l-en" x="650" y="92" style="font-weight:700">Contract 2 · Artifact</text>
+  <text class="it l-es" x="650" y="92" style="font-weight:700">Contrato 2 · Artefacto</text>
+  <text class="cd mono l-neutral" x="650" y="108">data/derived/ · manifests</text>
+  <text class="mu l-en" x="650" y="128">what a valid OUTPUT looks like:</text>
+  <text class="mu l-es" x="650" y="128">cómo se ve una SALIDA válida:</text>
   <rect class="bx" x="650" y="138" width="220" height="40" rx="6"/>
-  <text class="it" x="662" y="156">per-case results + metrics</text>
-  <text class="key mono" x="662" y="170">case-results.json</text>
+  <text class="it l-en" x="662" y="156">per-case results + metrics</text>
+  <text class="it l-es" x="662" y="156">resultados por caso + métricas</text>
+  <text class="key mono l-neutral" x="662" y="170">case-results.json</text>
   <rect class="bx" x="650" y="184" width="220" height="40" rx="6"/>
-  <text class="it" x="662" y="202">model index (onnx + meta)</text>
-  <text class="key mono" x="662" y="216">manifests/index.json</text>
+  <text class="it l-en" x="662" y="202">model index (onnx + meta)</text>
+  <text class="it l-es" x="662" y="202">índice de modelos (onnx + meta)</text>
+  <text class="key mono l-neutral" x="662" y="216">manifests/index.json</text>
   <rect class="bx" x="650" y="230" width="220" height="44" rx="6"/>
-  <text class="it" x="662" y="248">the SAME shape the web reads</text>
-  <text class="key mono" x="662" y="264">contract.types.ts (mirror)</text>
+  <text class="it l-en" x="662" y="248">the SAME shape the web reads</text>
+  <text class="it l-es" x="662" y="248">la MISMA forma que lee la web</text>
+  <text class="key mono l-en" x="662" y="264">contract.types.ts (mirror)</text>
+  <text class="key mono l-es" x="662" y="264">contract.types.ts (espejo)</text>
 
   <path class="flow" d="M266,178 H322" marker-end="url(#dc-arrow)"/>
   <path class="flow" d="M576,178 H632" marker-end="url(#dc-arrow)"/>
-  <text class="lbl" x="272" y="170">validate</text>
-  <text class="lbl" x="582" y="170">emit + validate</text>
+  <text class="lbl l-en" x="272" y="170">validate</text>
+  <text class="lbl l-es" x="272" y="170">valida</text>
+  <text class="lbl l-en" x="582" y="170">emit + validate</text>
+  <text class="lbl l-es" x="582" y="170">emite + valida</text>
 
   <!-- cases by category + mirror -->
   <rect class="grp" x="14" y="312" width="430" height="142" rx="10"/>
-  <text class="it" x="30" y="334" style="font-weight:700">Cases by category</text>
-  <text class="cd mono" x="30" y="350">cases/&lt;domain&gt;_cases.py · registry.py</text>
-  <text class="mu" x="30" y="372">• control / degenerate, sanity anchors</text>
-  <text class="mu" x="30" y="392">• canonical regimes, the science range</text>
-  <text class="mu" x="30" y="412">• real-data, sourced, labelled honestly</text>
-  <text class="mu" x="30" y="438">each case carries its own units + provenance</text>
+  <text class="it l-en" x="30" y="334" style="font-weight:700">Cases by category</text>
+  <text class="it l-es" x="30" y="334" style="font-weight:700">Casos por categoría</text>
+  <text class="cd mono l-neutral" x="30" y="350">cases/&lt;domain&gt;_cases.py · registry.py</text>
+  <text class="mu l-en" x="30" y="372">• control / degenerate, sanity anchors</text>
+  <text class="mu l-es" x="30" y="372">• control / degenerados, anclas de cordura</text>
+  <text class="mu l-en" x="30" y="392">• canonical regimes, the science range</text>
+  <text class="mu l-es" x="30" y="392">• regímenes canónicos, el rango científico</text>
+  <text class="mu l-en" x="30" y="412">• real-data, sourced, labelled honestly</text>
+  <text class="mu l-es" x="30" y="412">• datos reales, con fuente, rotulados con honestidad</text>
+  <text class="mu l-en" x="30" y="438">each case carries its own units + provenance</text>
+  <text class="mu l-es" x="30" y="438">cada caso lleva sus propias unidades y procedencia</text>
 
   <rect class="grp" x="460" y="312" width="426" height="142" rx="10"/>
-  <text class="it" x="476" y="334" style="font-weight:700">The mirror that gates the build</text>
-  <text class="mu" x="476" y="356">the TS type mirrors Contract 2 exactly;</text>
-  <text class="mu" x="476" y="374">if the pipeline changes the artifact shape</text>
-  <text class="mu" x="476" y="392">and the mirror is not updated, tsc fails.</text>
-  <text class="cd mono" x="476" y="414">frontend/src/lib/contract.types.ts</text>
-  <text class="mu" x="476" y="438">→ web and pipeline can never silently drift</text>
+  <text class="it l-en" x="476" y="334" style="font-weight:700">The mirror that gates the build</text>
+  <text class="it l-es" x="476" y="334" style="font-weight:700">El espejo que controla el build</text>
+  <text class="mu l-en" x="476" y="356">the TS type mirrors Contract 2 exactly;</text>
+  <text class="mu l-es" x="476" y="356">el tipo TS refleja el Contrato 2 exactamente;</text>
+  <text class="mu l-en" x="476" y="374">if the pipeline changes the artifact shape</text>
+  <text class="mu l-es" x="476" y="374">si el pipeline cambia la forma del artefacto</text>
+  <text class="mu l-en" x="476" y="392">and the mirror is not updated, tsc fails.</text>
+  <text class="mu l-es" x="476" y="392">y el espejo no se actualiza, tsc falla.</text>
+  <text class="cd mono l-neutral" x="476" y="414">frontend/src/lib/contract.types.ts</text>
+  <text class="mu l-en" x="476" y="438">→ web and pipeline can never silently drift</text>
+  <text class="mu l-es" x="476" y="438">→ la web y el pipeline nunca derivan en silencio</text>
 </svg>
