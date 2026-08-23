@@ -56,7 +56,7 @@
   <!-- Stage 3 -->
   <rect class="bx bx-hi" x="388" y="66" width="170" height="104" rx="9"/>
   <text class="st l-en" x="400" y="88">③ Max-flow / min-cut</text>
-  <text class="st l-es" x="400" y="88">③ Flujo máximo / corte mínimo</text>
+  <text class="st l-es" x="400" y="88">③ Flujo máx. / corte mín.</text>
   <text class="it l-en" x="400" y="108">build s-t network</text>
   <text class="it l-es" x="400" y="108">construye la red s-t</text>
   <text class="mu l-neutral" x="400" y="124">push-relabel / Dinic;</text>
