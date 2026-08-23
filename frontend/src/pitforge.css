@@ -344,3 +344,17 @@ main.page:has(> .page-body:not(.pf-layout)) { overflow-y: auto; min-height: 0; }
   text-align: left;
   white-space: normal;
 }
+
+/* FOOTER CHROME.
+ *
+ * MEASURED on the deployed page: 199px on a 900px viewport, for 95 words. The text itself is already
+ * the ADR-0016 one-line form; what was left is pure chrome. `.footer-meta` is a wrapping flex row of
+ * spans, and two things spent rows on it: a 1.5 line-height across the whole row, and `margin-left:
+ * auto` on the version chip, which opens a wide gap and pushes everything after it onto a fresh line.
+ *
+ * Same treatment the rest of the line got. Nothing is hidden and no max-height is set: a height cap
+ * would only hide the next overrun behind an inner scrollbar, which is exactly the mistake that made
+ * a 263px footer look solved elsewhere while two thirds of its provenance was unreadable. */
+.app-shell .site-footer .footer-inner { padding: 11px 24px; }
+.app-shell .site-footer .footer-meta { line-height: 1.42; row-gap: 1px; }
+.app-shell .site-footer .footer-build { margin-left: 14px !important; }
