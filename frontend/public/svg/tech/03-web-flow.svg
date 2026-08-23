@@ -15,7 +15,10 @@
     .arch-svg .flow-hi { stroke: var(--color-accent); stroke-width: 1.7; }
     .arch-svg .lbl { fill: var(--color-fg-subtle); font-size: 9.5px; }
     .arch-svg .pg { fill: var(--color-accent); font-size: 10px; font-weight: 600; }
-  </style>
+      /* Standalone default: English. The shell overrides this with a higher-specificity
+       [data-arch-lang="es"] rule when the modal is in Spanish. */
+    svg .l-es { display: none; }
+</style>
   <defs>
     <marker id="wf-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L8,4 L0,8 z" fill="var(--color-fg-faint)"/>
@@ -108,7 +111,7 @@
   <text class="it l-en" x="328" y="266">Methodology</text>
   <text class="it l-es" x="328" y="266">Metodología</text>
   <text class="mu l-en" x="328" y="282">method tabs + eqs</text>
-  <text class="mu l-es" x="328" y="282">pestañas de método + ecuaciones</text>
+  <text class="mu l-es" x="328" y="282">métodos + ecuaciones</text>
   <text class="cd mono l-neutral" x="328" y="300">Methodology.tsx</text>
   <rect class="bx" x="460" y="246" width="132" height="72" rx="7"/>
   <text class="it l-en" x="472" y="266">Implementation</text>
