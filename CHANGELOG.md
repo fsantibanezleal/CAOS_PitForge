@@ -6,6 +6,35 @@ block models are now first-class; the synthetic archetypes remain the teaching l
 
 ## Unreleased
 
+## [0.14.000] · 2026-08-25
+
+### Added and fixed
+
+- Cap the App-route notes and the caption blocks the paragraph rule could not reach
+- Tighten the footer chrome: 199px to 142px, with nothing hidden
+- fix(architecture): a Spanish heading overflowed on CI's font metrics
+- fix(architecture): a diagram must be correct on its own, and the gate must read both languages
+- feat(architecture): the diagrams are bilingual, and a gate keeps them that way
+- docs: the first two diagrams, and a gate that keeps them readable in the dark
+- fix(manuscript): the figures were drawing a superseded generation of the product
+- fix(manuscript): the v2.0 audit correction fixed the prose and missed the figure
+- docs: publish the MineLib lane, fix a reachability gate that skipped its own subject
+- fix(diagrams): text hidden under a later panel, with a browser-measured gate
+- fix: silent index coercion, Spanish string leaks, and a false test-coverage claim
+- fix: a latent scheduler bug, an undocumented metric change, a wrong size claim, and residue
+- fix: the bake shipped 3 of 6 cases, the oracle ran nowhere, and the timings were false precision
+- chore(artifacts): re-bake after the G01/G02 label correction
+- fix: the audit tail, a broken setup script, a false slope claim and the version split
+- perf(engine): make the per-solve self-checks O(1) without weakening them
+- fix(e2e): target the real panel element
+- fix(e2e): unescaped apostrophe broke the spec parse
+- docs: stop linking out of a public repo, publish the orphaned scheduling doc, drop unfollowable guides
+- docs(manuscript): correct the timings, the instance count and the identity claim; cite Dinic
+- test(e2e): gate the three UI defects so they cannot return silently
+- fix(ui): swallowed first click, the ADR-0071 viz floor, and stale canvas themes
+- fix(gates): close the holes that let a whole generation of numbers drift unnoticed
+- fix(honesty+engine): assert the duality identity on every solve, retract the learned-reduction claim
+
 ## [0.13.001] · 2026-08-15
 
 ### Fixed
