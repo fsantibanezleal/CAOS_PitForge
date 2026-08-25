@@ -116,8 +116,19 @@ def test_contract_gate_fails_when_a_declared_case_is_not_shipped(tmp_path):
 
 
 def test_version_gate_fails_on_a_real_divergence(tmp_path):
+    """The divergent value is DERIVED, never written down.
+
+    This used to hardcode "0.14.000" as the obviously-wrong version, which held only until the
+    product reached 0.14.000, at which point the test asserted that the gate fails on the CORRECT
+    version and it broke. A test that hardcodes a copy of a version goes stale exactly like the
+    version copies it exists to police. Bump the major instead: whatever the product is, that is not
+    it.
+    """
     root = _sandbox(tmp_path)
-    (root / "VERSION").write_text("0.14.000\n", encoding="utf-8")
+    current = (root / "VERSION").read_text(encoding="utf-8").strip()
+    major, minor, patch = current.split(".")
+    diverged = f"{int(major) + 1}.{minor}.{patch}"
+    (root / "VERSION").write_text(diverged + chr(10), encoding="utf-8")
     assert _run(root, "check_version_coherence.py") != 0
 
 
