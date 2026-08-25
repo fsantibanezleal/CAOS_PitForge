@@ -5,6 +5,7 @@ import { Mountain } from 'lucide-react';
 import { AppShell, applyTheme, CitationsProvider, readTheme, type ShellConfig, useLangStore } from '@fasl-work/caos-app-shell';
 import '@fasl-work/caos-app-shell/styles.css';
 import './pitforge.css';
+import pkg from '../package.json';
 import { CITATIONS } from './data/citations.ts';
 import { architecture } from './architecture';
 import Tool from './pages/Tool.tsx';
@@ -29,6 +30,13 @@ function DocumentLocale() {
   return null;
 }
 
+// package.json must hold valid semver for npm; the line displays the padded X.XX.XXX form. Same
+// helper FrothSeg uses, so the two spellings never become two sources of truth.
+function displayVersion(semver: string): string {
+  const [major = '0', minor = '0', patch = '0'] = semver.split('.');
+  return `${major}.${minor.padStart(2, '0')}.${patch.padStart(3, '0')}`;
+}
+
 const config: ShellConfig = {
   product: { name: 'PitForge', mark: <Mountain size={18} aria-hidden="true" /> },
   routes: [
@@ -40,7 +48,10 @@ const config: ShellConfig = {
     { path: '/benchmark', en: 'Benchmark', es: 'Benchmark' },
   ],
   links: { github: 'https://github.com/fsantibanezleal/CAOS_PitForge' },
-  version: '0.13.001',
+  // Derived, never restated. This was a hardcoded literal, so the footer showed v0.13.001 on a build
+  // that was 24 commits and one minor release past it: the one string a reader uses to know WHAT is
+  // deployed was the one string nothing kept true. Every other app on the line already derives it.
+  version: displayVersion(pkg.version),
   architecture,
   // ADR-0016 §2: honest footer provenance + disclaimer.
   footer: {

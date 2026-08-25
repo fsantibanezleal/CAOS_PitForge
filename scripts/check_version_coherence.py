@@ -37,14 +37,37 @@ def main() -> int:
         errors.append("VERSION file missing (conventions/versioning.md: no repo may be silently un-versioned)")
     elif norm(version_file.read_text(encoding="utf-8")) != norm(product):
         errors.append(f"VERSION={version_file.read_text(encoding='utf-8').strip()!r}, product={product!r}")
-    init_text = (ROOT / "data-pipeline" / "pipeline" / "__init__.py").read_text(encoding="utf-8")
-    match = re.search(r'^__version__\s*=\s*"([^"]+)"', init_text, re.MULTILINE)
-    if not match or norm(match.group(1)) != norm(product):
-        errors.append(f"pipeline version={match.group(1) if match else None!r}, product={product!r}")
+    # The pipeline version is DERIVED from the VERSION file rather than restated, so a regex for a
+    # string literal finds nothing and reports None. Import the package and ask it, which is also what
+    # the bake does when it stamps engine_version, so this checks the value that actually ships.
+    sys.path.insert(0, str(ROOT / "data-pipeline"))
+    try:
+        import pipeline as _pipeline
+        pipeline_version = getattr(_pipeline, "__version__", None)
+    except Exception as exc:                                    # noqa: BLE001
+        pipeline_version = None
+        errors.append(f"could not import the pipeline package to read its version: {exc}")
+    if pipeline_version is None or norm(pipeline_version) != norm(product):
+        errors.append(f"pipeline version={pipeline_version!r}, product={product!r}")
+    # THE SHELL MUST DERIVE ITS VERSION, NOT RESTATE IT.
+    #
+    # This used to pull a version literal out of main.tsx and compare it, which only works while a
+    # literal is there, and the literal WAS the defect: the footer showed v0.13.001 on a build 24
+    # commits and one minor release past it. The one string a reader uses to know what is deployed
+    # was the one string nothing kept true.
+    #
+    # So assert the source instead. package.json is already compared against VERSION above, so a
+    # shell that reads from it is correct by construction, and a hardcoded literal is now a failure
+    # rather than the thing the check is built around.
     shell_text = (ROOT / "frontend" / "src" / "main.tsx").read_text(encoding="utf-8")
-    shell_match = re.search(r"\bversion:\s*'([^']+)'", shell_text)
-    if not shell_match or norm(shell_match.group(1)) != norm(product):
-        errors.append(f"shell version={shell_match.group(1) if shell_match else None!r}, product={product!r}")
+    hardcoded = re.search(r"\bversion:\s*['\"][\d.]+['\"]", shell_text)
+    if hardcoded:
+        errors.append(
+            f"shell hardcodes {hardcoded.group(0)!r} in main.tsx; derive it from package.json so "
+            f"the footer cannot go stale"
+        )
+    elif not re.search(r"\bversion:\s*[A-Za-z_]", shell_text):
+        errors.append("shell does not set a version in main.tsx")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     headings = re.findall(r"^## \[([^\]]+)\]", changelog, re.MULTILINE)
     if not any(norm(heading) == norm(product) for heading in headings):
