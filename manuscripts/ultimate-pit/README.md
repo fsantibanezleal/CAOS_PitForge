@@ -1,39 +1,25 @@
 # Technical report release boundary
 
-`main.pdf` is the PDF deposited for the current **v2.0** Zenodo record, version DOI
-[10.5281/zenodo.22015986](https://doi.org/10.5281/zenodo.22015986), published 2026-08-19 under concept DOI
-[10.5281/zenodo.21519687](https://doi.org/10.5281/zenodo.21519687). v2.0 carried the 2026-08-18 audit
-correction: the two scheduling scenarios separated and named with their own denominators, the Node timings no
-longer labelled in-browser, eleven MineLib instances acknowledged, and the licence premise corrected. v1.0
-([10.5281/zenodo.21519688](https://doi.org/10.5281/zenodo.21519688)) is superseded.
+`main.pdf` is the PDF deposited for the current **v2.1** Zenodo record, version DOI
+[10.5281/zenodo.22824952](https://doi.org/10.5281/zenodo.22824952), published 2026-09-18 under concept DOI
+[10.5281/zenodo.21519687](https://doi.org/10.5281/zenodo.21519687). `tex/main.tex` and `figures/` build exactly this
+PDF; the publishing tool reserves the version DOI and writes it into the page-1 header block.
 
-## Source ahead of the deposit: v2.1 candidates (as of 2026-08-20)
+Earlier versions: v2.0 ([10.5281/zenodo.22015986](https://doi.org/10.5281/zenodo.22015986), 2026-08-19) and v1.0
+([10.5281/zenodo.21519688](https://doi.org/10.5281/zenodo.21519688)). Both are superseded.
 
-`tex/main.tex` and `figures/` now run ahead of the deposited `main.pdf`. One of the three is a correction to a
-claim the deposited PDF makes, not a presentation tidy-up:
+## What v2.1 changes relative to v2.0
 
-1. **The v2.0 audit correction fixed the prose and missed the figure.** v2.0 retired the "in-browser" label on
-   the MineLib timings and stopped quoting them as a property of the method, but panel (b) of `fig-minelib.pdf`
-   still read "exact solve, in-browser, sub-second to 14k blocks", and its caption still read "fast enough to
-   run interactively in a browser: about 5 ms ... about a quarter of a second". Those timings are Node,
-   median-of-3, on one machine. The panel title, the y-axis label and the caption now say so, and the caption
-   records that repeat runs on the same laptop varied by a factor of several. **The deposited v2.0 PDF still
-   carries the old label.**
-2. The Whittle figure dropped its first shell, because that shell has pit value exactly 0 and the filter tested
-   truthiness. The empty pit is a real result, so the value curve now starts at zero; the strip-ratio series
-   still starts at the second shell, since waste-over-ore is undefined with no ore. The caption says both.
-3. That figure title nested parentheses, because the case name already carries its own.
-4. **The figure data was a hand-copied snapshot that nothing regenerated.** `data/pf.json` still held
-   the solve times of a superseded generation (5.2 / 237.3 / 259.3 ms against a shipped 7.3 / 564.6 /
-   831.0), while `make_figs.py` claimed in its own docstring to read "the COMMITTED artifacts". It now
-   actually reads `data/derived/{minelib-results,case-results,cpit-schedule}.json` and writes `pf.json`
-   back as a provenance snapshot, so the figures cannot drift from what the app serves. Only the
-   machine-dependent timings had moved; the relative errors, which are properties of the algorithm, were
-   identical to the last digit.
-5. **Figure 2(b) showed one scheduling scenario and disclaimed the other in prose.** Conflating the two
-   was the defect v2.0 existed to fix, so the panel now plots both, each against its own bound and
-   labelled with its own gap: 3.81% on the published `newman1.cpit`, 11.29% on the synthetic twin.
+1. Figure 1(b) and its caption state the environment of the timings (Node, median of three runs, one machine, with
+   two- to five-fold variation between repeat runs) instead of labelling them in-browser, and the abstract and
+   conclusion no longer quote solve times.
+2. The figures read `data/derived/{minelib-results,case-results,cpit-schedule}.json` directly and write the plotted
+   values to `data/pf.json`, which previously was a hand-copied snapshot holding the timings of a superseded build.
+3. Figure 2(b) plots both scheduling scenarios, each against its own bound (3.81% on `newman1.cpit`, 11.29% on the
+   synthetic twin).
+4. The Whittle value curve starts at the empty first shell, and the strip-ratio series at the second.
+5. The text is revised to the scientific-voice convention and carries the page-1 header block; the reproduction
+   appendix describes the feasible schedule as an independent greedy heuristic, not a rounding of the relaxation.
 
-`main.pdf` is NOT rebuilt here: it is the deposited artifact and is not silently overwritten. Item 1 is the
-reason to cut a v2.1 rather than let the source drift. Rebuilding, versioning, and publishing that version is
-an explicit release decision; ordinary software builds and deployments do not alter the Zenodo record.
+`main.pdf` changes only through a new Zenodo version. Ordinary software builds and deployments do not alter the
+deposited record.
