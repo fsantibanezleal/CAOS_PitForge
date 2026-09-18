@@ -120,7 +120,9 @@ def fig_minelib():
     order = np.argsort(nb)
     a2.plot(np.array(nb)[order], np.array(ms)[order], "o-", color="#e07a3f", linewidth=1.7, markersize=6, zorder=3)
     for x0, y0, i in zip(nb, ms, ids):
-        a2.annotate(f"{i}\n{y0:.0f} ms", (x0, y0), textcoords="offset points", xytext=(5, -12), fontsize=7.0)
+        # below-right of the point, except near the floor, where that would land on the tick labels
+        off = (6, 4) if y0 < 0.1 * max(ms) else (5, -12)
+        a2.annotate(f"{i}\n{y0:.0f} ms", (x0, y0), textcoords="offset points", xytext=off, fontsize=7.0)
     a2.set_xlabel("blocks in the instance")
     a2.set_ylabel("exact solve time (ms, median of 3, Node)")
     a2.set_title("(b) exact solve time, Node,\nmedian of 3, one machine", fontsize=8.6)
