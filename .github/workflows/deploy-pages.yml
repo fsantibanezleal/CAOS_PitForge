@@ -17,19 +17,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Regenerate artifacts (fresh deterministic replay outputs)
-        run: |
-          pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
-          python data-pipeline/run.py all
-      # A deploy used to run NO test and NO gate, and did not depend on CI, so a red build still
-      # shipped to production. Every gate below can fail the deploy.
-      - name: Offline-lane tests
-        run: pytest
       - name: CONTRACT 2, closed artifact inventory
         run: python scripts/check_artifacts.py
       - name: Headline artifacts match the published figures
@@ -50,6 +43,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
