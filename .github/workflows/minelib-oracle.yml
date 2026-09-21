@@ -9,15 +9,17 @@ name: MineLib oracle
 # outage must not block ordinary development, but it must not silently pass either.
 
 on:
-  schedule:
-    - cron: '17 6 * * 1'      # Mondays, 06:17 UTC
   workflow_dispatch:
   push:
     tags: ['v*']              # every release
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   oracle:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,3 +55,5 @@ jobs:
             || { echo "::error::the oracle test did not run at all"; exit 1; }
       - name: Assert the committed artifact still matches the claim
         run: python scripts/check_headline_artifacts.py
+      - name: CI budget, trunk-only triggers, no training (ADR-0074)
+        run: python3 scripts/check_ci_budget.py

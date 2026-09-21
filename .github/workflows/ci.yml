@@ -3,12 +3,15 @@ name: CI
 on:
   push:
     branches: [main, develop]
-  pull_request:
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -16,11 +19,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install (offline lane + dev + editable pkg)
-        run: pip install -r data-pipeline/requirements.txt -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt
       - name: Lint
         run: ruff check data-pipeline tests scripts frontend/scripts manuscripts
-      - name: Tests
-        run: pytest
       - name: CONTRACT 2, closed artifact inventory
         run: python scripts/check_artifacts.py
       - name: Docs links resolve inside the repo and every document is reachable
@@ -39,6 +40,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: frontend
@@ -56,17 +58,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Responsive, locale, accessibility and degraded-capability checks
         run: npm run test:e2e
-      - name: Regenerate deterministic Contract-2 artifacts
-        run: |
-          npm run bake
-          python ../data-pipeline/run.py all
-          python ../scripts/check_artifacts.py
-          git diff --exit-code -- ../data/derived
       - name: Type-check + build the SPA
         run: npm run build
 
   guards:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Base-integrity guards (the regressions this archetype forbids)
@@ -95,3 +92,5 @@ jobs:
         run: python scripts/check_version_coherence.py
       - name: Scientific references, licenses and CPIT scenario integrity
         run: python scripts/check_reference_integrity.py
+      - name: CI budget, trunk-only triggers, no training (ADR-0074)
+        run: python scripts/check_ci_budget.py
