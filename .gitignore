@@ -1,7 +1,7 @@
 # Minimal-but-complete ignore for an instantiated product repo (ADR-0057).
 # This ships WITH the template so every product inherits it from day 1.
 
-# --- Python virtualenvs (ANY name, ANY depth) — NEVER committed; recreate via scripts/setup ---
+# --- Python virtualenvs (ANY name, ANY depth): NEVER committed; recreate via scripts/setup ---
 .venv/
 .venv*
 **/.venv*
@@ -30,19 +30,19 @@ frontend/public/data/
 frontend/public/manifests/
 frontend/public/pyodide/
 frontend/public/ort-runtime/
-# root-level build-time overlay (copy-data.mjs) — canonical copies live in data/derived/
+# root-level build-time overlay (copy-data.mjs): canonical copies live in data/derived/
 frontend/public/case-results.json
 frontend/public/pit-learned.json
 frontend/public/cpit-schedule.json
 frontend/public/*.onnx
 *.tsbuildinfo
 
-# --- Secrets / env (public repo — only .env.example is committed) ---
+# --- Secrets / env (public repo: only .env.example is committed) ---
 .env
 .env.*
 !.env.example
 
-# --- Raw / heavy data — commit ONLY the compact derived artifacts under data/derived/ ---
+# --- Raw / heavy data: commit ONLY the compact derived artifacts under data/derived/ ---
 data/raw/
 *.parquet
 *.h5
